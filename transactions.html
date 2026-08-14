@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#111827">
+
+    <!-- Apply saved theme before first paint to avoid a light-mode flash.
+         Sets the bg color directly too, since var(--color-bg) isn't
+         available until style.css finishes loading. -->
+    <script>
+        (function () {
+            var isDark = false;
+            try {
+                var settings = JSON.parse(localStorage.getItem("moneyflow_settings"));
+                isDark = !!(settings && settings.theme === "dark");
+            } catch (e) {}
+
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            }
+            document.documentElement.style.backgroundColor = isDark ? "#090E17" : "#F3F6F9";
+        })();
+    </script>
+
+    <title>MoneyFlow | Transactions</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Prefetch the other pages so nav clicks don't wait on a fresh
+         network fetch, which is what causes the occasional white flash. -->
+    <link rel="prefetch" href="index.html">
+    <link rel="prefetch" href="transactions.html">
+    <link rel="prefetch" href="analytics.html">
+    <link rel="prefetch" href="settings.html">
+
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="app-header">
+
+        <div class="brand">
+
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 16L9.5 10.5L13.5 14.5L20 8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15 8H20V13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+
+            <div class="brand-text">
+
+                <h1>MoneyFlow</h1>
+
+                <p>Manage your money smarter.</p>
+
+            </div>
+
+        </div>
+
+        <button id="themeToggle" class="icon-button">
+            Theme
+        </button>
+
+    </header>
+
+
+    <!-- ================= NAVIGATION ================= -->
+
+    <nav class="main-nav">
+
+        <a href="index.html">
+            Dashboard
+        </a>
+
+        <a href="transactions.html" class="active">
+            Transactions
+        </a>
+
+        <a href="analytics.html">
+            Analytics
+        </a>
+
+        <a href="settings.html">
+            Settings
+        </a>
+
+    </nav>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main>
+
+        <!-- ================= PAGE HEADER ================= -->
+
+        <section class="welcome">
+
+            <div>
+
+                <p class="eyebrow">
+                    FINANCIAL ACTIVITY
+                </p>
+
+                <h2>
+                    Transactions
+                </h2>
+
+                <p>
+                    View, search and manage all your income and expenses.
+                </p>
+
+            </div>
+
+            <button
+                id="addTransactionBtn"
+                class="primary-button"
+            >
+                + Add Transaction
+            </button>
+
+        </section>
+
+
+        <!-- ================= SUMMARY ================= -->
+
+        <section class="summary-grid">
+
+            <article class="summary-card balance-card">
+
+                <p>
+                    Current Balance
+                </p>
+
+                <h2 id="balance">
+                    ₦0.00
+                </h2>
+
+                <span id="balanceStatus">
+                    Your current balance
+                </span>
+
+            </article>
+
+
+            <article class="summary-card income-card">
+
+                <p>
+                    Total Income
+                </p>
+
+                <h2 id="totalIncome">
+                    ₦0.00
+                </h2>
+
+                <span>
+                    Money received
+                </span>
+
+            </article>
+
+
+            <article class="summary-card expense-card">
+
+                <p>
+                    Total Expenses
+                </p>
+
+                <h2 id="totalExpenses">
+                    ₦0.00
+                </h2>
+
+                <span>
+                    Money spent
+                </span>
+
+            </article>
+
+
+            <article class="summary-card transaction-card">
+
+                <p>
+                    Transactions
+                </p>
+
+                <h2 id="transactionCount">
+                    0
+                </h2>
+
+                <span>
+                    Total records
+                </span>
+
+            </article>
+
+        </section>
+
+
+        <!-- ================= FILTERS ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        TRANSACTION HISTORY
+                    </p>
+
+                    <h2>
+                        All Transactions
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="transactions-list">
+
+                <div
+                    class="transaction-filters"
+                    style="padding: 24px; border-bottom: 1px solid var(--color-border);"
+                >
+
+                    <input
+                        type="search"
+                        id="searchTransactions"
+                        placeholder="Search transactions..."
+                        aria-label="Search transactions"
+                        style="height:46px; width:100%; max-width:320px; padding:0 14px; border:1.5px solid var(--color-border); border-radius:8px; background:var(--color-surface-alt); color:var(--color-text-primary); font-family:var(--font-body);"
+                    >
+
+
+                    <select
+                        id="typeFilter"
+                        aria-label="Filter by transaction type"
+                        style="height:46px; padding:0 14px; margin-left:8px; border:1.5px solid var(--color-border); border-radius:8px; background:var(--color-surface-alt); color:var(--color-text-primary); font-family:var(--font-body);"
+                    >
+
+                        <option value="all">
+                            All Types
+                        </option>
+
+                        <option value="income">
+                            Income
+                        </option>
+
+                        <option value="expense">
+                            Expenses
+                        </option>
+
+                    </select>
+
+
+                    <select
+                        id="categoryFilter"
+                        aria-label="Filter by category"
+                        style="height:46px; padding:0 14px; margin-left:8px; border:1.5px solid var(--color-border); border-radius:8px; background:var(--color-surface-alt); color:var(--color-text-primary); font-family:var(--font-body);"
+                    >
+
+                        <option value="all">
+                            All Categories
+                        </option>
+
+                        <option value="Salary">
+                            Salary
+                        </option>
+
+                        <option value="Food">
+                            Food
+                        </option>
+
+                        <option value="Transport">
+                            Transport
+                        </option>
+
+                        <option value="Bills">
+                            Bills
+                        </option>
+
+                        <option value="Entertainment">
+                            Entertainment
+                        </option>
+
+                        <option value="Shopping">
+                            Shopping
+                        </option>
+
+                        <option value="Other">
+                            Other
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <!-- TRANSACTION RESULTS -->
+
+                <div
+                    id="transactionsList"
+                    class="transactions-container"
+                >
+
+                    <div
+                        id="emptyTransactions"
+                        class="empty-state"
+                    >
+
+                        <h3>
+                            No transactions yet
+                        </h3>
+
+                        <p>
+                            Your income and expenses will appear here once you add them.
+                        </p>
+
+                        <button
+                            id="emptyAddBtn"
+                            class="primary-button"
+                        >
+                            Add Transaction
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= TRANSACTION TOTALS ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        SUMMARY
+                    </p>
+
+                    <h2>
+                        Financial Summary
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-grid">
+
+                <article class="summary-card">
+
+                    <p>
+                        Income Transactions
+                    </p>
+
+                    <h2
+                        id="incomeCount"
+                        class="transaction-count"
+                    >
+                        0
+                    </h2>
+
+                    <span>
+                        Number of income records
+                    </span>
+
+                </article>
+
+
+                <article class="summary-card">
+
+                    <p>
+                        Expense Transactions
+                    </p>
+
+                    <h2
+                        id="expenseCount"
+                        class="transaction-count"
+                    >
+                        0
+                    </h2>
+
+                    <span>
+                        Number of expense records
+                    </span>
+
+                </article>
+
+
+                <article class="summary-card">
+
+                    <p>
+                        Average Expense
+                    </p>
+
+                    <h2 id="averageExpense">
+                        ₦0.00
+                    </h2>
+
+                    <span>
+                        Average spending per expense
+                    </span>
+
+                </article>
+
+
+                <article class="summary-card">
+
+                    <p>
+                        Largest Expense
+                    </p>
+
+                    <h2 id="largestExpense">
+                        ₦0.00
+                    </h2>
+
+                    <span>
+                        Highest recorded expense
+                    </span>
+
+                </article>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= TRANSACTION MODAL ================= -->
+
+    <div
+        id="transactionModal"
+        class="modal"
+        aria-hidden="true"
+    >
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        NEW TRANSACTION
+                    </p>
+
+                    <h2>
+                        Add Transaction
+                    </h2>
+
+                </div>
+
+                <button
+                    id="closeModalBtn"
+                    class="close-button"
+                    aria-label="Close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="transactionForm">
+
+                <label for="transactionType">
+                    Transaction Type
+                </label>
+
+                <select
+                    id="transactionType"
+                    required
+                >
+
+                    <option value="income">
+                        Income
+                    </option>
+
+                    <option value="expense">
+                        Expense
+                    </option>
+
+                </select>
+
+
+                <label for="transactionAmount">
+                    Amount
+                </label>
+
+                <input
+                    type="number"
+                    id="transactionAmount"
+                    placeholder="Enter amount"
+                    min="0"
+                    step="0.01"
+                    required
+                >
+
+
+                <label for="transactionCategory">
+                    Category
+                </label>
+
+                <select
+                    id="transactionCategory"
+                    required
+                >
+
+                    <option value="Salary">
+                        Salary
+                    </option>
+
+                    <option value="Food">
+                        Food
+                    </option>
+
+                    <option value="Transport">
+                        Transport
+                    </option>
+
+                    <option value="Bills">
+                        Bills
+                    </option>
+
+                    <option value="Entertainment">
+                        Entertainment
+                    </option>
+
+                    <option value="Shopping">
+                        Shopping
+                    </option>
+
+                    <option value="Other">
+                        Other
+                    </option>
+
+                </select>
+
+
+                <label for="transactionDescription">
+                    Description
+                </label>
+
+                <input
+                    type="text"
+                    id="transactionDescription"
+                    placeholder="e.g. Monthly salary"
+                    maxlength="100"
+                    required
+                >
+
+
+                <label for="transactionDate">
+                    Date
+                </label>
+
+                <input
+                    type="date"
+                    id="transactionDate"
+                    required
+                >
+
+
+                <div class="form-actions">
+
+                    <button
+                        type="button"
+                        id="cancelTransactionBtn"
+                        class="secondary-button"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+                        Save Transaction
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <h2>
+            MoneyFlow
+        </h2>
+
+        <p>
+            Your money. Your records. Your control.
+        </p>
+
+        <p>
+            Version 1.0.0
+        </p>
+
+    </footer>
+
+
+    <script src="core.js" defer></script>
+    <script src="transactions.js" defer></script>
+
+</body>
+
+</html>

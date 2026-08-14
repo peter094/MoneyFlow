@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#111827">
+
+    <!-- Apply saved theme before first paint to avoid a light-mode flash.
+         Sets the bg color directly too, since var(--color-bg) isn't
+         available until style.css finishes loading. -->
+    <script>
+        (function () {
+            var isDark = false;
+            try {
+                var settings = JSON.parse(localStorage.getItem("moneyflow_settings"));
+                isDark = !!(settings && settings.theme === "dark");
+            } catch (e) {}
+
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            }
+            document.documentElement.style.backgroundColor = isDark ? "#090E17" : "#F3F6F9";
+        })();
+    </script>
+
+    <title>MoneyFlow | Settings</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Prefetch the other pages so nav clicks don't wait on a fresh
+         network fetch, which is what causes the occasional white flash. -->
+    <link rel="prefetch" href="index.html">
+    <link rel="prefetch" href="transactions.html">
+    <link rel="prefetch" href="analytics.html">
+    <link rel="prefetch" href="settings.html">
+
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="app-header">
+
+        <div class="brand">
+
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 16L9.5 10.5L13.5 14.5L20 8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15 8H20V13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+
+            <div class="brand-text">
+
+                <h1>MoneyFlow</h1>
+
+                <p>Manage your money smarter.</p>
+
+            </div>
+
+        </div>
+
+        <button id="themeToggle" class="icon-button">
+            Theme
+        </button>
+
+    </header>
+
+
+    <!-- ================= NAVIGATION ================= -->
+
+    <nav class="main-nav">
+
+        <a href="index.html">
+            Dashboard
+        </a>
+
+        <a href="transactions.html">
+            Transactions
+        </a>
+
+        <a href="analytics.html">
+            Analytics
+        </a>
+
+        <a href="settings.html" class="active">
+            Settings
+        </a>
+
+    </nav>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main>
+
+        <!-- ================= PAGE INTRO ================= -->
+
+        <section class="welcome">
+
+            <div>
+
+                <p class="eyebrow">
+                    APP CONFIGURATION
+                </p>
+
+                <h2>
+                    Settings
+                </h2>
+
+                <p>
+                    Customize MoneyFlow and manage your financial data.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= PROFILE ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        PROFILE
+                    </p>
+
+                    <h2>
+                        Personal Information
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="profile-panels">
+
+                <div class="overview-card profile-card" id="profileFormCard">
+
+                    <form id="profileForm">
+
+                        <div style="display:flex; flex-direction:column; gap:16px;">
+
+                            <div>
+
+                                <label
+                                    for="userName"
+                                    style="display:block; margin-bottom:7px; font-size:12.5px; font-weight:600; color:var(--color-text-secondary);"
+                                >
+                                    YOUR NAME
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="userName"
+                                    placeholder="Enter your name"
+                                    maxlength="50"
+                                    style="width:100%; height:46px; padding:0 14px; border:1.5px solid var(--color-border); border-radius:8px; background:var(--color-surface-alt); color:var(--color-text-primary); font-family:var(--font-body);"
+                                >
+
+                            </div>
+
+
+                            <div>
+
+                                <label
+                                    for="userEmail"
+                                    style="display:block; margin-bottom:7px; font-size:12.5px; font-weight:600; color:var(--color-text-secondary);"
+                                >
+                                    EMAIL
+                                </label>
+
+                                <input
+                                    type="email"
+                                    id="userEmail"
+                                    placeholder="Enter your email"
+                                    maxlength="100"
+                                    style="width:100%; height:46px; padding:0 14px; border:1.5px solid var(--color-border); border-radius:8px; background:var(--color-surface-alt); color:var(--color-text-primary); font-family:var(--font-body);"
+                                >
+
+                            </div>
+
+
+                            <div class="form-actions">
+
+                                <button
+                                    type="button"
+                                    id="cancelProfileEditBtn"
+                                    class="secondary-button"
+                                    hidden
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    type="submit"
+                                    class="primary-button"
+                                >
+                                    Save Profile
+                                </button>
+
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                </div>
+
+
+                <div class="overview-card profile-card profile-view" id="profileViewCard" hidden>
+
+                    <div class="profile-view-row">
+                        <span class="profile-view-label">Name</span>
+                        <span class="profile-view-value" id="profileViewName">—</span>
+                    </div>
+
+                    <div class="profile-view-row">
+                        <span class="profile-view-label">Email</span>
+                        <span class="profile-view-value" id="profileViewEmail">—</span>
+                    </div>
+
+                    <div class="form-actions">
+
+                        <button
+                            type="button"
+                            id="editProfileBtn"
+                            class="secondary-button"
+                        >
+                            Edit Profile
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= APPEARANCE ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        APPEARANCE
+                    </p>
+
+                    <h2>
+                        Customize MoneyFlow
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="transactions-list">
+
+                <div class="transaction-row">
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Dark Mode
+                        </strong>
+
+                        <span>
+                            Switch between light and dark themes.
+                        </span>
+
+                    </div>
+
+                    <button
+                        id="settingsThemeToggle"
+                        class="secondary-button"
+                        type="button"
+                    >
+                        Toggle Theme
+                    </button>
+
+                </div>
+
+
+                <div class="transaction-row">
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Currency
+                        </strong>
+
+                        <span>
+                            Choose the currency displayed throughout the app.
+                        </span>
+
+                    </div>
+
+                    <select
+                        id="currencySelect"
+                        style="height:42px; padding:0 12px; border:1.5px solid var(--color-border); border-radius:8px; background:var(--color-surface-alt); color:var(--color-text-primary); font-family:var(--font-body);"
+                    >
+
+                        <option value="NGN">
+                            Nigerian Naira (₦)
+                        </option>
+
+                        <option value="USD">
+                            US Dollar ($)
+                        </option>
+
+                        <option value="GBP">
+                            British Pound (£)
+                        </option>
+
+                        <option value="EUR">
+                            Euro (€)
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="transaction-row">
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Date Format
+                        </strong>
+
+                        <span>
+                            Choose how dates appear in your transactions.
+                        </span>
+
+                    </div>
+
+                    <select
+                        id="dateFormatSelect"
+                        style="height:42px; padding:0 12px; border:1.5px solid var(--color-border); border-radius:8px; background:var(--color-surface-alt); color:var(--color-text-primary); font-family:var(--font-body);"
+                    >
+
+                        <option value="DD/MM/YYYY">
+                            DD/MM/YYYY
+                        </option>
+
+                        <option value="MM/DD/YYYY">
+                            MM/DD/YYYY
+                        </option>
+
+                        <option value="YYYY-MM-DD">
+                            YYYY-MM-DD
+                        </option>
+
+                    </select>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= NOTIFICATIONS ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        NOTIFICATIONS
+                    </p>
+
+                    <h2>
+                        Preferences
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="transactions-list">
+
+                <div class="transaction-row">
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Spending Alerts
+                        </strong>
+
+                        <span>
+                            Get notified when your spending reaches a limit.
+                        </span>
+
+                    </div>
+
+                    <button
+                        id="spendingAlertsToggle"
+                        class="secondary-button"
+                        type="button"
+                    >
+                        Off
+                    </button>
+
+                </div>
+
+
+                <div class="transaction-row">
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Monthly Summary
+                        </strong>
+
+                        <span>
+                            Receive a summary of your monthly financial activity.
+                        </span>
+
+                    </div>
+
+                    <button
+                        id="monthlySummaryToggle"
+                        class="secondary-button"
+                        type="button"
+                    >
+                        Off
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= DATA MANAGEMENT ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        DATA MANAGEMENT
+                    </p>
+
+                    <h2>
+                        Your Financial Data
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="action-grid">
+
+                <button
+                    id="exportDataBtn"
+                    class="action-card"
+                    type="button"
+                >
+
+                    <span class="action-icon">
+                        ↓
+                    </span>
+
+                    <strong>
+                        Export Data
+                    </strong>
+
+                    <small>
+                        Download your transactions as a backup.
+                    </small>
+
+                </button>
+
+
+                <button
+                    id="importDataBtn"
+                    class="action-card"
+                    type="button"
+                >
+
+                    <span class="action-icon">
+                        ↑
+                    </span>
+
+                    <strong>
+                        Import Data
+                    </strong>
+
+                    <small>
+                        Restore previously saved MoneyFlow data.
+                    </small>
+
+                </button>
+
+
+                <button
+                    id="clearTransactionsBtn"
+                    class="action-card"
+                    type="button"
+                >
+
+                    <span class="action-icon">
+                        ×
+                    </span>
+
+                    <strong>
+                        Clear Transactions
+                    </strong>
+
+                    <small>
+                        Remove all recorded financial transactions.
+                    </small>
+
+                </button>
+
+
+                <button
+                    id="resetAppBtn"
+                    class="action-card"
+                    type="button"
+                >
+
+                    <span class="action-icon">
+                        ↻
+                    </span>
+
+                    <strong>
+                        Reset App
+                    </strong>
+
+                    <small>
+                        Restore MoneyFlow to its default settings.
+                    </small>
+
+                </button>
+
+            </div>
+
+
+            <input
+                type="file"
+                id="importFile"
+                accept=".json"
+                hidden
+            >
+
+        </section>
+
+
+        <!-- ================= APP INFORMATION ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        ABOUT
+                    </p>
+
+                    <h2>
+                        MoneyFlow
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="overview-card">
+
+                <div class="transaction-row">
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Application Version
+                        </strong>
+
+                        <span>
+                            Current installed version
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="transaction-amount"
+                        id="appVersion"
+                    >
+                        v1.0.0
+                    </div>
+
+                </div>
+
+
+                <div class="transaction-row">
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Storage
+                        </strong>
+
+                        <span>
+                            Your data is stored locally on this device.
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="transaction-amount"
+                        id="storageStatus"
+                    >
+                        Local
+                    </div>
+
+                </div>
+
+
+                <div class="transaction-row">
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Data Privacy
+                        </strong>
+
+                        <span>
+                            MoneyFlow does not send your financial records to a server.
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= UPDATE SYSTEM ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        SYSTEM
+                    </p>
+
+                    <h2>
+                        App Updates
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="overview-card">
+
+                <div class="transaction-row">
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Check for Updates
+                        </strong>
+
+                        <span id="updateStatus">
+                            Check whether a newer version of MoneyFlow is available.
+                        </span>
+
+                    </div>
+
+                    <button
+                        id="checkUpdateBtn"
+                        class="primary-button"
+                        type="button"
+                    >
+                        Check for Updates
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <h2>
+            MoneyFlow
+        </h2>
+
+        <p>
+            Your money. Your records. Your control.
+        </p>
+
+        <p>
+            Version 1.0.0
+        </p>
+
+    </footer>
+
+
+    <script src="core.js" defer></script>
+    <script
+        src="settings.js"
+        defer
+    ></script>
+
+</body>
+
+</html>

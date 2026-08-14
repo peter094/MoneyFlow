@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="theme-color" content="#111827">
+
+    <!-- Apply saved theme before first paint to avoid a light-mode flash.
+         Sets the bg color directly too, since var(--color-bg) isn't
+         available until style.css finishes loading. -->
+    <script>
+        (function () {
+            var isDark = false;
+            try {
+                var settings = JSON.parse(localStorage.getItem("moneyflow_settings"));
+                isDark = !!(settings && settings.theme === "dark");
+            } catch (e) {}
+
+            if (isDark) {
+                document.documentElement.classList.add("dark");
+            }
+            document.documentElement.style.backgroundColor = isDark ? "#090E17" : "#F3F6F9";
+        })();
+    </script>
+
+    <title>MoneyFlow | Analytics</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Prefetch the other pages so nav clicks don't wait on a fresh
+         network fetch, which is what causes the occasional white flash. -->
+    <link rel="prefetch" href="index.html">
+    <link rel="prefetch" href="transactions.html">
+    <link rel="prefetch" href="analytics.html">
+    <link rel="prefetch" href="settings.html">
+
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+
+    <header class="app-header">
+
+        <div class="brand">
+
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 16L9.5 10.5L13.5 14.5L20 8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M15 8H20V13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </span>
+
+            <div class="brand-text">
+
+                <h1>MoneyFlow</h1>
+
+                <p>Manage your money smarter.</p>
+
+            </div>
+
+        </div>
+
+        <button id="themeToggle" class="icon-button">
+            Theme
+        </button>
+
+    </header>
+
+
+    <!-- ================= NAVIGATION ================= -->
+
+    <nav class="main-nav">
+
+        <a href="index.html">
+            Dashboard
+        </a>
+
+        <a href="transactions.html">
+            Transactions
+        </a>
+
+        <a href="analytics.html" class="active">
+            Analytics
+        </a>
+
+        <a href="settings.html">
+            Settings
+        </a>
+
+    </nav>
+
+
+    <!-- ================= MAIN ================= -->
+
+    <main>
+
+        <!-- ================= PAGE INTRO ================= -->
+
+        <section class="welcome">
+
+            <div>
+
+                <p class="eyebrow">
+                    FINANCIAL INTELLIGENCE
+                </p>
+
+                <h2>
+                    Analytics
+                </h2>
+
+                <p>
+                    Understand where your money comes from, where it goes,
+                    and how your financial habits are changing.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= KEY METRICS ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        KEY METRICS
+                    </p>
+
+                    <h2>
+                        Financial Overview
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="summary-grid">
+
+                <article class="summary-card balance-card">
+
+                    <p>
+                        Net Balance
+                    </p>
+
+                    <h2 id="analyticsBalance">
+                        ₦0.00
+                    </h2>
+
+                    <span>
+                        Income minus expenses
+                    </span>
+
+                </article>
+
+
+                <article class="summary-card income-card">
+
+                    <p>
+                        Total Income
+                    </p>
+
+                    <h2 id="analyticsIncome">
+                        ₦0.00
+                    </h2>
+
+                    <span>
+                        All recorded income
+                    </span>
+
+                </article>
+
+
+                <article class="summary-card expense-card">
+
+                    <p>
+                        Total Expenses
+                    </p>
+
+                    <h2 id="analyticsExpenses">
+                        ₦0.00
+                    </h2>
+
+                    <span>
+                        All recorded spending
+                    </span>
+
+                </article>
+
+
+                <article class="summary-card transaction-card">
+
+                    <p>
+                        Savings Rate
+                    </p>
+
+                    <h2 id="savingsRate">
+                        0%
+                    </h2>
+
+                    <span>
+                        Percentage of income saved
+                    </span>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= INCOME VS EXPENSES ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        CASH FLOW
+                    </p>
+
+                    <h2>
+                        Income vs Expenses
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div
+                class="overview-card"
+                id="cashFlowChart"
+            >
+
+                <div
+                    class="chart-placeholder"
+                    style="min-height:280px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;"
+                >
+
+                    <h3>
+                        Cash Flow Overview
+                    </h3>
+
+                    <p>
+                        Your income and expenses will be visualized here.
+                    </p>
+
+                    <div
+                        id="incomeExpenseBars"
+                        style="width:100%; max-width:600px; margin-top:30px;"
+                    >
+
+                        <div class="overview-item">
+
+                            <span>
+                                Income
+                            </span>
+
+                            <div class="progress">
+
+                                <div
+                                    id="incomeBar"
+                                    class="progress-bar"
+                                ></div>
+
+                            </div>
+
+                            <strong id="incomeChartAmount">
+                                ₦0
+                            </strong>
+
+                        </div>
+
+
+                        <div class="overview-item">
+
+                            <span>
+                                Expenses
+                            </span>
+
+                            <div class="progress">
+
+                                <div
+                                    id="expenseBar"
+                                    class="progress-bar"
+                                    style="background:var(--color-expense);"
+                                ></div>
+
+                            </div>
+
+                            <strong id="expenseChartAmount">
+                                ₦0
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= SPENDING BY CATEGORY ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        SPENDING ANALYSIS
+                    </p>
+
+                    <h2>
+                        Spending by Category
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="overview-card">
+
+                <div class="overview-item">
+
+                    <span>
+                        Food
+                    </span>
+
+                    <div class="progress">
+
+                        <div
+                            id="analyticsFoodProgress"
+                            class="progress-bar"
+                        ></div>
+
+                    </div>
+
+                    <strong id="analyticsFoodAmount">
+                        ₦0
+                    </strong>
+
+                </div>
+
+
+                <div class="overview-item">
+
+                    <span>
+                        Transport
+                    </span>
+
+                    <div class="progress">
+
+                        <div
+                            id="analyticsTransportProgress"
+                            class="progress-bar"
+                            style="background:var(--color-transport);"
+                        ></div>
+
+                    </div>
+
+                    <strong id="analyticsTransportAmount">
+                        ₦0
+                    </strong>
+
+                </div>
+
+
+                <div class="overview-item">
+
+                    <span>
+                        Bills
+                    </span>
+
+                    <div class="progress">
+
+                        <div
+                            id="analyticsBillsProgress"
+                            class="progress-bar"
+                            style="background:var(--color-bills);"
+                        ></div>
+
+                    </div>
+
+                    <strong id="analyticsBillsAmount">
+                        ₦0
+                    </strong>
+
+                </div>
+
+
+                <div class="overview-item">
+
+                    <span>
+                        Entertainment
+                    </span>
+
+                    <div class="progress">
+
+                        <div
+                            id="analyticsEntertainmentProgress"
+                            class="progress-bar"
+                        ></div>
+
+                    </div>
+
+                    <strong id="analyticsEntertainmentAmount">
+                        ₦0
+                    </strong>
+
+                </div>
+
+
+                <div class="overview-item">
+
+                    <span>
+                        Shopping
+                    </span>
+
+                    <div class="progress">
+
+                        <div
+                            id="analyticsShoppingProgress"
+                            class="progress-bar"
+                            style="background:var(--color-gold);"
+                        ></div>
+
+                    </div>
+
+                    <strong id="analyticsShoppingAmount">
+                        ₦0
+                    </strong>
+
+                </div>
+
+
+                <div class="overview-item">
+
+                    <span>
+                        Other
+                    </span>
+
+                    <div class="progress">
+
+                        <div
+                            id="analyticsOtherProgress"
+                            class="progress-bar"
+                            style="background:var(--color-other);"
+                        ></div>
+
+                    </div>
+
+                    <strong id="analyticsOtherAmount">
+                        ₦0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= SPENDING INSIGHTS ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        SMART INSIGHTS
+                    </p>
+
+                    <h2>
+                        Your Money Insights
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="action-grid">
+
+                <article class="action-card">
+
+                    <span class="action-icon">
+                        %
+                    </span>
+
+                    <strong>
+                        Savings Rate
+                    </strong>
+
+                    <small id="savingsInsight">
+                        Add transactions to see your savings rate.
+                    </small>
+
+                </article>
+
+
+                <article class="action-card">
+
+                    <span class="action-icon">
+                        ↑
+                    </span>
+
+                    <strong>
+                        Highest Spending
+                    </strong>
+
+                    <small id="highestCategoryInsight">
+                        Your highest spending category will appear here.
+                    </small>
+
+                </article>
+
+
+                <article class="action-card">
+
+                    <span class="action-icon">
+                        ₦
+                    </span>
+
+                    <strong>
+                        Average Expense
+                    </strong>
+
+                    <small id="averageExpenseInsight">
+                        Your average expense will appear here.
+                    </small>
+
+                </article>
+
+
+                <article class="action-card">
+
+                    <span class="action-icon">
+                        →
+                    </span>
+
+                    <strong>
+                        Financial Status
+                    </strong>
+
+                    <small id="financialStatusInsight">
+                        Add transactions to analyze your financial health.
+                    </small>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= MONTHLY OVERVIEW ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <p class="eyebrow">
+                        PERIODIC REPORT
+                    </p>
+
+                    <h2>
+                        Monthly Overview
+                    </h2>
+
+                </div>
+
+            </div>
+
+
+            <div class="transactions-list">
+
+                <div
+                    class="transaction-row"
+                    id="monthlyIncomeRow"
+                >
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Monthly Income
+                        </strong>
+
+                        <span>
+                            Total income for the current period
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="transaction-amount income"
+                        id="monthlyIncome"
+                    >
+                        ₦0.00
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="transaction-row"
+                    id="monthlyExpenseRow"
+                >
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Monthly Expenses
+                        </strong>
+
+                        <span>
+                            Total expenses for the current period
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="transaction-amount expense"
+                        id="monthlyExpenses"
+                    >
+                        ₦0.00
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="transaction-row"
+                    id="monthlySavingsRow"
+                >
+
+                    <div class="transaction-details">
+
+                        <strong>
+                            Monthly Savings
+                        </strong>
+
+                        <span>
+                            Income remaining after expenses
+                        </span>
+
+                    </div>
+
+                    <div
+                        class="transaction-amount"
+                        id="monthlySavings"
+                    >
+                        ₦0.00
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- ================= FOOTER ================= -->
+
+    <footer>
+
+        <h2>
+            MoneyFlow
+        </h2>
+
+        <p>
+            Your money. Your records. Your control.
+        </p>
+
+        <p>
+            Version 1.0.0
+        </p>
+
+    </footer>
+
+
+    <script src="core.js" defer></script>
+    <script src="analytics.js" defer></script>
+
+</body>
+
+</html>
