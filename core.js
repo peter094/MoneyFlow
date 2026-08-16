@@ -26,6 +26,13 @@ const MoneyFlow = (() => {
     settings: "moneyflow_settings",
   };
 
+  // Lets Android's hardware/gesture back button close an open modal
+  // or confirm dialog instead of leaving the page (or the installed
+  // app). See the popstate listener near the bottom of this file.
+  let modalHistoryPushed = false;
+  let activeConfirmCancel = null;
+  let suppressHistoryBack = false;
+
   const DEFAULT_SETTINGS = {
     currency: "NGN",
     theme: "light",
@@ -266,6 +273,15 @@ const MoneyFlow = (() => {
         overlay.classList.remove("show");
         document.removeEventListener("keydown", onKeydown);
         setTimeout(() => overlay.remove(), 200);
+
+        if (activeConfirmCancel) {
+          activeConfirmCancel = null;
+          if (!suppressHistoryBack) {
+            suppressHistoryBack = true;
+            history.back();
+          }
+        }
+
         resolve(result);
       }
 
@@ -285,6 +301,11 @@ const MoneyFlow = (() => {
       box.appendChild(actions);
       overlay.appendChild(box);
       document.body.appendChild(overlay);
+
+      // So the Android back button cancels this dialog instead of
+      // navigating away — same pattern as the transaction modal.
+      activeConfirmCancel = () => cleanup(false);
+      history.pushState({ moneyflowConfirm: true }, "", location.href);
 
       document.addEventListener("keydown", onKeydown);
       requestAnimationFrame(() => overlay.classList.add("show"));
@@ -358,8 +379,16 @@ const MoneyFlow = (() => {
       root.classList.remove("dark");
     }
 
-    // Keep this in sync with the pre-paint inline script in <head>.
+    // Keep these two in sync with the pre-paint inline script in <head>.
     root.style.backgroundColor = theme === "dark" ? "#090E17" : "#F3F6F9";
+
+    // Matches --color-surface for each theme, so Android's status bar
+    // blends with the header instead of staying a fixed navy that
+    // looks wrong against a white header in light mode.
+    const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+    if (themeColorMeta) {
+      themeColorMeta.setAttribute("content", theme === "dark" ? "#111A28" : "#FFFFFF");
+    }
 
     const settings = getSettings();
     if (settings.theme !== theme) {
@@ -415,6 +444,11 @@ const MoneyFlow = (() => {
     modal.setAttribute("aria-hidden", "false");
     modal.classList.add("active");
 
+    if (!modalHistoryPushed) {
+      modalHistoryPushed = true;
+      history.pushState({ moneyflowModal: true }, "", location.href);
+    }
+
     const amountInput = document.getElementById("transactionAmount");
     if (amountInput) setTimeout(() => amountInput.focus(), 100);
   }
@@ -424,6 +458,17 @@ const MoneyFlow = (() => {
     if (!modal) return;
     modal.setAttribute("aria-hidden", "true");
     modal.classList.remove("active");
+
+    if (modalHistoryPushed) {
+      modalHistoryPushed = false;
+      // If this close was triggered BY the back button (popstate),
+      // the browser already moved back one entry — calling
+      // history.back() again here would skip an extra page.
+      if (!suppressHistoryBack) {
+        suppressHistoryBack = true;
+        history.back();
+      }
+    }
   }
 
   function bindModalBaseListeners() {
@@ -571,6 +616,33 @@ const MoneyFlow = (() => {
     });
   }
 
+  /* ---------------- Back button (Android) ---------------- */
+  // Both openModal() and showConfirm() push one history entry when
+  // they open, specifically so this fires instead of the browser
+  // navigating away or the installed app closing. We only ever act
+  // when one of our overlays is actually the reason a state exists —
+  // a real "go to the previous page" back-press is left completely
+  // alone and behaves normally.
+
+  window.addEventListener("popstate", () => {
+    if (!modalHistoryPushed && !activeConfirmCancel) return; // real navigation — do nothing
+
+    suppressHistoryBack = true;
+
+    if (modalHistoryPushed) {
+      closeModal();
+    } else if (activeConfirmCancel) {
+      activeConfirmCancel();
+    }
+
+    // Let the synchronous close-handlers above finish deciding NOT to
+    // call history.back() again before re-arming it for future manual
+    // closes (the X button, Cancel, backdrop tap, Escape key).
+    setTimeout(() => {
+      suppressHistoryBack = false;
+    }, 0);
+  });
+
   /* ---------------- Public API ---------------- */
 
   return {
@@ -622,3 +694,193 @@ const MoneyFlow = (() => {
 document.addEventListener("DOMContentLoaded", () => {
   MoneyFlow.enhanceSelects();
 });
+
+/* =====================================================================
+   SERVICE WORKER REGISTRATION + UPDATE BANNER
+   Self-contained — doesn't touch anything in the MoneyFlow object
+   above, and runs on every page since core.js loads everywhere.
+   ===================================================================== */
+
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./sw.js")
+      .then((registration) => {
+        registration.addEventListener("updatefound", () => {
+          const newWorker = registration.installing;
+          if (!newWorker) return;
+
+          newWorker.addEventListener("statechange", () => {
+            const alreadyHadAControllerBeforeThis = !!navigator.serviceWorker.controller;
+
+            if (newWorker.state === "installed" && alreadyHadAControllerBeforeThis) {
+              // A controller already existed, so this isn't the very
+              // first install on this device — a genuinely new
+              // version just finished downloading and is ready.
+              showUpdateBanner(registration);
+            }
+          });
+        });
+      })
+      .catch((error) => {
+        console.error("MoneyFlow: Service worker registration failed.", error);
+      });
+
+    // Reload once the new worker actually takes control, so the
+    // person is running the new files instead of a half-updated page.
+    let hasReloaded = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (hasReloaded) return;
+      hasReloaded = true;
+      window.location.reload();
+    });
+  });
+}
+
+function showUpdateBanner(registration) {
+  if (document.getElementById("moneyflowUpdateBanner")) return;
+
+  const banner = document.createElement("div");
+  banner.id = "moneyflowUpdateBanner";
+  banner.className = "update-banner";
+  banner.innerHTML = `
+    <span>A new version of MoneyFlow is available.</span>
+    <button type="button">Refresh</button>
+  `;
+
+  banner.querySelector("button").addEventListener("click", () => {
+    if (registration.waiting) {
+      registration.waiting.postMessage("SKIP_WAITING");
+    }
+  });
+
+  document.body.appendChild(banner);
+  requestAnimationFrame(() => banner.classList.add("show"));
+}
+
+registerServiceWorker();
+
+/* =====================================================================
+   INSTALL APP PROMPT
+   Uses the real beforeinstallprompt event — nothing here fakes an
+   install. If the browser never fires that event (Safari, Firefox
+   desktop, already installed, etc.), no prompt is ever built, so
+   there's never a button that doesn't work.
+   ===================================================================== */
+
+const INSTALL_DISMISS_KEY = "moneyflow_install_dismissed_at";
+const INSTALL_DISMISS_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+const INSTALL_PROMPT_DELAY_MS = 2500; // let the page settle first
+
+let deferredInstallPrompt = null;
+
+function isRunningInstalled() {
+  const standaloneMedia =
+    window.matchMedia && window.matchMedia("(display-mode: standalone)").matches;
+  const iosStandalone = window.navigator.standalone === true; // iOS Safari's own flag
+  return !!(standaloneMedia || iosStandalone);
+}
+
+function wasInstallPromptRecentlyDismissed() {
+  try {
+    const dismissedAt = Number(localStorage.getItem(INSTALL_DISMISS_KEY));
+    if (!dismissedAt) return false;
+    return Date.now() - dismissedAt < INSTALL_DISMISS_COOLDOWN_MS;
+  } catch (error) {
+    return false;
+  }
+}
+
+function recordInstallPromptDismissal() {
+  try {
+    localStorage.setItem(INSTALL_DISMISS_KEY, String(Date.now()));
+  } catch (error) {
+    // Storage unavailable (private browsing, quota, etc.) — worst
+    // case the prompt just shows again next visit, not a big deal.
+  }
+}
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  // Stop the browser's own mini-infobar so we control the UI instead.
+  event.preventDefault();
+  deferredInstallPrompt = event;
+
+  if (isRunningInstalled() || wasInstallPromptRecentlyDismissed()) return;
+
+  setTimeout(showInstallPrompt, INSTALL_PROMPT_DELAY_MS);
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  hideInstallPrompt();
+  MoneyFlow.showToast("MoneyFlow installed — check your home screen!");
+});
+
+function showInstallPrompt() {
+  if (!deferredInstallPrompt) return; // dismissed/installed before the delay fired
+  if (isRunningInstalled()) return;
+  if (document.getElementById("moneyflowInstallPrompt")) return;
+
+  const card = document.createElement("div");
+  card.id = "moneyflowInstallPrompt";
+  card.className = "install-prompt";
+  card.innerHTML = `
+    <button type="button" class="install-prompt-close" aria-label="Dismiss">&times;</button>
+    <div class="install-prompt-body">
+      <div class="install-prompt-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 16L9.5 10.5L13.5 14.5L20 8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M15 8H20V13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="install-prompt-text">
+        <h3>Install MoneyFlow</h3>
+        <p>Install the MoneyFlow app for a faster, smoother experience and quick access from your home screen.</p>
+      </div>
+    </div>
+    <div class="install-prompt-actions">
+      <button type="button" class="secondary-button" id="installPromptLater">Maybe Later</button>
+      <button type="button" class="primary-button" id="installPromptInstall">Install App</button>
+    </div>
+  `;
+
+  document.body.appendChild(card);
+  requestAnimationFrame(() => card.classList.add("show"));
+
+  card.querySelector(".install-prompt-close").addEventListener("click", dismissInstallPrompt);
+  document.getElementById("installPromptLater").addEventListener("click", dismissInstallPrompt);
+  document.getElementById("installPromptInstall").addEventListener("click", triggerInstall);
+}
+
+function hideInstallPrompt() {
+  const card = document.getElementById("moneyflowInstallPrompt");
+  if (!card) return;
+  card.classList.remove("show");
+  setTimeout(() => card.remove(), 250);
+}
+
+function dismissInstallPrompt() {
+  recordInstallPromptDismissal();
+  hideInstallPrompt();
+}
+
+async function triggerInstall() {
+  if (!deferredInstallPrompt) {
+    hideInstallPrompt();
+    return;
+  }
+
+  hideInstallPrompt();
+
+  // This is the real, browser-native install prompt — not a fake one.
+  deferredInstallPrompt.prompt();
+  const { outcome } = await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+
+  if (outcome !== "accepted") {
+    recordInstallPromptDismissal();
+  }
+  // If accepted, the 'appinstalled' listener above handles cleanup.
+}
