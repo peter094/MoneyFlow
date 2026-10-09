@@ -5,6 +5,21 @@
 
     <meta charset="UTF-8">
 
+    <!-- Auth guard: if there's no session token, bail out to the
+         login page before this protected page renders at all —
+         same "run before paint" pattern as the theme script below. -->
+    <script>
+        (function () {
+            try {
+                if (!localStorage.getItem("moneyflow_auth_token")) {
+                    window.location.replace("login.html");
+                }
+            } catch (e) {
+                window.location.replace("login.html");
+            }
+        })();
+    </script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <meta name="theme-color" content="#111827">
@@ -57,6 +72,22 @@
     <link rel="prefetch" href="transactions.html">
     <link rel="prefetch" href="analytics.html">
     <link rel="prefetch" href="settings.html">
+
+    <!-- Prerenders the other pages in a hidden background tab the
+         moment a finger/cursor touches a nav link, so the actual
+         navigation is an instant swap instead of a real page load.
+         Unsupported browsers just ignore this tag entirely — falls
+         back to the prefetch links above, no downside either way. -->
+    <script type="speculationrules">
+    {
+      "prerender": [
+        {
+          "urls": ["index.html", "transactions.html", "analytics.html", "settings.html"],
+          "eagerness": "moderate"
+        }
+      ]
+    }
+    </script>
 
 </head>
 

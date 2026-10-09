@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
   MoneyFlow.initTheme();
   bindEvents();
   render();
+  seedProfileFromAuthUser();
   initProfilePanel();
   MoneyFlow.onExternalChange(render);
 
@@ -31,6 +32,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const editProfileBtn = document.getElementById("editProfileBtn");
     if (editProfileBtn) editProfileBtn.addEventListener("click", enterProfileEditMode);
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    if (logoutBtn) {
+      logoutBtn.addEventListener("click", async () => {
+        const confirmed = await MoneyFlow.showConfirm({
+          message: "Log out of MoneyFlow?",
+          confirmText: "Log Out",
+        });
+        if (confirmed) MoneyFlow.logout();
+      });
+    }
 
     const cancelProfileEditBtn = document.getElementById("cancelProfileEditBtn");
     if (cancelProfileEditBtn) cancelProfileEditBtn.addEventListener("click", exitProfileEditMode);
@@ -164,6 +176,40 @@ document.addEventListener("DOMContentLoaded", () => {
     setText("profileViewName", settings.userName?.trim() || "—");
     setText("profileViewEmail", settings.userEmail?.trim() || "—");
   }
+
+  // Runs once per settings.js load. If the local display name/email
+  // has never been set, seed it from the real authenticated account
+  // so "Signed In" shows the real name/email immediately rather than
+  // an empty profile. After this, editing Name/Email here only
+  // updates this local display copy — it does not change the real
+  // account (there's no backend endpoint for that yet).
+  function seedProfileFromAuthUser() {
+  const user = MoneyFlow.getAuthUser();
+  if (!user) return;
+
+  const settings = MoneyFlow.getSettings();
+
+  // If the authenticated account is different from the profile
+  // currently stored on this device, replace the old account details.
+  const authEmail = (user.email || "").trim().toLowerCase();
+  const savedEmail = (settings.userEmail || "").trim().toLowerCase();
+
+  if (authEmail && authEmail !== savedEmail) {
+    updateSettings({
+      userName: user.name?.trim() || "MoneyFlow User",
+      userEmail: user.email || "",
+    });
+    return;
+  }
+
+  // Same account, but profile has never been initialized.
+  if (!settings.userName?.trim()) {
+    updateSettings({
+      userName: user.name?.trim() || "MoneyFlow User",
+      userEmail: user.email || "",
+    });
+  }
+}
 
   /* ---------------- Data management ---------------- */
 

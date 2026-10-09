@@ -873,12 +873,13 @@ main {
     width: 100%;
     max-width: 460px;
     max-height: 90vh;
-    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
-    padding: 28px 28px 32px;
     transform: translateY(16px) scale(0.98);
     transition: transform var(--transition-base);
 }
@@ -891,13 +892,23 @@ main {
 }
 
 .modal-header {
+    flex-shrink: 0;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
     gap: 16px;
-    margin-bottom: 22px;
-    padding-bottom: 18px;
+    padding: 28px 28px 18px;
     border-bottom: 1px solid var(--color-border);
+}
+
+.modal-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 22px 28px;
 }
 
 .modal-header h2 {
@@ -930,10 +941,17 @@ main {
     transform: scale(0.92);
 }
 
-#transactionForm {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+/* display:contents removes the <form> from the layout tree as a box
+   — it stops creating its own flex context, so .modal-body and
+   .form-actions become direct flex children of .modal-content
+   instead of nested a level deeper. Two stacked flex/overflow
+   layers there was the actual bug: it let the scroll area's
+   computed height fall a few pixels short of real content, silently
+   clipping whatever came after. Form behavior (submit, reset) is
+   completely unaffected — this only changes the rendering box. */
+#transactionForm,
+#budgetForm {
+    display: contents;
 }
 
 #transactionForm label {
@@ -991,12 +1009,23 @@ main {
     font-weight: 600;
 }
 
+/* Tints the small calendar icon inside any date input to the green
+   accent. The native popup calendar itself can't be restyled this
+   way — that's a genuine browser platform limit — but color-scheme:
+   dark (already set globally) makes the popup render dark instead of
+   a jarring white box, and this at least makes the field's own icon
+   feel on-brand. */
+input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(56%) sepia(43%) saturate(465%) hue-rotate(115deg) brightness(92%) contrast(92%);
+    cursor: pointer;
+}
+
 .form-actions {
+    flex-shrink: 0;
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 8px;
-    padding-top: 18px;
+    padding: 18px 28px calc(28px + env(safe-area-inset-bottom));
     border-top: 1px solid var(--color-border);
 }
 
@@ -1741,8 +1770,19 @@ select:focus-visible {
         max-width: 100%;
         max-height: 92vh;
         border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        padding: 22px 20px calc(28px + env(safe-area-inset-bottom));
         transform: translateY(100%);
+    }
+
+    .modal-header {
+        padding: 22px 20px 18px;
+    }
+
+    .modal-body {
+        padding: 18px 20px;
+    }
+
+    .form-actions {
+        padding: 18px 20px calc(28px + env(safe-area-inset-bottom));
     }
 
     .modal[aria-hidden="false"] .modal-content,

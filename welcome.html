@@ -1,0 +1,343 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090E17">
+  <title>Welcome to MoneyFlow</title>
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+  <link rel="stylesheet" href="welcome.css">
+  <script src="welcome.js" defer></script>
+</head>
+<body>
+  <main class="welcome-app">
+
+    <section class="splash" id="splash">
+      <div class="splash-center">
+
+        <div class="logo">
+          <img
+            src="icons/icon-512.png"
+            alt="MoneyFlow logo"
+            class="splash-logo"
+            width="100"
+            height="100"
+          >
+        </div>
+
+        <h1>Money<span>Flow</span></h1>
+        <p>TRACK. PLAN. GROW.</p>
+      </div>
+
+      <div class="loading"><span></span></div>
+    </section>
+
+    <section class="onboarding" id="onboarding" hidden>
+
+      <header class="topbar">
+        <div class="wordmark">
+          <img
+            src="icons/icon-192.png"
+            alt=""
+            class="small-logo"
+            width="30"
+            height="30"
+          >
+          Money<span>Flow</span>
+        </div>
+
+        <button id="skipBtn" class="skip" type="button">
+          Skip
+<svg class="mf-arrow mf-arrow-right"
+     viewBox="0 0 24 24" aria-hidden="true">
+  <path d="M5 12h14m-6-6 6 6-6 6"/>
+</svg>
+        </button>
+      </header>
+
+      <div
+        class="slides"
+        id="slides"
+        tabindex="0"
+        aria-label="MoneyFlow introduction"
+      >
+
+        <!-- SLIDE 1 -->
+
+        <article class="slide active">
+          <div class="art">
+            <div class="halo"></div>
+
+            <div class="finance-card tilted">
+              <div class="card-top">
+                <span>Monthly overview</span>
+                <span>•••</span>
+              </div>
+
+              <div class="amount">₦248,500</div>
+              <div class="muted">Total balance</div>
+
+              <div class="bars">
+                <i style="--h:45%"></i>
+                <i style="--h:70%"></i>
+                <i style="--h:55%"></i>
+                <i style="--h:90%"></i>
+                <i style="--h:65%"></i>
+                <i style="--h:100%"></i>
+                <i style="--h:80%"></i>
+              </div>
+
+              <div class="card-bottom">
+                <div>
+                  Income
+                  <strong>₦320,000</strong>
+                </div>
+
+                <div>
+                  Spent
+                  <strong>₦71,500</strong>
+                </div>
+              </div>
+            </div>
+
+            <div class="floating top-float">
+           
+<strong>
+  <svg class="mf-trend-icon"
+       viewBox="0 0 24 24"
+       aria-hidden="true">
+    <path d="M5 17L17 5M8 5h9v9"/>
+  </svg>
+  <span>+12.8%</span>
+</strong>
+
+              <small>This month</small>
+            </div>
+
+            <div class="floating bottom-float">
+              <strong>✓ All on track</strong>
+              <small>Looking good!</small>
+            </div>
+          </div>
+
+          <div class="copy">
+            <div class="eyebrow">
+              01 / KNOW YOUR MONEY
+            </div>
+
+            <h2>
+              Every naira.<br>
+              <em>Crystal clear.</em>
+            </h2>
+
+            <p>
+              See what comes in, what goes out,
+              and where your money really goes.
+            </p>
+          </div>
+        </article>
+
+        <!-- SLIDE 2 -->
+
+        <article class="slide">
+          <div class="art">
+            <div class="halo"></div>
+
+            <div class="finance-card goal-card">
+              <div class="goal-icon">✦</div>
+              <div class="muted">Savings goal</div>
+
+              <h3>Dream Vacation</h3>
+
+              <div class="goal-amount">
+                ₦175,000
+                <small>/ ₦250,000</small>
+              </div>
+
+              <div class="progress">
+                <span></span>
+              </div>
+
+              <div class="goal-row">
+                <span>70% complete</span>
+                
+<span>
+  Keep going
+  <svg class="mf-trend-icon"
+       viewBox="0 0 24 24"
+       aria-hidden="true">
+    <path d="M5 17L17 5M8 5h9v9"/>
+  </svg>
+</span>
+
+              </div>
+            </div>
+
+            <div class="floating goal-float">
+              <strong>✓ Budget set!</strong>
+              <small>You're in control</small>
+            </div>
+          </div>
+
+          <div class="copy">
+            <div class="eyebrow">
+              02 / MAKE A PLAN
+            </div>
+
+            <h2>
+              Big goals.<br>
+              <em>Small steps.</em>
+            </h2>
+
+            <p>
+              Create budgets and savings goals
+              that make your next move feel possible.
+            </p>
+          </div>
+        </article>
+
+        <!-- SLIDE 3 -->
+
+        <article class="slide">
+          <div class="art">
+            <div class="halo"></div>
+
+            <div class="finance-card growth-card">
+              <div class="card-top">
+                <span>Your progress</span>
+              
+<span class="growth-pill">
+  <svg class="mf-trend-icon"
+       viewBox="0 0 24 24"
+       aria-hidden="true">
+    <path d="M5 17L17 5M8 5h9v9"/>
+  </svg>
+  Growing
+</span>
+
+              </div>
+
+              <h3>
+                You're building<br>
+                better habits.
+              </h3>
+
+              <svg
+                class="growth-chart"
+                viewBox="0 0 300 140"
+                preserveAspectRatio="none"
+                aria-hidden="true"
+              >
+                <defs>
+                  <linearGradient
+                    id="area"
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="0%"
+                      stop-color="#2DBE9A"
+                      stop-opacity=".35"
+                    />
+                    <stop
+                      offset="100%"
+                      stop-color="#2DBE9A"
+                      stop-opacity="0"
+                    />
+                  </linearGradient>
+                </defs>
+
+                <path
+                  d="M0 110 C40 100 45 120 85 84 S140 100 175 57 S245 60 300 12 L300 140 H0Z"
+                  fill="url(#area)"
+                />
+
+                <path
+                  d="M0 110 C40 100 45 120 85 84 S140 100 175 57 S245 60 300 12"
+                  fill="none"
+                  stroke="#2DBE9A"
+                  stroke-width="4"
+                  stroke-linecap="round"
+                />
+              </svg>
+
+              <div class="months">
+                <span>JAN</span>
+                <span>FEB</span>
+                <span>MAR</span>
+                <span>APR</span>
+                <span>MAY</span>
+              </div>
+            </div>
+
+            <div class="floating bottom-float">
+              <strong>✦ One step ahead</strong>
+            </div>
+          </div>
+
+          <div class="copy">
+            <div class="eyebrow">
+              03 / GROW WITH CONFIDENCE
+            </div>
+
+            <h2>
+              Good habits.<br>
+              <em>Better future.</em>
+            </h2>
+
+            <p>
+              Build confidence with simple insights
+              and celebrate every money win.
+            </p>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- ONBOARDING FOOTER -->
+
+      <footer class="footer">
+        <div class="dots" aria-label="Slide navigation">
+          <button
+            class="dot active"
+            data-slide="0"
+            aria-label="Slide 1"
+            type="button"
+          ></button>
+
+          <button
+            class="dot"
+            data-slide="1"
+            aria-label="Slide 2"
+            type="button"
+          ></button>
+
+          <button
+            class="dot"
+            data-slide="2"
+            aria-label="Slide 3"
+            type="button"
+          ></button>
+        </div>
+
+        <button
+          class="next"
+          id="nextBtn"
+          type="button"
+        >
+          Continue →
+        </button>
+
+        <p>
+          Already have an account?
+          <a href="login.html">Log in</a>
+        </p>
+      </footer>
+
+    </section>
+  </main>
+</body>
+</html>

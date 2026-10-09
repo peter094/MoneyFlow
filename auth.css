@@ -1,0 +1,343 @@
+/* =====================================================================
+   MONEYFLOW — AUTH PAGE STYLES
+   Deliberately separate from style.css. login.html does not load
+   style.css at all, so nothing here can bleed into Home/Transactions/
+   Analytics/Settings, and nothing there can bleed into this page.
+
+   This introduces the new purple design direction from the MoneyFlow
+   2.0 reference screenshots. The rest of the app stays on the
+   existing green palette until later phases redesign those pages too.
+   ===================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+    /* Same values as the dark-mode tokens in style.css, so this page
+       feels like the same app instead of a differently-branded one. */
+    --auth-bg: #090E17;
+    --auth-surface: #111A28;
+    --auth-surface-alt: #0D1520;
+    --auth-border: #1E2A3C;
+
+    --auth-text-primary: #EEF2F8;
+    --auth-text-secondary: #9AA6BC;
+    --auth-text-muted: #6B7690;
+
+    --auth-primary: #1B9A78;
+    --auth-primary-light: #2DBE9A;
+    --auth-primary-dark: #157C60;
+    --auth-primary-soft: rgba(27, 154, 120, 0.14);
+
+    --auth-danger: #E2685A;
+    --auth-danger-soft: rgba(226, 104, 90, 0.13);
+
+    --auth-radius-sm: 10px;
+    --auth-radius-md: 16px;
+    --auth-radius-lg: 24px;
+
+    --auth-font-display: 'Space Grotesk', 'Segoe UI', sans-serif;
+    --auth-font-body: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+    --auth-transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    color-scheme: dark;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    height: 100%;
+    overflow-x: hidden;
+    background: var(--auth-bg);
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: max(28px, env(safe-area-inset-top)) 24px max(28px, env(safe-area-inset-bottom));
+    color: var(--auth-text-primary);
+    font-family: var(--auth-font-body);
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------------- Brand header ---------------- */
+
+.auth-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 40px;
+}
+
+.auth-brand-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border-radius: var(--auth-radius-sm);
+    background: linear-gradient(135deg, var(--auth-primary-light), var(--auth-primary-dark));
+    box-shadow: 0 8px 20px -6px rgba(27, 154, 120, 0.45);
+}
+
+.auth-brand-mark svg {
+    width: 22px;
+    height: 22px;
+    color: #FFFFFF;
+}
+
+.auth-brand h1 {
+    margin: 0;
+    font-family: var(--auth-font-display);
+    font-size: 21px;
+    font-weight: 700;
+    color: var(--auth-text-primary);
+}
+
+.auth-brand h1 span {
+    color: var(--auth-primary-light);
+}
+
+/* ---------------- Intro copy ---------------- */
+
+.auth-intro {
+    margin-bottom: 28px;
+}
+
+.auth-intro h2 {
+    margin: 0 0 8px;
+    font-family: var(--auth-font-display);
+    font-size: 26px;
+    font-weight: 700;
+}
+
+.auth-intro p {
+    margin: 0;
+    color: var(--auth-text-secondary);
+    font-size: 14px;
+}
+
+/* ---------------- Mode toggle (Login / Register) ---------------- */
+
+.auth-mode-toggle {
+    display: flex;
+    padding: 4px;
+    margin-bottom: 24px;
+    background: var(--auth-surface);
+    border: 1px solid var(--auth-border);
+    border-radius: var(--auth-radius-md);
+}
+
+.auth-mode-toggle button {
+    flex: 1;
+    height: 42px;
+    border: none;
+    border-radius: calc(var(--auth-radius-md) - 4px);
+    background: transparent;
+    color: var(--auth-text-secondary);
+    font-family: var(--auth-font-body);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background var(--auth-transition), color var(--auth-transition);
+}
+
+.auth-mode-toggle button.active {
+    background: linear-gradient(135deg, var(--auth-primary-light), var(--auth-primary-dark));
+    color: #FFFFFF;
+}
+
+/* ---------------- Form ---------------- */
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.auth-field label {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--auth-text-secondary);
+}
+
+.auth-field-input-wrap {
+    position: relative;
+}
+
+.auth-field input {
+    width: 100%;
+    height: 50px;
+    padding: 0 16px;
+    border: 1.5px solid var(--auth-border);
+    border-radius: var(--auth-radius-sm);
+    background: var(--auth-surface);
+    color: var(--auth-text-primary);
+    font-family: var(--auth-font-body);
+    font-size: 15px;
+    transition: border-color var(--auth-transition), box-shadow var(--auth-transition), background var(--auth-transition);
+}
+
+.auth-field input::placeholder {
+    color: var(--auth-text-muted);
+}
+
+.auth-field input:focus {
+    outline: none;
+    border-color: var(--auth-primary-light);
+    background: var(--auth-surface-alt);
+    box-shadow: 0 0 0 3px var(--auth-primary-soft);
+}
+
+.auth-field input[type="password"],
+.auth-field input[data-password-field] {
+    padding-right: 46px;
+}
+
+.auth-password-toggle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 50px;
+    height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--auth-text-muted);
+    cursor: pointer;
+}
+
+.auth-password-toggle:hover {
+    color: var(--auth-text-secondary);
+}
+
+.auth-password-toggle svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* ---------------- Error message ---------------- */
+
+.auth-error {
+    display: none;
+    padding: 12px 14px;
+    border-radius: var(--auth-radius-sm);
+    background: var(--auth-danger-soft);
+    border: 1px solid rgba(226, 104, 90, 0.35);
+    color: var(--auth-danger);
+    font-size: 13.5px;
+    font-weight: 500;
+}
+
+.auth-error.show {
+    display: block;
+}
+
+/* ---------------- Submit button ---------------- */
+
+.auth-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 52px;
+    margin-top: 6px;
+    border: none;
+    border-radius: var(--auth-radius-sm);
+    background: linear-gradient(135deg, var(--auth-primary-light), var(--auth-primary-dark));
+    color: #FFFFFF;
+    font-family: var(--auth-font-body);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 24px -8px rgba(27, 154, 120, 0.55);
+    transition: transform var(--auth-transition), opacity var(--auth-transition);
+}
+
+.auth-submit:active {
+    transform: scale(0.98);
+}
+
+.auth-submit:disabled {
+    opacity: 0.7;
+    cursor: default;
+}
+
+.auth-spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2.5px solid rgba(255, 255, 255, 0.4);
+    border-top-color: #FFFFFF;
+    border-radius: 50%;
+    animation: auth-spin 700ms linear infinite;
+}
+
+.auth-submit.loading .auth-spinner {
+    display: inline-block;
+}
+
+.auth-submit.loading .auth-submit-label {
+    opacity: 0.85;
+}
+
+@keyframes auth-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ---------------- Footer switch link ---------------- */
+
+.auth-switch {
+    margin-top: 22px;
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--auth-text-secondary);
+}
+
+.auth-switch button {
+    background: none;
+    border: none;
+    padding: 0;
+    color: var(--auth-primary-light);
+    font-family: var(--auth-font-body);
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ---------------- Backend URL not-configured notice ---------------- */
+/* Only shows if auth.js detects the placeholder API URL is still in
+   place — see the comment at the top of auth.js. */
+
+.auth-config-warning {
+    display: none;
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border-radius: var(--auth-radius-sm);
+    background: rgba(217, 182, 91, 0.12);
+    border: 1px solid rgba(217, 182, 91, 0.35);
+    color: #D9B65B;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.auth-config-warning.show {
+    display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+}

@@ -26,6 +26,11 @@ const MoneyFlow = (() => {
     settings: "moneyflow_settings",
   };
 
+  // The one place the backend URL is defined. Any page/script that
+  // needs to call the backend should reference MoneyFlow.API_BASE_URL
+  // rather than hardcoding this value again.
+  const API_BASE_URL = "https://85h33a.bot-keep.xyz";
+
   // Lets Android's hardware/gesture back button close an open modal
   // or confirm dialog instead of leaving the page (or the installed
   // app). See the popstate listener near the bottom of this file.
@@ -41,6 +46,7 @@ const MoneyFlow = (() => {
     userEmail: "",
     spendingAlerts: false,
     monthlySummary: false,
+    monthlyBudget: 0,
     version: "1.0.0",
   };
 
@@ -643,10 +649,102 @@ const MoneyFlow = (() => {
     }, 0);
   });
 
+  /* ---------------- Auth (Phase 1) ---------------- */
+  // Just storage + a logout helper for now. Nothing on the existing
+  // pages actually calls the backend with this token yet — that's a
+  // later phase. This exists so login.html has somewhere to read
+  // from, and so a future "Log Out" button has something to call.
+
+  const AUTH_KEYS = {
+    token: "moneyflow_auth_token",
+    user: "moneyflow_auth_user",
+    // Persists across logout — distinct from the token — so
+    // "returning user" is still known correctly even after signing out.
+    returningUser: "moneyflow_returning_user",
+    // A one-time signal, cleared the moment it's read. By the time
+    // index.html loads, the token always exists (the auth guard
+    // requires it) and returningUser is always true (auth.js sets it
+    // on both login AND signup) — neither can tell "just registered
+    // for the first time ever" apart from "just logged in normally."
+    // This is what actually makes that distinction, exactly once.
+    justRegistered: "moneyflow_just_registered",
+  };
+
+  function getAuthToken() {
+    try {
+      return localStorage.getItem(AUTH_KEYS.token);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function getAuthUser() {
+    try {
+      const raw = localStorage.getItem(AUTH_KEYS.user);
+      return raw ? JSON.parse(raw) : null;
+    } catch (error) {
+      return null;
+    }
+  }
+
+  function isReturningUser() {
+    try {
+      return !!localStorage.getItem(AUTH_KEYS.returningUser);
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function markAsReturningUser() {
+    try {
+      localStorage.setItem(AUTH_KEYS.returningUser, "true");
+    } catch (error) {
+      // Non-fatal — worst case the greeting is just wrong next visit.
+    }
+  }
+
+  function markJustRegistered() {
+    try {
+      sessionStorage.setItem(AUTH_KEYS.justRegistered, "true");
+    } catch (error) {
+      // Non-fatal — worst case the dashboard just skips the
+      // first-time greeting and shows the normal one instead.
+    }
+  }
+
+  function consumeJustRegisteredFlag() {
+    try {
+      const wasSet = sessionStorage.getItem(AUTH_KEYS.justRegistered) === "true";
+      sessionStorage.removeItem(AUTH_KEYS.justRegistered);
+      return wasSet;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function logout() {
+    try {
+      localStorage.removeItem(AUTH_KEYS.token);
+      localStorage.removeItem(AUTH_KEYS.user);
+    } catch (error) {
+      // Ignore — worst case the redirect below still happens.
+    }
+    window.location.href = "login.html";
+  }
+
   /* ---------------- Public API ---------------- */
 
   return {
     STORAGE_KEYS,
+    API_BASE_URL,
+    AUTH_KEYS,
+    getAuthToken,
+    getAuthUser,
+    isReturningUser,
+    markAsReturningUser,
+    markJustRegistered,
+    consumeJustRegisteredFlag,
+    logout,
     CATEGORIES,
 
     getTransactions,

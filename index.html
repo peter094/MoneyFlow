@@ -5,6 +5,21 @@
 
     <meta charset="UTF-8">
 
+    <!-- Auth guard: if there's no session token, bail out to the
+         login page before this protected page renders at all —
+         same "run before paint" pattern as the theme script below. -->
+    <script>
+        (function () {
+            try {
+                if (!localStorage.getItem("moneyflow_auth_token")) {
+                    window.location.replace("login.html");
+                }
+            } catch (e) {
+                window.location.replace("login.html");
+            }
+        })();
+    </script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <meta name="theme-color" content="#111827">
@@ -19,7 +34,12 @@
 
     <!-- Apply saved theme before first paint to avoid a light-mode flash.
          Sets the bg color AND the status-bar color directly, since
-         var(--color-bg)/style.css aren't available yet at this point. -->
+         var(--color-bg)/style.css aren't available yet at this point.
+         NOTE: Home overrides this via home.css + dashboard.js's
+         applyStatusBarColor() — this page is fixed-dark-purple now,
+         independent of the stored theme setting. This script is kept
+         unchanged (harmless/redundant here) rather than special-cased,
+         to minimize risk — see the Phase 2 Step 1 report for why. -->
     <script>
         (function () {
             var isDark = false;
@@ -33,8 +53,6 @@
             }
             document.documentElement.style.backgroundColor = isDark ? "#090E17" : "#F3F6F9";
 
-            // Keep these two hex values in sync with applyTheme() in
-            // core.js — they match --color-surface for each theme.
             var themeColorMeta = document.querySelector('meta[name="theme-color"]');
             if (themeColorMeta) {
                 themeColorMeta.setAttribute("content", isDark ? "#111A28" : "#FFFFFF");
@@ -45,6 +63,7 @@
     <title>MoneyFlow | Dashboard</title>
 
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="home.css">
 
     <!-- PWA: manifest + icons -->
     <link rel="manifest" href="manifest.json">
@@ -57,6 +76,22 @@
     <link rel="prefetch" href="transactions.html">
     <link rel="prefetch" href="analytics.html">
     <link rel="prefetch" href="settings.html">
+
+    <!-- Prerenders the other pages in a hidden background tab the
+         moment a finger/cursor touches a nav link, so the actual
+         navigation is an instant swap instead of a real page load.
+         Unsupported browsers just ignore this tag entirely — falls
+         back to the prefetch links above, no downside either way. -->
+    <script type="speculationrules">
+    {
+      "prerender": [
+        {
+          "urls": ["index.html", "transactions.html", "analytics.html", "settings.html"],
+          "eagerness": "moderate"
+        }
+      ]
+    }
+    </script>
 
 </head>
 
@@ -79,129 +114,146 @@
 
                 <h1>MoneyFlow</h1>
 
-                <p>Manage your money smarter.</p>
-
             </div>
 
         </div>
 
-        <button id="themeToggle" class="icon-button">
-            Theme
-        </button>
+        <div class="home-header-actions">
+
+            <button type="button" class="notification-bell" id="notificationBellBtn" aria-label="Notifications">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="notification-badge" id="notificationBadge"></span>
+            </button>
+
+            <div class="user-avatar" id="userAvatar">?</div>
+
+        </div>
 
     </header>
-
-
-    <!-- ================= NAVIGATION ================= -->
-
-    <nav class="main-nav">
-
-        <a href="index.html" class="active">Dashboard</a>
-
-        <a href="transactions.html">Transactions</a>
-
-        <a href="analytics.html">Analytics</a>
-
-        <a href="settings.html">Settings</a>
-
-    </nav>
 
 
     <!-- ================= MAIN ================= -->
 
     <main>
 
-        <!-- ================= WELCOME ================= -->
+        <!-- ================= GREETING ================= -->
 
-        <section class="welcome">
+        <section class="greeting-section">
 
-            <div>
+            <h2 id="greetingHeading">Hello!</h2>
 
-                <p class="eyebrow">YOUR FINANCIAL DASHBOARD</p>
+            <p>Here's your money overview for today.</p>
 
-                <h2>Welcome back.</h2>
+        </section>
 
-                <p>
-                    Keep track of your income, expenses and spending habits
-                    in one simple place.
-                </p>
+
+        <!-- ================= MONEY AT A GLANCE ================= -->
+
+        <section>
+
+            <div class="section-heading">
+
+                <div>
+
+                    <h2>Money at a Glance</h2>
+
+                </div>
+
+                <div class="month-pill">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                        <path d="M16 2V6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M8 2V6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        <path d="M3 10H21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                    <span id="monthPillLabel">This Month</span>
+                </div>
 
             </div>
 
-            <button id="addTransactionBtn" class="primary-button">
-                + Add Transaction
+
+            <div class="summary-grid">
+
+                <article class="summary-card income-card">
+
+                    <p>Income This Month</p>
+
+                    <h2 id="monthIncome">
+                        ₦0.00
+                    </h2>
+
+                    <span>
+                        Total income added this month
+                    </span>
+
+                </article>
+
+
+                <article class="summary-card">
+
+                    <p>Remaining Money to Spend</p>
+
+                    <h2 id="monthRemaining">
+                        ₦0.00
+                    </h2>
+
+                    <span>
+                        Income minus expenses this month
+                    </span>
+
+                </article>
+
+
+                <article class="summary-card expense-card">
+
+                    <p>How Much Money We Still Owe</p>
+
+                    <h2 id="monthOwed">
+                        ₦0.00
+                    </h2>
+
+                    <span>
+                        Debt tracking is coming soon
+                    </span>
+
+                </article>
+
+            </div>
+
+        </section>
+
+
+        <!-- ================= BUDGET STRIP ================= -->
+
+        <section>
+
+            <button type="button" class="budget-strip" id="budgetStripBtn">
+
+                <span class="budget-strip-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 7H5C3.89543 7 3 7.89543 3 9V17C3 18.1046 3.89543 19 5 19H21C22.1046 19 23 18.1046 23 17V9C23 7.89543 22.1046 7 21 7Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M18 13C18 13.5523 18.4477 14 19 14C19.5523 14 20 13.5523 20 13C20 12.4477 19.5523 12 19 12C18.4477 12 18 12.4477 18 13Z" fill="currentColor"/>
+                        <path d="M3 10H23" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                </span>
+
+                <span class="budget-strip-text">
+                    Your monthly budget is <strong id="budgetStripAmount">₦0.00</strong>. Tap to update it.
+                </span>
+
+                <svg class="budget-strip-chevron" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                    <path d="M9 6L15 12L9 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+
             </button>
 
         </section>
 
 
-        <!-- ================= SUMMARY ================= -->
-
-        <section class="summary-grid">
-
-            <article class="summary-card balance-card">
-
-                <p>Total Balance</p>
-
-                <h2 id="balance">
-                    ₦0.00
-                </h2>
-
-                <span id="balanceStatus">
-                    Your current balance
-                </span>
-
-            </article>
-
-
-            <article class="summary-card income-card">
-
-                <p>Total Income</p>
-
-                <h2 id="totalIncome">
-                    ₦0.00
-                </h2>
-
-                <span>
-                    Money received
-                </span>
-
-            </article>
-
-
-            <article class="summary-card expense-card">
-
-                <p>Total Expenses</p>
-
-                <h2 id="totalExpenses">
-                    ₦0.00
-                </h2>
-
-                <span>
-                    Money spent
-                </span>
-
-            </article>
-
-
-            <article class="summary-card transaction-card">
-
-                <p>Transactions</p>
-
-                <h2 id="transactionCount">
-                    0
-                </h2>
-
-                <span>
-                    Recorded transactions
-                </span>
-
-            </article>
-
-        </section>
-
-
-        <!-- ================= QUICK ACTIONS ================= -->
+        <!-- ================= QUICK ADD ================= -->
 
         <section class="quick-actions">
 
@@ -209,9 +261,7 @@
 
                 <div>
 
-                    <p class="eyebrow">QUICK ACTIONS</p>
-
-                    <h2>Manage your money</h2>
+                    <h2>Quick Add</h2>
 
                 </div>
 
@@ -228,11 +278,7 @@
 
                     <span class="action-icon">+</span>
 
-                    <strong>Add Income</strong>
-
-                    <small>
-                        Record money you've received
-                    </small>
+                    <strong>Income</strong>
 
                 </button>
 
@@ -245,45 +291,27 @@
 
                     <span class="action-icon">−</span>
 
-                    <strong>Add Expense</strong>
-
-                    <small>
-                        Record money you've spent
-                    </small>
+                    <strong>Expense</strong>
 
                 </button>
 
 
-                <a
-                    href="transactions.html"
+                <button
                     class="action-card"
+                    id="billLoanBtn"
+                    type="button"
                 >
 
-                    <span class="action-icon">↗</span>
+                    <span class="action-icon">
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;">
+                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14 2V8H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
 
-                    <strong>View Transactions</strong>
+                    <strong>Bill / Loan</strong>
 
-                    <small>
-                        See your complete history
-                    </small>
-
-                </a>
-
-
-                <a
-                    href="analytics.html"
-                    class="action-card"
-                >
-
-                    <span class="action-icon">◔</span>
-
-                    <strong>View Analytics</strong>
-
-                    <small>
-                        Understand your spending
-                    </small>
-
-                </a>
+                </button>
 
             </div>
 
@@ -298,15 +326,9 @@
 
                 <div>
 
-                    <p class="eyebrow">ACTIVITY</p>
-
-                    <h2>Recent Transactions</h2>
+                    <h2 id="transactionsHeading">Transactions</h2>
 
                 </div>
-
-                <a href="transactions.html">
-                    View All
-                </a>
 
             </div>
 
@@ -330,105 +352,6 @@
                     >
                         Add Transaction
                     </button>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= SPENDING OVERVIEW ================= -->
-
-        <section class="overview-section">
-
-            <div class="section-heading">
-
-                <div>
-
-                    <p class="eyebrow">OVERVIEW</p>
-
-                    <h2>Spending Overview</h2>
-
-                </div>
-
-                <a href="analytics.html">
-                    More Details
-                </a>
-
-            </div>
-
-
-            <div class="overview-card">
-
-                <div class="overview-item">
-
-                    <span>Food</span>
-
-                    <div class="progress">
-                        <div
-                            id="foodProgress"
-                            class="progress-bar"
-                        ></div>
-                    </div>
-
-                    <strong id="foodAmount">
-                        ₦0
-                    </strong>
-
-                </div>
-
-
-                <div class="overview-item">
-
-                    <span>Transport</span>
-
-                    <div class="progress">
-                        <div
-                            id="transportProgress"
-                            class="progress-bar"
-                        ></div>
-                    </div>
-
-                    <strong id="transportAmount">
-                        ₦0
-                    </strong>
-
-                </div>
-
-
-                <div class="overview-item">
-
-                    <span>Bills</span>
-
-                    <div class="progress">
-                        <div
-                            id="billsProgress"
-                            class="progress-bar"
-                        ></div>
-                    </div>
-
-                    <strong id="billsAmount">
-                        ₦0
-                    </strong>
-
-                </div>
-
-
-                <div class="overview-item">
-
-                    <span>Other</span>
-
-                    <div class="progress">
-                        <div
-                            id="otherProgress"
-                            class="progress-bar"
-                        ></div>
-                    </div>
-
-                    <strong id="otherAmount">
-                        ₦0
-                    </strong>
 
                 </div>
 
@@ -470,6 +393,8 @@
 
 
             <form id="transactionForm">
+
+                <div class="modal-body">
 
                 <label for="transactionType">
                     Transaction Type
@@ -565,6 +490,8 @@
                     required
                 >
 
+                </div>
+
 
                 <div class="form-actions">
 
@@ -592,21 +519,130 @@
     </div>
 
 
-    <!-- ================= FOOTER ================= -->
+    <!-- ================= BUDGET MODAL ================= -->
 
-    <footer>
+    <div
+        id="budgetModal"
+        class="modal"
+        aria-hidden="true"
+    >
 
-        <h2>MoneyFlow</h2>
+        <div class="modal-content">
 
-        <p>
-            Your money. Your records. Your control.
-        </p>
+            <div class="modal-header">
 
-        <p>
-            Version 1.0.0
-        </p>
+                <div>
 
-    </footer>
+                    <p class="eyebrow">MONTHLY BUDGET</p>
+
+                    <h2>Update Budget</h2>
+
+                </div>
+
+                <button
+                    id="closeBudgetModalBtn"
+                    class="close-button"
+                >
+                    ×
+                </button>
+
+            </div>
+
+
+            <form id="budgetForm">
+
+                <div class="modal-body">
+
+                <label for="budgetAmount">
+                    Monthly Budget Amount
+                </label>
+
+                <input
+                    type="number"
+                    id="budgetAmount"
+                    placeholder="Enter amount"
+                    min="0"
+                    step="0.01"
+                    required
+                >
+
+                </div>
+
+                <div class="form-actions">
+
+                    <button
+                        type="button"
+                        id="cancelBudgetBtn"
+                        class="secondary-button"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+                        Save Budget
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================= BOTTOM NAVIGATION ================= -->
+
+    <nav class="bottom-nav">
+
+        <button type="button" class="bottom-nav-item active" aria-current="page">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M3 9.5L12 3L21 9.5V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Home</span>
+        </button>
+
+        <button type="button" class="bottom-nav-item" id="navPayments">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
+                <path d="M2 10H22" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+            <span>Payments</span>
+        </button>
+
+        <button type="button" class="bottom-nav-item" id="navSpending">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21.21 15.89C20.5738 17.3945 19.5788 18.7202 18.3119 19.7513C17.045 20.7824 15.5447 21.4874 13.9424 21.8048C12.3401 22.1221 10.6844 22.0421 9.12055 21.5718C7.55666 21.1015 6.13332 20.2551 4.97327 19.1067C3.81321 17.9583 2.95083 16.5428 2.45999 14.9843C1.96915 13.4258 1.86487 11.7712 2.15626 10.1635C2.44765 8.55585 3.12586 7.04419 4.13134 5.75937C5.13682 4.47455 6.44069 3.45557 7.93 2.79004" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M22 12C22 10.6868 21.7413 9.38642 21.2388 8.17317C20.7362 6.95991 19.9997 5.85752 19.0711 4.92893C18.1425 4.00035 17.0401 3.26375 15.8268 2.7612C14.6136 2.25866 13.3132 2 12 2V12H22Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Spending</span>
+        </button>
+
+        <button type="button" class="bottom-nav-item" id="navDebts">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Debts</span>
+        </button>
+
+        <button type="button" class="bottom-nav-item" id="navMore">
+            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+                <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+                <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+                <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
+            </svg>
+            <span>More</span>
+        </button>
+
+    </nav>
 
 
     <script src="core.js" defer></script>

@@ -1,0 +1,486 @@
+/* =====================================================================
+   MONEYFLOW — HOME PAGE (PHASE 2)
+   Loaded AFTER style.css, on index.html only. Deliberately does NOT
+   touch style.css itself — instead it overrides the same CSS custom
+   properties style.css's existing components already use everywhere
+   (buttons, modal, cards, toast, confirm dialog...), so all of that
+   automatically re-themes on this page, while transactions/analytics/
+   settings stay exactly as they are until their own Phase 2 steps.
+
+   Colors below deliberately match MoneyFlow's own existing dark-mode
+   green identity (same hues already used on login.html and the rest
+   of the app in dark mode) — not a separate palette invented for this
+   page. Neutral dark-navy surfaces, green as the sole accent.
+
+   Matches both :root and html.dark with equal-or-higher specificity
+   than style.css's own dark-mode block, so this wins regardless of
+   the person's stored light/dark preference — Home is a fixed-dark
+   experience now, independent of that setting (see index.html's
+   report notes).
+   ===================================================================== */
+
+:root,
+html.dark,
+html.dark-theme,
+html[data-theme="dark"] {
+    --color-bg: #090E17;
+    --color-bg-soft: #0D1420;
+    --color-surface: #111A28;
+    --color-surface-alt: #0D1520;
+    --color-border: #1E2A3C;
+    --color-border-strong: #2C3B52;
+
+    --color-text-primary: #EEF2F8;
+    --color-text-secondary: #9AA6BC;
+    --color-text-muted: #6B7690;
+    --color-text-on-primary: #F2FAF7;
+
+    --color-primary: #1B9A78;
+    --color-primary-dark: #157C60;
+    --color-primary-light: #2DBE9A;
+    --color-primary-soft: rgba(27, 154, 120, 0.14);
+
+    --color-income: #2DBE9A;
+    --color-income-soft: rgba(45, 190, 154, 0.13);
+    --color-expense: #E2685A;
+    --color-expense-soft: rgba(226, 104, 90, 0.13);
+    --color-danger: #E2685A;
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 8px 24px -6px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.55);
+    --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+
+    color-scheme: dark;
+}
+
+body {
+    /* Old layout had a sticky top nav; this page has a fixed bottom
+       nav instead, so main needs bottom clearance for that instead. */
+    padding-bottom: 0;
+}
+
+/* =====================================================================
+   HEADER (avatar + bell replace the old theme-toggle button)
+   ===================================================================== */
+
+.home-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notification-bell {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-primary);
+    transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.notification-bell:hover {
+    background: var(--color-bg-soft);
+    border-color: var(--color-border-strong);
+}
+
+.notification-bell svg {
+    width: 20px;
+    height: 20px;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    display: none; /* shown via JS only when there's a real unread count */
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-full);
+    background: var(--color-expense);
+    color: #FFFFFF;
+    font-size: 10.5px;
+    font-weight: 700;
+    border: 2px solid var(--color-bg);
+}
+
+.notification-badge.show {
+    display: flex;
+}
+
+.user-avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-full);
+    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark));
+    color: #FFFFFF;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+/* =====================================================================
+   GREETING
+   ===================================================================== */
+
+.greeting-section {
+    padding-top: 4px;
+}
+
+.greeting-section h2 {
+    font-size: clamp(20px, 6.5vw, 26px);
+    font-weight: 700;
+    margin-bottom: 6px;
+    overflow-wrap: break-word;
+    word-break: normal;
+    line-height: 1.25;
+}
+
+.greeting-section p {
+    font-size: 14px;
+    color: var(--color-text-secondary);
+}
+
+/* =====================================================================
+   MONTH PILL
+   ===================================================================== */
+
+.month-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 38px;
+    padding: 0 16px;
+    border-radius: var(--radius-full);
+    background: var(--color-surface-alt);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.month-pill svg {
+    width: 15px;
+    height: 15px;
+}
+
+/* =====================================================================
+   BUDGET STRIP
+   ===================================================================== */
+
+.budget-strip {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    padding: 18px 20px;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    color: var(--color-text-primary);
+    font-size: 14px;
+    text-align: left;
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.budget-strip:hover {
+    border-color: var(--color-border-strong);
+    background: var(--color-surface-alt);
+}
+
+.budget-strip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    background: var(--color-primary-soft);
+    color: var(--color-primary-light);
+}
+
+.budget-strip-icon svg {
+    width: 19px;
+    height: 19px;
+}
+
+.budget-strip-text {
+    flex: 1;
+    line-height: 1.5;
+}
+
+.budget-strip-text strong {
+    font-weight: 700;
+}
+
+.budget-strip-chevron {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    color: var(--color-text-muted);
+}
+
+/* =====================================================================
+   BOTTOM NAVIGATION
+   ===================================================================== */
+
+.bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    display: flex;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding: 8px max(16px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    box-shadow: var(--shadow-lg);
+}
+
+.bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 4px;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-family: var(--font-body);
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+}
+
+.bottom-nav-item svg {
+    width: 22px;
+    height: 22px;
+}
+
+.bottom-nav-item.active {
+    color: var(--color-primary-light);
+}
+
+/* Room at the bottom of the page content so the fixed nav never
+   covers the last thing on screen. */
+main {
+    padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+}
+
+/* =====================================================================
+   BUDGET EDIT MODAL — reuses .modal/.modal-content from style.css,
+   just needs the input field styled to match (mirrors #transactionForm).
+   ===================================================================== */
+
+#budgetForm {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+#budgetForm label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: -8px;
+}
+
+#budgetForm input {
+    width: 100%;
+    height: 50px;
+    padding: 0 16px;
+    border-radius: var(--radius-sm);
+    border: 1.5px solid var(--color-border);
+    background: var(--color-surface-alt);
+    color: var(--color-text-primary);
+    font-family: var(--font-mono);
+    font-size: 16px;
+    font-weight: 600;
+}
+
+#budgetForm input:focus {
+    outline: none;
+    border-color: var(--color-primary-light);
+    background: var(--color-surface);
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+}
+
+/* =====================================================================
+   QUICK ADD — Bill/Loan icon color (Income/Expense already handled by
+   style.css's existing .action-icon / #expenseBtn override pattern)
+   ===================================================================== */
+
+#billLoanBtn .action-icon {
+    background: rgba(217, 159, 46, 0.16);
+    color: #D99F2E;
+}
+
+
+/* =====================================================================
+   MONEY AT A GLANCE — keep 3 cards in one row on mobile
+   style.css's shared .summary-grid mobile rules (used by other pages
+   with only 4 cards) force 2 columns, which wraps our 3 cards as
+   2+1. Overriding here, scoped to this page only, so those other
+   pages are unaffected. Card padding/font sizes shrink at each
+   breakpoint instead of ever dropping below 3 columns.
+   ===================================================================== */
+
+.summary-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px;
+}
+
+.summary-card {
+    padding: 16px 12px 14px;
+}
+
+.summary-card > p {
+    font-size: 11px;
+    line-height: 1.3;
+    margin-bottom: 6px;
+}
+
+.summary-card h2 {
+    font-size: 18px;
+    margin-bottom: 6px;
+    overflow-wrap: break-word;
+}
+
+.summary-card > span {
+    font-size: 10px;
+    line-height: 1.35;
+}
+
+@media (max-width: 620px) {
+    .summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 8px;
+    }
+
+    .summary-card {
+        padding: 14px 10px 12px;
+    }
+
+    .summary-card h2 {
+        font-size: 16px;
+    }
+
+    .summary-card > p {
+        font-size: 10.5px;
+    }
+
+    .summary-card > span {
+        font-size: 9.5px;
+    }
+}
+
+@media (max-width: 380px) {
+    .summary-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 6px;
+    }
+
+    .summary-card {
+        padding: 12px 8px 10px;
+    }
+
+    .summary-card h2 {
+        font-size: 14.5px;
+    }
+
+    .summary-card > p {
+        font-size: 10px;
+    }
+
+    .summary-card > span {
+        display: none; /* subtitle drops at the narrowest widths — label + value stay readable */
+    }
+}
+
+
+/* =====================================================================
+   QUICK ADD — same fix, same reason: style.css's shared .action-grid
+   mobile rules (built for other pages' layouts) collapse this to 2
+   then 1 column as the viewport narrows. Home always needs exactly 3.
+   ===================================================================== */
+
+.action-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 10px;
+}
+
+.action-card {
+    padding: 16px 10px;
+}
+
+.action-icon {
+    width: 32px;
+    height: 32px;
+    font-size: 15px;
+    margin-bottom: 4px;
+}
+
+.action-card strong {
+    font-size: 12.5px;
+}
+
+@media (max-width: 620px) {
+    .action-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 8px;
+    }
+
+    .action-card {
+        padding: 14px 8px;
+    }
+
+    .action-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 14px;
+    }
+
+    .action-card strong {
+        font-size: 11.5px;
+    }
+}
+
+@media (max-width: 380px) {
+    .action-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        gap: 6px;
+    }
+
+    .action-card {
+        padding: 12px 6px;
+    }
+
+    .action-icon {
+        width: 28px;
+        height: 28px;
+        font-size: 13px;
+        margin-bottom: 3px;
+    }
+
+    .action-card strong {
+        font-size: 10.5px;
+    }
+}
