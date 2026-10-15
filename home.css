@@ -1,486 +1,1243 @@
-/* =====================================================================
-   MONEYFLOW — HOME PAGE (PHASE 2)
-   Loaded AFTER style.css, on index.html only. Deliberately does NOT
-   touch style.css itself — instead it overrides the same CSS custom
-   properties style.css's existing components already use everywhere
-   (buttons, modal, cards, toast, confirm dialog...), so all of that
-   automatically re-themes on this page, while transactions/analytics/
-   settings stay exactly as they are until their own Phase 2 steps.
 
-   Colors below deliberately match MoneyFlow's own existing dark-mode
-   green identity (same hues already used on login.html and the rest
-   of the app in dark mode) — not a separate palette invented for this
-   page. Neutral dark-navy surfaces, green as the sole accent.
+/* ============================================
+   MONEYFLOW — PREMIUM AMOLED HOME
+   Emerald Green Edition
+   Loaded AFTER style.css
+   ============================================ */
 
-   Matches both :root and html.dark with equal-or-higher specificity
-   than style.css's own dark-mode block, so this wins regardless of
-   the person's stored light/dark preference — Home is a fixed-dark
-   experience now, independent of that setting (see index.html's
-   report notes).
-   ===================================================================== */
+/* DESIGN COLOURS */
 
 :root,
-html.dark,
-html.dark-theme,
-html[data-theme="dark"] {
-    --color-bg: #090E17;
-    --color-bg-soft: #0D1420;
-    --color-surface: #111A28;
-    --color-surface-alt: #0D1520;
-    --color-border: #1E2A3C;
-    --color-border-strong: #2C3B52;
+html.dark {
+  --color-bg: #09090f;
+  --color-bg-soft: #101017;
+  --color-surface: #171720;
+  --color-surface-alt: #1e202a;
+  --color-border: #30303e;
+  --color-border-strong: #454555;
 
-    --color-text-primary: #EEF2F8;
-    --color-text-secondary: #9AA6BC;
-    --color-text-muted: #6B7690;
-    --color-text-on-primary: #F2FAF7;
+  --color-text-primary: #f8f8fa;
+  --color-text-secondary: #a2a4b3;
+  --color-text-muted: #797d90;
+  --color-text-on-primary: #ffffff;
 
-    --color-primary: #1B9A78;
-    --color-primary-dark: #157C60;
-    --color-primary-light: #2DBE9A;
-    --color-primary-soft: rgba(27, 154, 120, 0.14);
+  --color-primary: #20ba86;
+  --color-primary-light: #42dda7;
+  --color-primary-dark: #11946e;
+  --color-primary-soft: rgba(45,207,151,.14);
 
-    --color-income: #2DBE9A;
-    --color-income-soft: rgba(45, 190, 154, 0.13);
-    --color-expense: #E2685A;
-    --color-expense-soft: rgba(226, 104, 90, 0.13);
-    --color-danger: #E2685A;
+  --color-income: #29d18d;
+  --color-income-soft: rgba(41,209,141,.14);
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 8px 24px -6px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.55);
-    --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --color-expense: #ff6269;
+  --color-expense-soft: rgba(255,98,105,.14);
 
-    color-scheme: dark;
+  --shadow-sm: none;
+  --shadow-md: 0 12px 28px rgba(0,0,0,.2);
+  --shadow-lg: 0 24px 65px rgba(0,0,0,.55);
+
+  color-scheme: dark;
 }
 
-body {
-    /* Old layout had a sticky top nav; this page has a fixed bottom
-       nav instead, so main needs bottom clearance for that instead. */
-    padding-bottom: 0;
+/* AMOLED BASE */
+
+html {
+  background: #09090f !important;
 }
 
-/* =====================================================================
-   HEADER (avatar + bell replace the old theme-toggle button)
-   ===================================================================== */
+body.home-amoled {
+  margin: 0;
+  min-height: 100vh;
+  background: #09090f !important;
+  color: #f8f8fa;
+  overflow-x: hidden;
+}
+
+.home-amoled *,
+.home-amoled *::before,
+.home-amoled *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.home-amoled button {
+  font-family: inherit;
+}
+
+/* ============================================
+   APP HEADER
+   ============================================ */
+
+.home-amoled .home-topbar {
+  position: relative;
+  top: auto;
+  z-index: 40;
+
+  width: 100%;
+  min-height: calc(
+    82px + env(safe-area-inset-top)
+  );
+
+  height: auto;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding:
+    calc(17px + env(safe-area-inset-top))
+    22px
+    17px;
+
+  background: #09090f !important;
+  border: none !important;
+  box-shadow: none;
+
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.home-amoled .brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.home-amoled .brand-mark {
+  width: 45px;
+  height: 45px;
+  flex: none;
+
+  display: grid;
+  place-items: center;
+
+  border: none;
+  border-radius: 15px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #34dbaa 0%,
+      #159c79 100%
+    ) !important;
+
+  color: #ffffff;
+
+  box-shadow: none;
+}
+
+.home-amoled .brand-mark svg {
+  width: 26px;
+  height: 26px;
+}
+
+.home-amoled .brand h1 {
+  margin: 0;
+  font-size: clamp(19px, 5.2vw, 24px);
+  font-weight: 800;
+  letter-spacing: -.065em;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.home-amoled .brand-highlight {
+  color: #42dda7;
+}
+
+/* HEADER BUTTONS */
 
 .home-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  flex-shrink: 0;
 }
 
 .notification-bell {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-full);
-    background: var(--color-surface-alt);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-primary);
-    transition: background var(--transition-fast), border-color var(--transition-fast);
-}
+  position: relative;
 
-.notification-bell:hover {
-    background: var(--color-bg-soft);
-    border-color: var(--color-border-strong);
+  width: 43px;
+  height: 43px;
+
+  display: grid;
+  place-items: center;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: #191922;
+  color: #f4f4f6;
+
+  cursor: pointer;
 }
 
 .notification-bell svg {
-    width: 20px;
-    height: 20px;
+  width: 23px;
+  height: 23px;
 }
 
 .notification-badge {
-    position: absolute;
-    top: -3px;
-    right: -3px;
-    min-width: 18px;
-    height: 18px;
-    padding: 0 4px;
-    display: none; /* shown via JS only when there's a real unread count */
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius-full);
-    background: var(--color-expense);
-    color: #FFFFFF;
-    font-size: 10.5px;
-    font-weight: 700;
-    border: 2px solid var(--color-bg);
+  display: none;
+
+  position: absolute;
+  top: 3px;
+  right: 3px;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+  background: #ff6269;
+
+  border: 2px solid #09090f;
 }
 
 .notification-badge.show {
-    display: flex;
+  display: block;
 }
 
 .user-avatar {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark));
-    color: #FFFFFF;
-    font-family: var(--font-display);
-    font-size: 15px;
-    font-weight: 700;
-    flex-shrink: 0;
+  width: 45px;
+  height: 45px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  border: 0;
+
+  background: #169f79;
+  color: #fff;
+
+  font-size: 18px;
+  font-weight: 800;
+
+  box-shadow: none;
+  cursor: pointer;
 }
 
-/* =====================================================================
+/* ============================================
+   MAIN CONTENT
+   ============================================ */
+
+.home-amoled .home-main {
+  width: 100%;
+  max-width: 600px;
+
+  margin: 0 auto;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 0;
+
+  padding:
+    22px
+    22px
+    calc(125px + env(safe-area-inset-bottom))
+    !important;
+}
+
+/* ============================================
    GREETING
-   ===================================================================== */
+   ============================================ */
 
 .greeting-section {
-    padding-top: 4px;
+  margin: 0;
+  padding: 4px 0 0;
 }
 
 .greeting-section h2 {
-    font-size: clamp(20px, 6.5vw, 26px);
-    font-weight: 700;
-    margin-bottom: 6px;
-    overflow-wrap: break-word;
-    word-break: normal;
-    line-height: 1.25;
+  margin: 0 0 7px;
+
+  font-size: clamp(23px, 6vw, 29px);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -.045em;
+
+  color: #f8f8fa;
 }
 
 .greeting-section p {
-    font-size: 14px;
-    color: var(--color-text-secondary);
+  margin: 0;
+
+  color: #9396a5;
+  font-size: 13px;
+  line-height: 1.55;
 }
 
-/* =====================================================================
-   MONTH PILL
-   ===================================================================== */
+/* ============================================
+   SECTION TITLES
+   ============================================ */
+
+.home-amoled .section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+  margin: 0 0 18px;
+}
+
+.home-amoled .section-heading h2 {
+  margin: 0;
+
+  color: #f9f9fb;
+
+  font-size: clamp(17px, 4.5vw, 21px);
+  font-weight: 800;
+
+  line-height: 1.3;
+  letter-spacing: -.035em;
+}
+
+/* ============================================
+   MONEY AT A GLANCE
+   ============================================ */
+
+.home-glance {
+  margin-top: 32px;
+}
 
 .month-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    height: 38px;
-    padding: 0 16px;
-    border-radius: var(--radius-full);
-    background: var(--color-surface-alt);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-secondary);
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 32px;
+  flex-shrink: 0;
+
+  padding: 7px 10px;
+
+  border: 1px solid #30303d;
+  border-radius: 50px;
+
+  background: #191922;
+  color: #a6a7b4;
+
+  font-size: 10.5px;
+  font-weight: 500;
+
+  white-space: nowrap;
 }
 
 .month-pill svg {
-    width: 15px;
-    height: 15px;
+  width: 14px;
+  height: 14px;
 }
 
-/* =====================================================================
-   BUDGET STRIP
-   ===================================================================== */
+/* THREE CARDS */
 
-.budget-strip {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    width: 100%;
-    padding: 18px 20px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-lg);
-    color: var(--color-text-primary);
-    font-size: 14px;
-    text-align: left;
-    transition: border-color var(--transition-fast), background var(--transition-fast);
+.home-amoled .summary-grid {
+  display: grid !important;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr)) !important;
+
+  align-items: stretch;
+
+  gap: 8px !important;
 }
 
-.budget-strip:hover {
-    border-color: var(--color-border-strong);
-    background: var(--color-surface-alt);
+.home-amoled .summary-card {
+  position: relative;
+
+  min-width: 0;
+  min-height: 175px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  padding: 12px 10px 13px !important;
+
+  border: 1px solid #30303e;
+  border-radius: 18px;
+
+  background: #171720 !important;
+
+  color: #f8f8fa;
+  box-shadow: none !important;
+
+  overflow: hidden;
+  transform: none;
+}
+
+.home-amoled .summary-card::before {
+  display: none !important;
+  content: none !important;
+}
+
+.home-amoled .summary-card:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* SUMMARY ICONS */
+
+.home-amoled .summary-card
+.home-summary-icon {
+  width: 35px;
+  height: 35px;
+
+  display: grid;
+  place-items: center;
+
+  flex: none;
+
+  margin: 0 0 13px;
+
+  border-radius: 50%;
+}
+
+.home-summary-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+.home-summary-income {
+  background: rgba(38,207,133,.15);
+  color: #29d58d !important;
+}
+
+.home-summary-balance {
+  background: rgba(76,148,245,.15);
+  color: #66a7ff !important;
+}
+
+.home-summary-debts {
+  background: rgba(255,88,100,.16);
+  color: #ff666d !important;
+}
+
+/* CARD TEXT */
+
+.home-amoled .summary-card > p {
+  min-height: 0;
+
+  margin: 0 0 9px;
+  padding: 0;
+
+  color: #9799a8 !important;
+
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.home-amoled .summary-card h2 {
+  margin: 0 0 11px;
+
+  font-family: var(--font-body);
+  font-size: clamp(14px, 3.9vw, 21px);
+  font-weight: 800;
+
+  line-height: 1.24;
+  letter-spacing: -.04em;
+
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+
+  color: #f8f8fa;
+}
+
+.home-amoled .income-card h2 {
+  color: #2ed48f;
+}
+
+.home-amoled .balance-card h2 {
+  color: #66a7ff;
+}
+
+.home-amoled .expense-card h2 {
+  color: #ff666d;
+}
+
+.home-amoled .summary-card
+> span:not(.home-summary-icon) {
+  display: block;
+
+  margin-top: auto;
+
+  color: #818391 !important;
+
+  font-size: 10px;
+  font-weight: 400;
+  line-height: 1.43;
+}
+
+/* ============================================
+   MONTHLY BUDGET
+   ============================================ */
+
+.home-budget {
+  margin-top: 16px;
+}
+
+.home-amoled .budget-strip {
+  width: 100%;
+  min-height: 67px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+  padding: 14px;
+
+  border: 1px solid #30303e;
+  border-radius: 18px;
+
+  background: #171720 !important;
+  color: #a2a4b3;
+
+  text-align: left;
+
+  box-shadow: none !important;
+  cursor: pointer;
+}
+
+.home-amoled .budget-strip:hover {
+  background: #1b1b26 !important;
+  border-color: #3b3b48;
 }
 
 .budget-strip-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    flex-shrink: 0;
-    border-radius: 10px;
-    background: var(--color-primary-soft);
-    color: var(--color-primary-light);
+  width: 24px;
+  height: 30px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  background: transparent;
+  color: #42dda7;
 }
 
 .budget-strip-icon svg {
-    width: 19px;
-    height: 19px;
+  width: 22px;
+  height: 22px;
 }
 
 .budget-strip-text {
-    flex: 1;
-    line-height: 1.5;
+  flex: 1;
+  min-width: 0;
+
+  color: #a1a3b2;
+
+  font-size: 12px;
+  line-height: 1.5;
+  font-weight: 400;
 }
 
 .budget-strip-text strong {
-    font-weight: 700;
+  color: #42dda7;
+  font-weight: 800;
 }
 
 .budget-strip-chevron {
-    flex-shrink: 0;
-    width: 18px;
-    height: 18px;
-    color: var(--color-text-muted);
+  width: 18px;
+  height: 18px;
+
+  flex-shrink: 0;
+  color: #818391;
 }
 
-/* =====================================================================
-   BOTTOM NAVIGATION
-   ===================================================================== */
+/* ============================================
+   QUICK ADD
+   ============================================ */
 
-.bottom-nav {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 100;
-    display: flex;
-    background: var(--color-surface);
-    border-top: 1px solid var(--color-border);
-    padding: 8px max(16px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-    box-shadow: var(--shadow-lg);
+.home-amoled .quick-actions {
+  margin-top: 30px;
 }
 
-.bottom-nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 4px;
-    background: none;
-    border: none;
-    color: var(--color-text-muted);
-    font-family: var(--font-body);
-    font-size: 11.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: color var(--transition-fast);
+.home-amoled .action-grid {
+  display: grid !important;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr)) !important;
+
+  gap: 8px !important;
 }
 
-.bottom-nav-item svg {
-    width: 22px;
-    height: 22px;
+.home-amoled .action-card {
+  min-width: 0;
+  min-height: 107px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  padding: 16px 6px;
+
+  border: 1px solid #30303e;
+  border-radius: 18px;
+
+  background: #171720 !important;
+
+  box-shadow: none !important;
+
+  text-align: center;
+  color: #ffffff;
+  cursor: pointer;
 }
 
-.bottom-nav-item.active {
-    color: var(--color-primary-light);
+.home-amoled .action-card:hover {
+  background: #1e1e29 !important;
+  border-color: #3e404d;
+  transform: none;
 }
 
-/* Room at the bottom of the page content so the fixed nav never
-   covers the last thing on screen. */
-main {
-    padding-bottom: calc(88px + env(safe-area-inset-bottom)) !important;
+.home-amoled .action-card:active {
+  transform: scale(.97);
 }
 
-/* =====================================================================
-   BUDGET EDIT MODAL — reuses .modal/.modal-content from style.css,
-   just needs the input field styled to match (mirrors #transactionForm).
-   ===================================================================== */
+/* BRIGHT CIRCULAR ICONS */
 
-#budgetForm {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
+.home-amoled .action-icon {
+  width: 43px;
+  height: 43px;
+
+  margin: 0;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #28d184;
+  color: #ffffff;
+
+  box-shadow: none;
 }
 
-#budgetForm label {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    margin-bottom: -8px;
+.home-amoled .action-icon svg {
+  width: 23px;
+  height: 23px;
 }
 
-#budgetForm input {
-    width: 100%;
-    height: 50px;
-    padding: 0 16px;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--color-border);
-    background: var(--color-surface-alt);
-    color: var(--color-text-primary);
-    font-family: var(--font-mono);
-    font-size: 16px;
-    font-weight: 600;
+.home-amoled #expenseBtn .action-icon {
+  background: #ff6168;
+  color: #fff;
 }
 
-#budgetForm input:focus {
-    outline: none;
-    border-color: var(--color-primary-light);
-    background: var(--color-surface);
-    box-shadow: 0 0 0 3px var(--color-primary-soft);
+.home-amoled #billLoanBtn .action-icon {
+  background: #f5a829;
+  color: #fff;
 }
 
-/* =====================================================================
-   QUICK ADD — Bill/Loan icon color (Income/Expense already handled by
-   style.css's existing .action-icon / #expenseBtn override pattern)
-   ===================================================================== */
+.home-amoled .action-card strong {
+  margin: 0;
 
-#billLoanBtn .action-icon {
-    background: rgba(217, 159, 46, 0.16);
-    color: #D99F2E;
+  color: #fff;
+
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: -.02em;
+
+  white-space: nowrap;
 }
 
+/* ============================================
+   TRANSACTION AREA
+   ============================================ */
 
-/* =====================================================================
-   MONEY AT A GLANCE — keep 3 cards in one row on mobile
-   style.css's shared .summary-grid mobile rules (used by other pages
-   with only 4 cards) force 2 columns, which wraps our 3 cards as
-   2+1. Overriding here, scoped to this page only, so those other
-   pages are unaffected. Card padding/font sizes shrink at each
-   breakpoint instead of ever dropping below 3 columns.
-   ===================================================================== */
-
-.summary-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 10px;
+.home-amoled .recent-section {
+  margin-top: 28px;
 }
 
-.summary-card {
-    padding: 16px 12px 14px;
+.home-amoled .transactions-list {
+  overflow: hidden;
+
+  border: none;
+  border-radius: 0;
+
+  background: transparent;
+  box-shadow: none;
 }
 
-.summary-card > p {
-    font-size: 11px;
-    line-height: 1.3;
-    margin-bottom: 6px;
+/* SIMPLE EMPTY MESSAGE */
+
+.home-amoled .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  min-height: 100px;
+
+  padding: 28px 10px;
+
+  border: none;
+  border-radius: 0;
+
+  background: transparent !important;
+  box-shadow: none;
+
+  text-align: center;
 }
 
-.summary-card h2 {
-    font-size: 18px;
-    margin-bottom: 6px;
-    overflow-wrap: break-word;
+.home-amoled .empty-state::before {
+  display: none !important;
+  content: none !important;
 }
 
-.summary-card > span {
+.home-amoled .empty-state h3 {
+  margin: 0;
+
+  font-size: 14px;
+  font-weight: 650;
+
+  color: #f4f4f6;
+}
+
+.home-amoled .empty-state p {
+  margin: 0;
+
+  color: #9395a4;
+  font-size: 12.5px;
+  line-height: 1.55;
+}
+
+/* Existing Add Transaction button */
+
+.home-amoled .empty-state
+.primary-button {
+  margin-top: 10px;
+
+  min-height: 42px;
+
+  border-radius: 12px;
+
+  background: #159f78;
+  color: #fff;
+
+  font-size: 12px;
+}
+
+/* TRANSACTION ROWS */
+
+.home-amoled .transaction-item {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+
+  padding: 13px 5px;
+
+  border-bottom: 1px solid #272733;
+
+  background: transparent;
+}
+
+.home-amoled .transaction-item:hover {
+  background: #111119;
+}
+
+.home-amoled .transaction-icon {
+  width: 36px;
+  height: 36px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: rgba(41,209,141,.13);
+  color: #31d993;
+}
+
+.home-amoled .transaction-item.expense
+.transaction-icon {
+  background: rgba(255,98,105,.13);
+  color: #ff7479;
+}
+
+.home-amoled .transaction-details strong {
+  color: #f7f7f9;
+  font-size: 12px;
+}
+
+.home-amoled .transaction-details span {
+  color: #898c9d;
+  font-size: 10px;
+}
+
+.home-amoled .transaction-amount {
+  font-size: 12px;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+/* ============================================
+   REFER FRIENDS
+   ============================================ */
+
+.referral-section {
+  margin-top: 33px;
+}
+
+.referral-card {
+  width: 100%;
+  min-height: 92px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 17px 15px;
+
+  border: 1px solid #30303e;
+  border-radius: 19px;
+
+  background: #1c1c29;
+
+  color: #ffffff;
+  text-align: left;
+
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.referral-card:active {
+  background: #242432;
+}
+
+.referral-icon {
+  width: 45px;
+  height: 45px;
+
+  display: grid;
+  place-items: center;
+
+  flex-shrink: 0;
+
+  border-radius: 15px;
+
+  background: rgba(40,209,132,.15);
+  color: #2ad58c;
+}
+
+.referral-icon svg {
+  width: 25px;
+  height: 25px;
+}
+
+.referral-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  min-width: 0;
+  gap: 5px;
+}
+
+.referral-copy strong {
+  color: #fafafa;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.referral-copy > span {
+  color: #9395a5;
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.referral-chevron {
+  width: 18px;
+  height: 18px;
+
+  flex-shrink: 0;
+  color: #808393;
+}
+
+/* ============================================
+   FLOATING BOTTOM NAVIGATION
+   MATCHING AMOLED INSPIRATION
+   ============================================ */
+
+.home-amoled .bottom-nav {
+  position: fixed;
+  z-index: 250;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  width: 100%;
+  max-width: none;
+
+  min-height: 71px;
+
+  display: grid;
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  align-items: center;
+
+  gap: 0;
+
+  margin: 0;
+  padding:
+    8px
+    max(9px, env(safe-area-inset-right))
+    calc(8px + env(safe-area-inset-bottom))
+    max(9px, env(safe-area-inset-left));
+
+  border: none;
+  border-top: 1px solid #2b2b39;
+
+  border-radius: 0;
+
+  background: #171720;
+
+  box-shadow: none;
+
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.home-amoled .bottom-nav-item {
+  min-width: 0;
+  min-height: 53px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  padding: 5px 2px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: transparent !important;
+  color: #878a9b;
+
+  font-size: 10px;
+  font-weight: 650;
+
+  box-shadow: none;
+
+  cursor: pointer;
+}
+
+.home-amoled .bottom-nav-item svg {
+  width: 23px;
+  height: 23px;
+
+  flex-shrink: 0;
+}
+
+.home-amoled .bottom-nav-item.active {
+  color: #3cdda4;
+  background: transparent !important;
+}
+
+.home-amoled .bottom-nav-item:active {
+  color: #3cdda4;
+}
+
+/* ============================================
+   TRANSACTION & BUDGET MODALS
+   KEEP THE EXISTING FORMS WORKING
+   ============================================ */
+
+.home-amoled .modal {
+  z-index: 500;
+
+  padding: 14px;
+
+  background: rgba(0,0,0,.83);
+
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.home-amoled .modal-content {
+  width: 100%;
+  max-width: 460px;
+  max-height: 88dvh;
+
+  overflow: hidden;
+
+  border: 1px solid #373746;
+  border-radius: 20px;
+
+  background: #1a1a25;
+  box-shadow: 0 24px 75px #0009;
+}
+
+.home-amoled .modal-header {
+  padding: 19px 20px 15px;
+  border-bottom: 1px solid #343442;
+}
+
+.home-amoled .modal-header h2 {
+  color: #fff;
+  font-size: 19px;
+}
+
+.home-amoled .modal-body {
+  padding: 18px 20px;
+  gap: 15px;
+}
+
+.home-amoled .modal-body label {
+  color: #acafbd;
+
+  font-size: 12px;
+  font-weight: 650;
+
+  letter-spacing: .02em;
+}
+
+.home-amoled .modal-body input,
+.home-amoled .modal-body select {
+  width: 100%;
+  min-height: 47px;
+
+  padding: 0 13px;
+
+  border: 1px solid #393a4a;
+  border-radius: 12px;
+
+  background: #11121b;
+  color: #f7f7fa;
+
+  font: inherit;
+  font-size: 14px;
+
+  color-scheme: dark;
+}
+
+.home-amoled .modal-body input:focus,
+.home-amoled .modal-body select:focus {
+  outline: none;
+
+  border-color: #3edda6;
+
+  box-shadow:
+    0 0 0 3px rgba(47,207,153,.12);
+}
+
+.home-amoled .form-actions {
+  padding:
+    15px
+    20px
+    calc(20px + env(safe-area-inset-bottom));
+
+  border-top: 1px solid #343442;
+}
+
+.home-amoled .primary-button {
+  border: none;
+  border-radius: 11px;
+
+  background: #20b987;
+  color: #fff;
+}
+
+.home-amoled .secondary-button {
+  border: 1px solid #393a49;
+  border-radius: 11px;
+
+  background: #242532;
+  color: #e1e1e8;
+}
+
+.home-amoled .close-button {
+  background: #252633;
+  border-color: #393a49;
+
+  color: #ededf2;
+}
+
+/* Preserve the original modal form layout */
+
+.home-amoled #transactionForm,
+.home-amoled #budgetForm {
+  display: contents;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.home-amoled :where(
+  button,
+  a,
+  input,
+  select
+):focus-visible {
+  outline: 2px solid #50e7b4;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   SMALL PHONES
+   ============================================ */
+
+@media (max-width: 370px) {
+
+  .home-amoled .home-topbar {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .home-amoled .home-main {
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+  }
+
+  .home-header-actions {
+    gap: 8px;
+  }
+
+  .home-amoled .summary-grid,
+  .home-amoled .action-grid {
+    gap: 7px !important;
+  }
+
+  .home-amoled .summary-card {
+    padding: 11px 8px !important;
+    min-height: 172px;
+  }
+
+  .home-amoled .summary-card > p {
     font-size: 10px;
-    line-height: 1.35;
+  }
+
+  .home-amoled .summary-card h2 {
+    font-size: 13px;
+  }
+
+  .home-amoled .summary-card
+  > span:not(.home-summary-icon) {
+    font-size: 9px;
+  }
+
+  .home-amoled .action-card strong {
+    font-size: 11px;
+  }
+
 }
 
-@media (max-width: 620px) {
-    .summary-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 8px;
-    }
+/* ============================================
+   LARGER SCREENS
+   ============================================ */
 
-    .summary-card {
-        padding: 14px 10px 12px;
-    }
+@media (min-width: 700px) {
 
-    .summary-card h2 {
-        font-size: 16px;
-    }
+  .home-amoled .home-main {
+    padding-top: 30px !important;
+  }
 
-    .summary-card > p {
-        font-size: 10.5px;
-    }
+  .home-amoled .summary-card {
+    min-height: 185px;
+    padding: 17px !important;
+  }
 
-    .summary-card > span {
-        font-size: 9.5px;
-    }
+  .home-amoled .summary-card h2 {
+    font-size: 21px;
+  }
+
+  .home-amoled .action-card {
+    min-height: 125px;
+  }
+
 }
 
-@media (max-width: 380px) {
-    .summary-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 6px;
-    }
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
 
-    .summary-card {
-        padding: 12px 8px 10px;
-    }
+@media (prefers-reduced-motion: reduce) {
 
-    .summary-card h2 {
-        font-size: 14.5px;
-    }
+  .home-amoled *,
+  .home-amoled *::before,
+  .home-amoled *::after {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+  }
 
-    .summary-card > p {
-        font-size: 10px;
-    }
-
-    .summary-card > span {
-        display: none; /* subtitle drops at the narrowest widths — label + value stay readable */
-    }
 }
 
+/* ==========================================
+   MONEYFLOW — HOME NOTIFICATION FIX
+   Keep notification messages visible
+   above the bottom navigation
+   ========================================== */
 
-/* =====================================================================
-   QUICK ADD — same fix, same reason: style.css's shared .action-grid
-   mobile rules (built for other pages' layouts) collapse this to 2
-   then 1 column as the viewport narrows. Home always needs exactly 3.
-   ===================================================================== */
+body.home-amoled #moneyflowToastContainer {
+  position: fixed !important;
 
-.action-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 10px;
+  bottom: calc(
+    92px + env(safe-area-inset-bottom)
+  ) !important;
+
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+
+  z-index: 400 !important;
+
+  width: 100%;
+  max-width: 480px;
+
+  padding: 0 18px;
+
+  pointer-events: none;
 }
 
-.action-card {
-    padding: 16px 10px;
+body.home-amoled #moneyflowToastContainer .toast {
+  width: fit-content;
+  max-width: 100%;
+
+  padding: 14px 19px;
+
+  border: 1px solid #36d6a4;
+  border-radius: 15px;
+
+  background: #1d202a;
+  color: #f8f9fc;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.4);
+
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.5;
+  text-align: center;
+
+  pointer-events: auto;
 }
 
-.action-icon {
-    width: 32px;
-    height: 32px;
-    font-size: 15px;
-    margin-bottom: 4px;
-}
+/* Preserve error-message styling */
 
-.action-card strong {
-    font-size: 12.5px;
-}
-
-@media (max-width: 620px) {
-    .action-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 8px;
-    }
-
-    .action-card {
-        padding: 14px 8px;
-    }
-
-    .action-icon {
-        width: 30px;
-        height: 30px;
-        font-size: 14px;
-    }
-
-    .action-card strong {
-        font-size: 11.5px;
-    }
-}
-
-@media (max-width: 380px) {
-    .action-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 6px;
-    }
-
-    .action-card {
-        padding: 12px 6px;
-    }
-
-    .action-icon {
-        width: 28px;
-        height: 28px;
-        font-size: 13px;
-        margin-bottom: 3px;
-    }
-
-    .action-card strong {
-        font-size: 10.5px;
-    }
+body.home-amoled #moneyflowToastContainer .toast.error {
+  border-color: #ff8192;
+  color: #ff9da9;
 }

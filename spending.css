@@ -1,0 +1,1529 @@
+
+/* ============================================
+   MONEYFLOW — SPENDING PAGE
+   AMOLED EMERALD EDITION
+   ============================================ */
+
+:root {
+  --sp-bg: #09090f;
+  --sp-card: #191a24;
+  --sp-raised: #21222e;
+  --sp-border: #31323f;
+
+  --sp-green: #35d6a2;
+  --sp-green-dark: #159b77;
+  --sp-red: #ff7780;
+  --sp-gold: #f1b94d;
+
+  --sp-text: #f7f8fa;
+  --sp-muted: #9b9daa;
+  --sp-dim: #777c8d;
+
+  color-scheme: dark;
+}
+
+/* ============================================
+   BASE
+   ============================================ */
+
+html {
+  background: #09090f !important;
+}
+
+body.spending-body {
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  width: 100%;
+  margin: 0;
+  padding: 0;
+
+  background: var(--sp-bg) !important;
+  color: var(--sp-text);
+
+  font-family: Inter, system-ui, sans-serif;
+
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.spending-body *,
+.spending-body *::before,
+.spending-body *::after {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.spending-body [hidden] {
+  display: none !important;
+}
+
+.spending-body button,
+.spending-body input,
+.spending-body textarea {
+  font: inherit;
+}
+
+.spending-body button {
+  cursor: pointer;
+}
+
+.spending-body svg {
+  display: block;
+}
+
+.spending-body h1,
+.spending-body h2,
+.spending-body h3,
+.spending-body p {
+  margin-top: 0;
+}
+
+.spending-visually-hidden {
+  position: absolute !important;
+
+  width: 1px;
+  height: 1px;
+
+  padding: 0;
+  margin: -1px;
+
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================
+   MAIN SPENDING PAGE
+   ============================================ */
+
+body.spending-body .spending-page {
+  display: block;
+
+  width: min(100%, 600px);
+  max-width: 600px;
+
+  margin: 0 auto;
+
+  padding:
+    calc(25px + env(safe-area-inset-top))
+    21px
+    calc(125px + env(safe-area-inset-bottom));
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.spending-header {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+  margin-bottom: 7px;
+}
+
+.spending-back {
+  display: grid;
+  place-items: center;
+
+  width: 38px;
+  height: 42px;
+
+  flex-shrink: 0;
+  padding: 0;
+
+  border: 0;
+  border-radius: 12px;
+
+  background: transparent;
+  color: #f8f8fa;
+
+  text-decoration: none;
+}
+
+.spending-back svg {
+  width: 25px;
+  height: 25px;
+}
+
+.spending-header h1 {
+  flex: 1;
+  min-width: 0;
+
+  margin: 0;
+
+  color: #fff;
+  font-size: clamp(23px, 6.4vw, 30px);
+
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.045em;
+}
+
+.spending-header-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+}
+
+.spending-icon-button {
+  display: grid;
+  place-items: center;
+
+  width: 39px;
+  height: 39px;
+
+  flex-shrink: 0;
+  padding: 0;
+
+  border: 1px solid transparent;
+  border-radius: 50%;
+
+  background: #1b1c27;
+  color: #f6f6f8;
+}
+
+.spending-icon-button svg {
+  width: 20px;
+  height: 20px;
+}
+
+.spending-icon-button:active {
+  background: #2b2c38;
+}
+
+.spending-add-circle {
+  background: linear-gradient(
+    135deg,
+    #3bdbaa,
+    #159a77
+  );
+
+  color: white;
+}
+
+.spending-add-circle:active {
+  background: #118764;
+}
+
+.spending-subtitle {
+  margin: 4px 0 22px 48px;
+
+  color: var(--sp-muted);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+/* ============================================
+   MONTH SELECTOR
+   ============================================ */
+
+.spending-month-row {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-bottom: 15px;
+}
+
+.spending-month-row input {
+  width: auto;
+  max-width: 100%;
+
+  min-height: 37px;
+  padding: 7px 11px;
+
+  border: 1px solid #363744;
+  border-radius: 24px;
+
+  background: #1b1c26;
+  color: #d4d5de;
+
+  font-size: 12px;
+  color-scheme: dark;
+}
+
+/* ============================================
+   SEARCH FIELD
+   ============================================ */
+
+.spending-search-panel {
+  margin-bottom: 16px;
+}
+
+.spending-search-panel input {
+  display: block;
+
+  width: 100%;
+  height: 49px;
+
+  padding: 0 15px;
+
+  border: 1px solid var(--sp-border);
+  border-radius: 14px;
+
+  outline: none;
+
+  background: #1c1d28;
+  color: #fff;
+
+  font-size: 14px;
+}
+
+.spending-search-panel input::placeholder {
+  color: #777b8b;
+}
+
+.spending-search-panel input:focus {
+  border-color: #39d8a6;
+}
+
+/* ============================================
+   SPENDING OVERVIEW CARD
+   ============================================ */
+
+.spending-overview-card {
+  padding: 20px;
+
+  border: 1px solid #343542;
+  border-radius: 23px;
+
+  background: linear-gradient(
+    150deg,
+    #1d1e29 0%,
+    #171821 100%
+  );
+
+  overflow: hidden;
+}
+
+.spending-overview-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+}
+
+.spending-overview-top h2 {
+  margin: 0;
+
+  color: #fafafa;
+  font-size: 17.5px;
+  font-weight: 800;
+
+  letter-spacing: -.025em;
+}
+
+.spending-month-badge {
+  flex-shrink: 0;
+
+  padding: 7px 10px;
+
+  border: 1px solid #3b3c48;
+  border-radius: 25px;
+
+  background: #282936;
+  color: #b0b2bf;
+
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+/* MAIN OVERVIEW AMOUNT */
+
+.spending-overview-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 5px;
+  min-height: 165px;
+}
+
+.spending-overview-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.spending-overview-caption {
+  display: block;
+  margin-bottom: 7px;
+
+  color: #a0a3b0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.spending-overview-copy strong {
+  display: block;
+
+  color: #ff888e;
+
+  font-size: clamp(27px, 8vw, 38px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.055em;
+
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.spending-overview-copy p {
+  max-width: 205px;
+
+  margin: 9px 0 0;
+
+  color: #a3a4b0;
+  font-size: 11.5px;
+  line-height: 1.6;
+}
+
+/* RECEIPT / CARD ILLUSTRATION */
+
+.spending-hero-art {
+  width: min(38%, 150px);
+  flex-shrink: 0;
+}
+
+.spending-hero-art svg {
+  width: 100%;
+  height: auto;
+
+  filter: drop-shadow(
+    0 10px 18px rgba(18, 153, 106, .12)
+  );
+}
+
+.spending-overview-divider {
+  height: 1px;
+
+  margin: 4px 0 19px;
+
+  background: #363744;
+}
+
+/* ============================================
+   THREE SPENDING STATISTICS
+   ============================================ */
+
+.spending-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 0;
+}
+
+.spending-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  min-width: 0;
+  gap: 7px;
+
+  padding: 2px 5px;
+
+  text-align: center;
+}
+
+.spending-stat + .spending-stat {
+  border-left: 1px solid #393a47;
+}
+
+.spending-stat-icon {
+  display: grid;
+  place-items: center;
+
+  width: 29px;
+  height: 29px;
+
+  border-radius: 10px;
+
+  background: rgba(52, 211, 155, .13);
+  color: #3bd7a7;
+}
+
+.spending-stat-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+.spending-stat strong {
+  display: block;
+  width: 100%;
+
+  color: #f8f8fa;
+
+  font-size: clamp(11px, 3.6vw, 15px);
+  font-weight: 800;
+
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.spending-stat > span {
+  color: #8e91a1;
+
+  font-size: 10.5px;
+  line-height: 1.35;
+}
+
+/* ============================================
+   CATEGORY BREAKDOWN SECTION
+   ============================================ */
+
+.spending-breakdown-section {
+  margin-top: 30px;
+}
+
+.spending-section-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  gap: 12px;
+  margin-bottom: 15px;
+}
+
+.spending-section-title-row h2 {
+  min-width: 0;
+  margin: 0;
+
+  color: #f7f7f9;
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.025em;
+}
+
+.spending-section-meta {
+  flex-shrink: 0;
+
+  color: #989baa;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.spending-breakdown-card {
+  padding: 20px 16px;
+
+  border: 1px solid #30313e;
+  border-radius: 20px;
+
+  background: #191a24;
+}
+
+/* DONUT CHART AND LEGEND */
+
+.spending-chart-layout {
+  display: flex;
+  align-items: center;
+
+  gap: 18px;
+}
+
+.spending-donut-chart {
+  position: relative;
+
+  display: grid;
+  place-items: center;
+
+  width: 150px;
+  height: 150px;
+
+  aspect-ratio: 1;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: conic-gradient(
+    #2a2c38 0% 100%
+  );
+}
+
+/* INNER CIRCLE CREATES THE DONUT */
+
+.spending-donut-chart::before {
+  content: "";
+
+  position: absolute;
+  inset: 25px;
+
+  border-radius: 50%;
+
+  background: #191a24;
+}
+
+.spending-donut-center {
+  position: relative;
+  z-index: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 4px;
+  max-width: 100px;
+
+  text-align: center;
+}
+
+.spending-donut-center span {
+  color: #9093a3;
+  font-size: 11px;
+}
+
+.spending-donut-center strong {
+  max-width: 100%;
+
+  color: #f8f8fa;
+
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -.025em;
+
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.spending-category-legend {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  min-width: 0;
+  gap: 11px;
+}
+
+/* LEGEND ITEMS GENERATED BY JS */
+
+.spending-legend-item {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+  min-width: 0;
+}
+
+.spending-legend-dot {
+  display: block;
+
+  width: 9px;
+  height: 9px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #35d6a2;
+}
+
+.spending-legend-label {
+  flex: 1;
+  min-width: 0;
+
+  color: #b0b2bd;
+  font-size: 11px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.spending-legend-value {
+  flex-shrink: 0;
+
+  color: #f5f5f8;
+
+  font-size: 11px;
+  font-weight: 750;
+
+  font-variant-numeric: tabular-nums;
+}
+
+.spending-chart-placeholder {
+  margin: 0;
+
+  color: #9395a4;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* ============================================
+   CATEGORY FILTERS
+   ============================================ */
+
+.spending-filter-section {
+  margin: 25px 0 20px;
+}
+
+.spending-filter-scroll {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  padding: 0 0 5px;
+
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+
+  scrollbar-width: none;
+}
+
+.spending-filter-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.spending-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 42px;
+  flex-shrink: 0;
+
+  padding: 9px 16px;
+
+  border: 1px solid #353644;
+  border-radius: 25px;
+
+  background: #1a1b25;
+  color: #a6a9b6;
+
+  font-size: 12px;
+  font-weight: 750;
+
+  white-space: nowrap;
+}
+
+.spending-filter-chip > span {
+  font-size: 15px;
+}
+
+.spending-filter-chip.active,
+.spending-filter-chip[aria-pressed="true"] {
+  border-color: #169c78;
+
+  background: #169c78;
+  color: #fff;
+}
+
+.spending-filter-chip:not(.active):active {
+  background: #282936;
+}
+
+/* ============================================
+   TRANSACTION RECORDS
+   ============================================ */
+
+.spending-records-section {
+  margin-top: 4px;
+}
+
+.spending-records-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.spending-records-heading h2 {
+  margin: 0 0 3px;
+
+  color: #fafafa;
+
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -.025em;
+}
+
+.spending-records-heading > div > span {
+  color: #999ba9;
+  font-size: 12px;
+}
+
+.spending-sort-button {
+  padding: 8px 0 8px 12px;
+
+  border: 0;
+
+  background: transparent;
+  color: #3bdba8;
+
+  font-size: 12.5px;
+  font-weight: 750;
+
+  white-space: nowrap;
+}
+
+.spending-transactions-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 0;
+}
+
+/* ============================================
+   SPENDING RECORDS CREATED BY JS
+   ============================================ */
+
+.spending-entry {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+  min-width: 0;
+
+  padding: 15px 0;
+
+  border-bottom: 1px solid #292a36;
+}
+
+.spending-entry-icon {
+  display: grid;
+  place-items: center;
+
+  width: 43px;
+  height: 43px;
+
+  flex-shrink: 0;
+
+  border-radius: 14px;
+
+  background: rgba(255, 123, 131, .12);
+  color: #ff8790;
+
+  font-size: 21px;
+}
+
+.spending-entry-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.spending-entry-copy strong {
+  display: block;
+
+  color: #f7f7fa;
+
+  font-size: 13px;
+  font-weight: 750;
+
+  overflow-wrap: anywhere;
+}
+
+.spending-entry-copy span {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #8e91a1;
+
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.spending-entry-amount {
+  color: #ff858d;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+
+  overflow-wrap: anywhere;
+}
+
+/* ============================================
+   EMPTY STATE
+   ============================================ */
+
+.spending-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  padding: 28px 8px 12px;
+
+  text-align: center;
+}
+
+.spending-empty-art {
+  width: 155px;
+  max-width: 65%;
+
+  margin: 0 auto 14px;
+}
+
+.spending-empty-art svg {
+  display: block;
+
+  width: 100%;
+  height: auto;
+}
+
+.spending-empty-state h3 {
+  margin: 0 0 9px;
+
+  color: #f7f7fa;
+
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -.025em;
+
+  line-height: 1.4;
+}
+
+.spending-empty-state p {
+  max-width: 275px;
+
+  margin: 0 0 23px;
+
+  color: #999baa;
+
+  font-size: 12.5px;
+  line-height: 1.6;
+}
+
+/* ============================================
+   PRIMARY BUTTON
+   ============================================ */
+
+.spending-primary-button {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  gap: 8px;
+
+  min-height: 48px;
+
+  padding: 12px 25px;
+
+  border: 0;
+  border-radius: 15px;
+
+  background: linear-gradient(
+    120deg,
+    #38d8a4,
+    #149875
+  );
+
+  color: #fff;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  box-shadow:
+    0 9px 25px rgba(23, 163, 117, .15);
+}
+
+.spending-primary-button > span {
+  font-size: 21px;
+  line-height: 1;
+}
+
+.spending-primary-button:active {
+  transform: scale(.98);
+}
+
+.spending-primary-button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* ============================================
+   SPENDING TIP CARD
+   ============================================ */
+
+.spending-tip-card {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  margin-top: 34px;
+  padding: 17px;
+
+  border: 1px solid #31323f;
+  border-radius: 19px;
+
+  background: #1a1b26;
+}
+
+.spending-tip-icon {
+  display: grid;
+  place-items: center;
+
+  width: 45px;
+  height: 45px;
+
+  flex-shrink: 0;
+
+  border-radius: 14px;
+
+  background: rgba(49, 213, 154, .13);
+  color: #3adba4;
+}
+
+.spending-tip-icon svg {
+  width: 25px;
+  height: 25px;
+}
+
+.spending-tip-card > div:nth-child(2) {
+  flex: 1;
+  min-width: 0;
+}
+
+.spending-tip-card h3 {
+  margin: 0 0 5px;
+
+  color: #f8f8fa;
+
+  font-size: 13.5px;
+  font-weight: 800;
+}
+
+.spending-tip-card p {
+  margin: 0;
+
+  color: #999baa;
+
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+/* ============================================
+   ADD SPENDING FULL-SCREEN PAGE
+   ============================================ */
+
+body.spending-body .spending-add-page {
+  width: min(100%, 600px);
+
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  margin: 0 auto;
+
+  padding:
+    calc(22px + env(safe-area-inset-top))
+    22px
+    calc(45px + env(safe-area-inset-bottom));
+
+  background: #09090f;
+}
+
+/* ADD SPENDING HEADER */
+
+.spending-form-header {
+  display: grid;
+
+  grid-template-columns:
+    43px
+    minmax(0, 1fr)
+    66px;
+
+  align-items: center;
+
+  gap: 8px;
+  margin-bottom: 36px;
+}
+
+.spending-form-header h2 {
+  margin: 0;
+
+  color: #fff;
+
+  font-size: clamp(20px, 5.6vw, 24px);
+  font-weight: 800;
+  letter-spacing: -.04em;
+
+  text-align: center;
+}
+
+.spending-save-button {
+  min-height: 38px;
+  padding: 8px 13px;
+
+  border: 0;
+  border-radius: 24px;
+
+  background: #179d78;
+  color: #fff;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.spending-save-button:disabled {
+  opacity: .6;
+}
+
+/* ============================================
+   SPENDING FORM
+   ============================================ */
+
+.spending-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 27px;
+  margin: 0;
+}
+
+.spending-form-field,
+.spending-form-fieldset {
+  display: flex;
+  flex-direction: column;
+
+  gap: 11px;
+
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+}
+
+.spending-form-field > label,
+.spending-form-fieldset > legend {
+  padding: 0;
+
+  color: #f6f6f9;
+
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.spending-optional {
+  color: #8b8e9f;
+
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.spending-form-field > input,
+.spending-form-field > textarea {
+  display: block;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 55px;
+
+  padding: 15px 16px;
+
+  border: 1px solid #353644;
+  border-radius: 15px;
+
+  outline: none;
+
+  background: #1e1f2a;
+  color: #f8f8fa;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.spending-form-field > textarea {
+  min-height: 113px;
+  resize: vertical;
+}
+
+.spending-form-field
+> input::placeholder,
+.spending-form-field
+> textarea::placeholder {
+  color: #7b7e8f;
+}
+
+.spending-form-field > input:focus,
+.spending-form-field > textarea:focus {
+  border-color: #36dba5;
+
+  box-shadow:
+    0 0 0 3px rgba(54, 219, 165, .10);
+}
+
+.spending-form-field > input[type="date"] {
+  color-scheme: dark;
+}
+
+/* ============================================
+   CATEGORY CHOICES IN ADD FORM
+   ============================================ */
+
+.spending-choice-scroll {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+  width: 100%;
+
+  padding: 4px 0 6px;
+
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.spending-choice-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.spending-choice {
+  position: relative;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 44px;
+  flex-shrink: 0;
+
+  cursor: pointer;
+}
+
+.spending-choice input {
+  position: absolute;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  margin: 0;
+  opacity: 0;
+
+  cursor: pointer;
+}
+
+.spending-choice > span {
+  display: grid;
+  place-items: center;
+
+  min-height: 44px;
+  padding: 10px 16px;
+
+  border: 1px solid #353644;
+  border-radius: 25px;
+
+  background: #1c1d27;
+  color: #a4a7b5;
+
+  font-size: 12.5px;
+  font-weight: 750;
+
+  white-space: nowrap;
+}
+
+.spending-choice input:checked + span {
+  border-color: #179f7a;
+
+  background: #169c77;
+  color: #fff;
+}
+
+.spending-choice input:focus-visible + span {
+  outline: 2px solid #45e6b3;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   RECEIPT SCANNING NOTICE
+   ============================================ */
+
+.spending-receipt-notice {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding: 16px;
+
+  border: 1px solid #303341;
+  border-radius: 17px;
+
+  background: #1a1c26;
+}
+
+.spending-receipt-icon {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 13px;
+
+  background: rgba(52, 211, 155, .12);
+  color: #3ad8a3;
+}
+
+.spending-receipt-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+.spending-receipt-notice > div:last-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.spending-receipt-notice strong {
+  display: block;
+  margin-bottom: 4px;
+
+  color: #f4f5f7;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.spending-receipt-notice p {
+  margin: 0;
+
+  color: #999baa;
+
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.spending-form-submit {
+  width: 100%;
+  margin-top: 2px;
+}
+
+/* ============================================
+   BOTTOM NAVIGATION
+   ============================================ */
+
+.spending-bottom-nav {
+  position: fixed;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+
+  display: grid;
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  align-items: center;
+
+  width: 100%;
+  min-height: 76px;
+
+  padding:
+    10px
+    max(8px, env(safe-area-inset-right))
+    calc(11px + env(safe-area-inset-bottom))
+    max(8px, env(safe-area-inset-left));
+
+  border-top: 1px solid #30313e;
+
+  background: #191a23;
+
+  box-shadow:
+    0 -5px 22px rgba(0, 0, 0, .15);
+}
+
+.spending-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  min-width: 0;
+  padding: 4px 0;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: transparent;
+  color: #858899;
+
+  text-align: center;
+  text-decoration: none;
+
+  font-size: 10.5px;
+  font-weight: 750;
+}
+
+.spending-nav-item svg {
+  width: 24px;
+  height: 24px;
+}
+
+.spending-nav-item span {
+  white-space: nowrap;
+}
+
+.spending-nav-item.active,
+.spending-nav-item[aria-current="page"] {
+  color: #3bdbaa;
+}
+
+.spending-nav-item:active {
+  background: #252631;
+}
+
+/* Hide navigation when Add Spending is open */
+
+.spending-body:has(
+  #spendingAddView:not([hidden])
+) .spending-bottom-nav {
+  display: none;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.spending-body :where(
+  a,
+  button,
+  input,
+  textarea
+):focus-visible {
+  outline: 2px solid #50e6b5;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   SMALL SCREEN ADJUSTMENTS
+   ============================================ */
+
+@media (max-width: 390px) {
+
+  body.spending-body .spending-page,
+  body.spending-body .spending-add-page {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .spending-header {
+    gap: 7px;
+  }
+
+  .spending-header-actions {
+    gap: 5px;
+  }
+
+  .spending-icon-button {
+    width: 36px;
+    height: 36px;
+  }
+
+  .spending-header h1 {
+    font-size: 23px;
+  }
+
+  .spending-overview-card {
+    padding: 17px 13px;
+  }
+
+  .spending-overview-top h2 {
+    font-size: 16px;
+  }
+
+  .spending-overview-copy strong {
+    font-size: 27px;
+  }
+
+  .spending-stat {
+    padding: 2px 3px;
+  }
+
+  .spending-stat strong {
+    font-size: 11px;
+  }
+
+  .spending-chart-layout {
+    gap: 12px;
+  }
+
+  .spending-donut-chart {
+    width: 125px;
+    height: 125px;
+  }
+
+  .spending-donut-chart::before {
+    inset: 22px;
+  }
+
+  .spending-donut-center strong {
+    font-size: 12px;
+  }
+
+  .spending-legend-label,
+  .spending-legend-value {
+    font-size: 10px;
+  }
+
+  .spending-nav-item {
+    font-size: 10px;
+  }
+
+  .spending-nav-item svg {
+    width: 23px;
+    height: 23px;
+  }
+}
+
+@media (max-width: 340px) {
+
+  .spending-overview-main {
+    min-height: 145px;
+  }
+
+  .spending-hero-art {
+    width: 34%;
+  }
+
+  .spending-overview-copy strong {
+    font-size: 23px;
+  }
+
+  .spending-donut-chart {
+    width: 108px;
+    height: 108px;
+  }
+
+  .spending-donut-chart::before {
+    inset: 19px;
+  }
+
+  .spending-chart-layout {
+    gap: 10px;
+  }
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .spending-body *,
+  .spending-body *::before,
+  .spending-body *::after {
+    animation-duration: .01ms !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+}

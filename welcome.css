@@ -685,3 +685,16 @@ button:focus-visible, a:focus-visible {
     transition: none;
   }
 }
+/* MONEYFLOW — REMOVE ANDROID TAP FLASH */
+
+*,
+*::before,
+*::after {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Keep accessibility focus for keyboard users */
+
+:focus:not(:focus-visible) {
+  outline: none;
+}

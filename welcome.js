@@ -139,11 +139,26 @@ function finishOnboarding() {
     }, reducedMotion ? 0 : 550);
   }
 
-  // Prototype mode: always show onboarding when
-  // welcome.html is opened directly.
-  // We will add first-time-user routing later.
-  window.setTimeout(
-    startOnboarding,
-    reducedMotion ? 150 : 1800
-  );
+  // The existing splash plays at every fresh welcome-page visit.
+  // The three onboarding slides are only for genuinely new visitors.
+  // Existing sign-ins go to Home; returning logged-out users go to Login.
+  let destination = null;
+  try {
+    const authenticated = !!localStorage.getItem("moneyflow_auth_token");
+    const hasIntroduced = localStorage.getItem("moneyflow_onboarding_complete") === "true" ||
+      !!localStorage.getItem("moneyflow_returning_user");
+    if (authenticated) destination = "home.html";
+    else if (hasIntroduced) destination = "login.html";
+  } catch (error) {
+    // Storage may be blocked. Show the first-run experience instead.
+  }
+
+  window.setTimeout(() => {
+    if (!destination) {
+      startOnboarding();
+      return;
+    }
+    splash.classList.add("exit");
+    window.setTimeout(() => window.location.replace(destination), reducedMotion ? 0 : 350);
+  }, reducedMotion ? 400 : 1650);
 })();

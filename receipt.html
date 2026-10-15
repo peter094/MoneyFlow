@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function () {
+      try { if (!localStorage.getItem("moneyflow_auth_token")) location.replace("login.html"); }
+      catch (_) { location.replace("login.html"); }
+    })();
+  </script>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090f17">
+  <meta name="robots" content="noindex,nofollow">
+  <title>MoneyFlow | Receipt</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="receipt.css">
+  <script src="moneyflow-export-utils.js" defer></script>
+  <script src="receipt.js" defer></script>
+</head>
+<body>
+  <main class="receipt-screen">
+    <nav class="topbar" aria-label="Receipt navigation">
+      <a id="backLink" href="transactions.html" class="back" aria-label="Back to transactions">←</a>
+      <strong>MoneyFlow Receipt</strong>
+      <span aria-hidden="true"></span>
+    </nav>
+    <section class="paper" id="receiptPaper" aria-label="Your financial record">
+      <header class="brand-header">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.9" stroke-linejoin="round" stroke-linecap="round"><path d="m3 17 6-6 5 4 7-8m-6 0h6v6"/></svg>
+        </div>
+        <div><div class="brand-name">MoneyFlow</div><div class="brand-caption">Personal finance record</div></div>
+      </header>
+      <p class="eyebrow" id="documentType">TRANSACTION RECORD</p>
+      <div class="amount" id="amount">—</div>
+      <div class="status" id="status">Recorded</div>
+      <div class="divider"></div>
+      <dl class="details" id="details"></dl>
+      <div class="divider"></div>
+      <p class="disclaimer" id="disclaimer">Generated from details entered into MoneyFlow. This is a personal record, not a bank-issued receipt or proof of funds transfer.</p>
+      <footer class="receipt-footer">MoneyFlow · Organize your money, your way.</footer>
+    </section>
+    <p class="error" id="receiptError" hidden role="alert"></p>
+    <div class="actions" id="receiptActions">
+      <button id="printReceiptBtn" type="button" class="primary">Print / Save PDF</button>
+      <button id="shareReceiptBtn" type="button" class="secondary">Share details</button>
+    </div>
+    <p class="helper">On your phone, choose <strong>Save as PDF</strong> in the Print menu. Sharing sends text details, not a bank-issued receipt.</p>
+  </main>
+</body>
+</html>

@@ -1,295 +1,910 @@
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
 
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-    <!-- Auth guard: if there's no session token, bail out to the
-         login page before this protected page renders at all. -->
-    <script>
-        (function () {
-            try {
-                if (!localStorage.getItem("moneyflow_auth_token")) {
-                    window.location.replace("login.html");
-                }
-            } catch (e) {
-                window.location.replace("login.html");
-            }
-        })();
-    </script>
+  <!-- LOGIN PROTECTION -->
+  <script>
+    (function () {
+      document.documentElement.classList.add("dark");
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
-    <meta name="theme-color" content="#090E17">
-
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="MoneyFlow">
-
-    <title>MoneyFlow | Payments</title>
-
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="payments.css">
-
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon-192.png" type="image/png">
-    <link rel="apple-touch-icon" href="icon-192.png">
-
-    <link rel="prefetch" href="index.html">
-    <link rel="prefetch" href="transactions.html">
-    <link rel="prefetch" href="analytics.html">
-    <link rel="prefetch" href="settings.html">
-
-    <script type="speculationrules">
-    {
-      "prerender": [
-        {
-          "urls": ["index.html", "transactions.html", "analytics.html", "settings.html"],
-          "eagerness": "moderate"
+      try {
+        if (!localStorage.getItem("moneyflow_auth_token")) {
+          location.replace("login.html");
         }
-      ]
+      } catch (error) {
+        location.replace("login.html");
+      }
+    })();
+  </script>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#09090f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+
+  <title>MoneyFlow | Payments</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link
+    rel="icon"
+    href="icons/icon-192.png"
+    type="image/png"
+  >
+  <link
+    rel="apple-touch-icon"
+    href="icons/icon-192.png"
+  >
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="payments.css">
+
+  <!-- HEADER STYLING TO MATCH OTHER PAGES -->
+  <style>
+    .payments-intro {
+      padding: 0;
     }
-    </script>
+
+    .payments-page-header {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .payments-back {
+      display: grid;
+      place-items: center;
+      flex: 0 0 38px;
+      width: 38px;
+      height: 42px;
+      color: #f8f8fa;
+      border-radius: 12px;
+      text-decoration: none;
+    }
+
+    .payments-back svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    .payments-page-header h1 {
+      flex: 1 1 auto;
+      min-width: 0;
+      margin: 0;
+      font-size: clamp(21px, 6vw, 30px);
+      font-weight: 800;
+      letter-spacing: -.045em;
+      line-height: 1.2;
+      color: #fff;
+    }
+
+    .payments-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+
+    .payments-header-actions .payments-header-icon,
+    .payments-header-actions .payments-header-avatar {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      border-radius: 50%;
+      padding: 0;
+    }
+
+    .payments-header-actions .notification-bell {
+      background: #1b1c27;
+      border: 0;
+      color: #f8f8fa;
+    }
+
+    .payments-header-actions .add-fab {
+      background: linear-gradient(
+        135deg,
+        #36d9a6,
+        #149b78
+      );
+      border: 0;
+      color: #fff;
+    }
+
+    .payments-header-actions .payments-header-avatar {
+      background: #169f79;
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .payments-header-actions svg {
+      width: 19px;
+      height: 19px;
+    }
+
+    .payments-subtitle {
+      margin: 9px 0 0 47px;
+      font-size: 12px;
+      line-height: 1.55;
+      color: #9b9daa;
+    }
+
+    .payments-back:focus-visible,
+    .payments-header-avatar:focus-visible {
+      outline: 2px solid #42dda7;
+      outline-offset: 3px;
+    }
+
+    @media (max-width: 370px) {
+      .payments-page-header {
+        gap: 6px;
+      }
+
+      .payments-back {
+        width: 32px;
+        flex-basis: 32px;
+      }
+
+      .payments-header-actions {
+        gap: 4px;
+      }
+
+      .payments-header-actions .payments-header-icon,
+      .payments-header-actions .payments-header-avatar {
+        width: 33px;
+        height: 33px;
+        flex-basis: 33px;
+      }
+
+      .payments-page-header h1 {
+        font-size: 21px;
+      }
+
+      .payments-subtitle {
+        margin-left: 38px;
+      }
+    }
+
+    .bottom-nav > a.bottom-nav-item {
+      text-decoration: none;
+    }
+  </style>
+
+  <link rel="prefetch" href="home.html">
+  <link rel="prefetch" href="spending.html">
+  <link rel="prefetch" href="debts.html">
+  <link rel="prefetch" href="more.html">
+
+  <link rel="stylesheet" href="date-picker.css">
+
+  <link rel="stylesheet" href="receipt-actions.css">
+
+  <script src="core.js" defer></script>
+  <script src="date-picker.js" defer></script>
+  <script src="payments.js" defer></script>
+  <script src="notifications.js" defer></script>
 
 </head>
 
 <body>
 
-    <!-- ================= HEADER ================= -->
+  <!-- =====================================
+       PAYMENTS MAIN PAGE
+  ====================================== -->
 
-    <header class="app-header">
+  <main class="payments-page">
 
-        <div class="brand">
+    <!-- PAGE HEADER -->
 
-            <span class="brand-mark" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 16L9.5 10.5L13.5 14.5L20 8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M15 8H20V13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </span>
+    <section
+      class="payments-intro"
+      aria-labelledby="paymentsTitle"
+    >
 
-            <div class="brand-text">
-                <h1>MoneyFlow</h1>
-            </div>
+      <header class="payments-page-header">
+
+        <!-- BACK TO HOME -->
+
+        <a
+          href="home.html"
+          class="payments-back"
+          aria-label="Back to Home"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5"/>
+            <path d="m12 19-7-7 7-7"/>
+          </svg>
+        </a>
+
+        <h1 id="paymentsTitle">
+          Payments
+        </h1>
+
+        <div class="payments-header-actions">
+
+          <!-- NOTIFICATIONS -->
+
+          <button
+            type="button"
+            id="notificationBellBtn"
+            class="notification-bell payments-header-icon"
+            aria-label="Payment notifications"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9Z"
+              />
+              <path d="M10 21h4"/>
+            </svg>
+
+            <span
+              id="notificationBadge"
+              class="notification-badge"
+            ></span>
+
+          </button>
+
+          <!-- ADD PAYMENT -->
+
+          <button
+            type="button"
+            id="addPaymentBtn"
+            class="add-fab payments-header-icon"
+            aria-label="Add payment"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.3"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+          </button>
+
+          <!-- USER PROFILE -->
+
+          <a
+            href="settings.html"
+            id="userAvatar"
+            class="user-avatar payments-header-avatar"
+            aria-label="Open Settings"
+          >
+            M
+          </a>
+
+        </div>
+
+      </header>
+
+      <p class="payments-subtitle">
+        Stay on top of all your bills and upcoming payments.
+      </p>
+
+    </section>
+
+
+    <!-- =====================================
+         OUTSTANDING PAYMENTS OVERVIEW
+    ====================================== -->
+
+    <section
+      class="payments-overview-section"
+      aria-label="Outstanding payment summary"
+    >
+
+      <div class="payments-hero">
+
+        <p class="payments-hero-label">
+          Total Outstanding Payments
+        </p>
+
+        <h2
+          class="payments-hero-amount"
+          id="totalOutstanding"
+        >
+          ₦0.00
+        </h2>
+
+        <div class="payments-hero-pills">
+
+          <!-- OVERDUE -->
+
+          <span
+            class="payments-pill payments-pill-danger"
+          >
+            <span id="overdueCount">0</span>
+            Overdue
+          </span>
+
+          <!-- UPCOMING -->
+
+          <span
+            class="payments-pill payments-pill-warning"
+          >
+            <span id="upcomingCount">0</span>
+            Upcoming
+          </span>
+
+          <!-- PAID -->
+
+          <span
+            class="payments-pill payments-pill-success"
+          >
+            <span id="paidCount">0</span>
+            Paid
+          </span>
 
         </div>
 
-        <div class="home-header-actions">
+      </div>
 
-            <button type="button" class="notification-bell" id="notificationBellBtn" aria-label="Notifications">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M18 8C18 6.4087 17.3679 4.88258 16.2426 3.75736C15.1174 2.63214 13.5913 2 12 2C10.4087 2 8.88258 2.63214 7.75736 3.75736C6.63214 4.88258 6 6.4087 6 8C6 15 3 17 3 17H21C21 17 18 15 18 8Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M13.73 21C13.5542 21.3031 13.3019 21.5547 12.9982 21.7295C12.6946 21.9044 12.3504 21.9965 12 21.9965C11.6496 21.9965 11.3054 21.9044 11.0018 21.7295C10.6982 21.5547 10.4458 21.3031 10.27 21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span class="notification-badge" id="notificationBadge"></span>
-            </button>
+    </section>
 
-            <button type="button" class="add-fab" id="addPaymentBtn" aria-label="Add payment">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-                </svg>
-            </button>
 
-            <div class="user-avatar" id="userAvatar">?</div>
+    <!-- =====================================
+         ALL PAYMENTS
+    ====================================== -->
+
+    <section
+      class="payments-records-section"
+      aria-labelledby="allPaymentsHeading"
+    >
+
+      <div class="section-heading">
+
+        <h2 id="allPaymentsHeading">
+          All Payments
+        </h2>
+
+      </div>
+
+      <!-- Populated by payments.js -->
+
+      <div
+        id="paymentsList"
+        class="payments-list"
+        aria-live="polite"
+      >
+
+        <!-- EMPTY STATE -->
+
+        <div class="empty-state">
+
+          <h3>No payments yet</h3>
+
+          <p>
+            Add a bill or upcoming payment
+            to start tracking it here.
+          </p>
+
+          <button
+            type="button"
+            id="emptyAddPaymentBtn"
+            class="primary-button"
+          >
+            Add Payment
+          </button>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================
+       ADD PAYMENT MODAL
+  ====================================== -->
+
+  <div
+    id="paymentModal"
+    class="modal"
+    aria-hidden="true"
+  >
+
+    <div
+      class="modal-content"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="addPaymentTitle"
+    >
+
+      <!-- MODAL HEADER -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <p class="eyebrow">
+            NEW PAYMENT
+          </p>
+
+          <h2 id="addPaymentTitle">
+            Add Payment
+          </h2>
 
         </div>
 
-    </header>
+        <button
+          type="button"
+          id="closePaymentModalBtn"
+          class="close-button"
+          aria-label="Close Add Payment"
+        >
+          ×
+        </button>
 
+      </div>
 
-    <!-- ================= MAIN ================= -->
+      <!-- PAYMENT FORM -->
 
-    <main>
+      <form id="paymentForm">
 
-        <!-- ================= PAGE INTRO ================= -->
+        <div class="modal-body">
 
-        <section class="page-intro">
-            <h2>Payments</h2>
-            <p>Stay on top of all your bills and upcoming payments.</p>
-        </section>
+          <!-- PAYMENT NAME -->
 
+          <div class="form-field form-field-full">
 
-        <!-- ================= OVERVIEW HERO ================= -->
+            <label for="paymentName">
+              Name
+            </label>
 
-        <section>
+            <input
+              type="text"
+              id="paymentName"
+              placeholder="e.g. Netflix"
+              maxlength="60"
+              autocomplete="off"
+              required
+            >
 
-            <div class="payments-hero">
+          </div>
 
-                <p class="payments-hero-label">Total Outstanding Payments</p>
+          <!-- PAYMENT AMOUNT -->
 
-                <h2 class="payments-hero-amount" id="totalOutstanding">₦0.00</h2>
+          <div class="form-field">
 
-                <div class="payments-hero-pills">
+            <label for="paymentAmount">
+              Amount (₦)
+            </label>
 
-                    <span class="payments-pill payments-pill-danger">
-                        <span id="overdueCount">0</span> Overdue
-                    </span>
+            <input
+              type="number"
+              id="paymentAmount"
+              placeholder="Enter amount"
+              min="0.01"
+              step="0.01"
+              inputmode="decimal"
+              required
+            >
 
-                    <span class="payments-pill payments-pill-warning">
-                        <span id="upcomingCount">0</span> Upcoming
-                    </span>
+          </div>
 
-                    <span class="payments-pill payments-pill-success">
-                        <span id="paidCount">0</span> Paid
-                    </span>
+          <!-- PAYMENT CATEGORY -->
 
-                </div>
+          <div class="form-field">
 
-            </div>
+            <label for="paymentCategory">
+              Category
+            </label>
 
-        </section>
+            <select
+              id="paymentCategory"
+              required
+            >
+              <option value="Subscription">
+                Subscription
+              </option>
 
+              <option value="Bills">
+                Bills
+              </option>
 
-        <!-- ================= PAYMENTS LIST ================= -->
+              <option value="Loan">
+                Loan
+              </option>
 
-        <section>
+              <option value="Rent">
+                Rent
+              </option>
 
-            <div class="section-heading">
-                <div>
-                    <h2>All Payments</h2>
-                </div>
-            </div>
+              <option value="Insurance">
+                Insurance
+              </option>
 
-            <div id="paymentsList" class="payments-list">
+              <option value="Other">
+                Other
+              </option>
+            </select>
 
-                <div class="empty-state">
-                    <h3>No payments yet</h3>
-                    <p>Add a bill or upcoming payment to start tracking it here.</p>
-                    <button id="emptyAddPaymentBtn" class="primary-button">Add Payment</button>
-                </div>
+          </div>
 
-            </div>
+          <!-- PAYMENT DUE DATE -->
 
-        </section>
+          <div class="form-field">
 
-    </main>
+            <label for="paymentDueDate">
+              Due Date
+            </label>
 
+            <input
+              type="date"
+              id="paymentDueDate"
+              required
+            >
 
-    <!-- ================= ADD PAYMENT MODAL ================= -->
+          </div>
 
-    <div id="paymentModal" class="modal" aria-hidden="true">
+          <!-- PAYMENT FREQUENCY -->
 
-        <div class="modal-content">
+          <div class="form-field">
 
-            <div class="modal-header">
-                <div>
-                    <p class="eyebrow">NEW PAYMENT</p>
-                    <h2>Add Payment</h2>
-                </div>
-                <button id="closePaymentModalBtn" class="close-button">×</button>
-            </div>
+            <label for="paymentFrequency">
+              Frequency
+            </label>
 
-            <form id="paymentForm">
+            <select
+              id="paymentFrequency"
+              required
+            >
+              <option value="one-time">
+                One-time
+              </option>
 
-                <div class="modal-body">
+              <option value="weekly">
+                Weekly
+              </option>
 
-                <div class="form-field form-field-full">
-                    <label for="paymentName">Name</label>
-                    <input type="text" id="paymentName" placeholder="e.g. Netflix" maxlength="60" required>
-                </div>
+              <option value="monthly">
+                Monthly
+              </option>
 
-                <div class="form-field">
-                    <label for="paymentAmount">Amount</label>
-                    <input type="number" id="paymentAmount" placeholder="Enter amount" min="0" step="0.01" required>
-                </div>
+              <option value="yearly">
+                Yearly
+              </option>
+            </select>
 
-                <div class="form-field">
-                    <label for="paymentCategory">Category</label>
-                    <select id="paymentCategory" required>
-                        <option value="Subscription">Subscription</option>
-                        <option value="Bills">Bills</option>
-                        <option value="Loan">Loan</option>
-                        <option value="Rent">Rent</option>
-                        <option value="Insurance">Insurance</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-field">
-                    <label for="paymentDueDate">Due Date</label>
-                    <input type="date" id="paymentDueDate" required>
-                </div>
-
-                <div class="form-field">
-                    <label for="paymentFrequency">Frequency</label>
-                    <select id="paymentFrequency" required>
-                        <option value="one-time">One-time</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                    </select>
-                </div>
-
-                </div>
-
-                <div class="form-actions">
-                    <button type="button" id="cancelPaymentBtn" class="secondary-button">Cancel</button>
-                    <button type="submit" class="primary-button">Save Payment</button>
-                </div>
-
-            </form>
+          </div>
 
         </div>
+
+        <!-- FORM ACTIONS -->
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            id="cancelPaymentBtn"
+            class="secondary-button"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="primary-button"
+          >
+            Save Payment
+          </button>
+
+        </div>
+
+      </form>
 
     </div>
 
-
-    <!-- ================= BOTTOM NAVIGATION ================= -->
-
-    <nav class="bottom-nav">
-
-        <button type="button" class="bottom-nav-item" id="navHome">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 9.5L12 3L21 9.5V20C21 20.5304 20.7893 21.0391 20.4142 21.4142C20.0391 21.7893 19.5304 22 19 22H5C4.46957 22 3.96086 21.7893 3.58579 21.4142C3.21071 21.0391 3 20.5304 3 20V9.5Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 22V12H15V22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Home</span>
-        </button>
-
-        <button type="button" class="bottom-nav-item active" aria-current="page">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="1.8"/>
-                <path d="M2 10H22" stroke="currentColor" stroke-width="1.8"/>
-            </svg>
-            <span>Payments</span>
-        </button>
-
-        <button type="button" class="bottom-nav-item" id="navSpending">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21.21 15.89C20.5738 17.3945 19.5788 18.7202 18.3119 19.7513C17.045 20.7824 15.5447 21.4874 13.9424 21.8048C12.3401 22.1221 10.6844 22.0421 9.12055 21.5718C7.55666 21.1015 6.13332 20.2551 4.97327 19.1067C3.81321 17.9583 2.95083 16.5428 2.45999 14.9843C1.96915 13.4258 1.86487 11.7712 2.15626 10.1635C2.44765 8.55585 3.12586 7.04419 4.13134 5.75937C5.13682 4.47455 6.44069 3.45557 7.93 2.79004" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M22 12C22 10.6868 21.7413 9.38642 21.2388 8.17317C20.7362 6.95991 19.9997 5.85752 19.0711 4.92893C18.1425 4.00035 17.0401 3.26375 15.8268 2.7612C14.6136 2.25866 13.3132 2 12 2V12H22Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Spending</span>
-        </button>
-
-        <button type="button" class="bottom-nav-item" id="navDebts">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <span>Debts</span>
-        </button>
-
-        <button type="button" class="bottom-nav-item" id="navMore">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
-                <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
-                <rect x="3" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
-                <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.8"/>
-            </svg>
-            <span>More</span>
-        </button>
-
-    </nav>
+  </div>
 
 
-    <script src="core.js" defer></script>
-    <script src="payments.js" defer></script>
+  <!-- =====================================
+       FIXED BOTTOM NAVIGATION
+  ====================================== -->
+
+  <nav
+    class="bottom-nav"
+    aria-label="Main navigation"
+  >
+
+    <!-- HOME -->
+
+    <a
+      href="home.html"
+      class="bottom-nav-item"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="m3 10 9-7 9 7v11H3V10Z"/>
+        <path d="M9 21v-8h6v8"/>
+      </svg>
+
+      <span>Home</span>
+    </a>
+
+    <!-- PAYMENTS -->
+
+    <a
+      href="payments.html"
+      class="bottom-nav-item active"
+      aria-current="page"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <rect
+          x="3"
+          y="5"
+          width="18"
+          height="14"
+          rx="2"
+        />
+        <path d="M3 10h18"/>
+      </svg>
+
+      <span>Payments</span>
+    </a>
+
+    <!-- SPENDING -->
+
+    <a
+      href="spending.html"
+      class="bottom-nav-item"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M12 3v9l8 5"/>
+        <path d="M21 12a9 9 0 1 1-9-9"/>
+        <path d="M16 4a9 9 0 0 1 5 8"/>
+      </svg>
+
+      <span>Spending</span>
+    </a>
+
+    <!-- DEBTS -->
+
+    <a
+      href="debts.html"
+      class="bottom-nav-item"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <circle cx="8" cy="8" r="3"/>
+
+        <path
+          d="M2 20v-2a6 6 0 0 1 12 0v2"
+        />
+
+        <circle cx="18" cy="9" r="2.5"/>
+
+        <path
+          d="M17 15a5 5 0 0 1 5 5"
+        />
+      </svg>
+
+      <span>Debts</span>
+    </a>
+
+    <!-- MORE -->
+
+    <a
+      href="more.html"
+      class="bottom-nav-item"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <rect
+          x="3"
+          y="3"
+          width="7"
+          height="7"
+          rx="1.5"
+        />
+
+        <rect
+          x="14"
+          y="3"
+          width="7"
+          height="7"
+          rx="1.5"
+        />
+
+        <rect
+          x="3"
+          y="14"
+          width="7"
+          height="7"
+          rx="1.5"
+        />
+
+        <rect
+          x="14"
+          y="14"
+          width="7"
+          height="7"
+          rx="1.5"
+        />
+      </svg>
+
+      <span>More</span>
+    </a>
+
+  </nav>
+
+<!-- MONEYFLOW — PAYMENTS BACK NAVIGATION -->
+
+<script>
+(function () {
+  "use strict";
+
+  /* =====================================
+     MONEYFLOW — PAYMENTS BACK NAVIGATION
+     Supports Home, More and Calendar
+     ===================================== */
+
+  const backButton = document.querySelector(
+    ".payments-page-header .payments-back"
+  );
+
+  if (!backButton) return;
+
+  const params = new URLSearchParams(
+    window.location.search
+  );
+
+  let origin = params.get("from");
+
+  /* Check the previous page only if
+     the URL has no explicit source. */
+
+  if (!origin && document.referrer) {
+    try {
+      const previous = new URL(
+        document.referrer
+      );
+
+      if (
+        previous.origin ===
+        window.location.origin
+      ) {
+        if (
+          previous.pathname.endsWith(
+            "/calendar.html"
+          )
+        ) {
+          origin = "calendar";
+
+        } else if (
+          previous.pathname.endsWith(
+            "/more.html"
+          )
+        ) {
+          origin = "more";
+        }
+      }
+
+    } catch (error) {
+      console.warn(
+        "Unable to identify previous page.",
+        error
+      );
+    }
+  }
+
+  let destination = "home.html";
+  let label = "Back to Home";
+
+  if (origin === "calendar") {
+    destination = "calendar.html";
+    label = "Back to Calendar";
+
+  } else if (origin === "more") {
+    destination = "more.html";
+    label = "Back to More";
+  }
+
+  backButton.href = destination;
+
+  backButton.setAttribute(
+    "aria-label",
+    label
+  );
+
+})();
+</script>
+
 
 </body>
-
 </html>

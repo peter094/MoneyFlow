@@ -1,0 +1,1138 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+
+  <!-- =====================================
+       MONEYFLOW LOGIN PROTECTION
+  ====================================== -->
+
+  <script>
+    (function () {
+      document.documentElement.classList.add(
+        "dark"
+      );
+
+      try {
+        if (
+          !localStorage.getItem(
+            "moneyflow_auth_token"
+          )
+        ) {
+          window.location.replace(
+            "login.html"
+          );
+        }
+      } catch (error) {
+        window.location.replace(
+          "login.html"
+        );
+      }
+    })();
+  </script>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#09090f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <title>MoneyFlow | Insurance</title>
+
+  <link rel="manifest" href="manifest.json">
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="icons/icon-192.png"
+  >
+
+  <!-- STYLES -->
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="insurance.css">
+
+  <!-- SCRIPTS -->
+
+  <link rel="stylesheet" href="date-picker.css">
+
+  <script src="core.js" defer></script>
+  <script src="date-picker.js" defer></script>
+  <script src="insurance.js" defer></script>
+
+</head>
+
+<body class="insurance-body">
+
+  <main class="insurance-page">
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <header class="insurance-header">
+
+      <div class="insurance-header-top">
+
+        <a
+          href="more.html"
+          class="insurance-back"
+          aria-label="Back to More"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M19 12H5"/>
+            <path d="m12 19-7-7 7-7"/>
+          </svg>
+        </a>
+
+        <h1>Insurance</h1>
+
+        <button
+          type="button"
+          id="insuranceAddTopBtn"
+          class="insurance-add-top"
+          data-insurance-add
+          aria-label="Add insurance policy"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            aria-hidden="true"
+          >
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+
+      </div>
+
+      <p class="insurance-header-subtitle">
+        Manage all your insurance policies
+        in one place
+      </p>
+
+    </header>
+
+
+    <!-- =====================================
+         POLICY FILTERS
+    ====================================== -->
+
+    <section
+      class="insurance-filters-section"
+      aria-label="Filter insurance policies"
+    >
+
+      <div class="insurance-filter-list">
+
+        <button
+          type="button"
+          class="insurance-filter active"
+          data-insurance-filter="all"
+          aria-pressed="true"
+        >
+          All
+        </button>
+
+        <button
+          type="button"
+          class="insurance-filter"
+          data-insurance-filter="active"
+          aria-pressed="false"
+        >
+          <span
+            class="insurance-filter-dot active-dot"
+            aria-hidden="true"
+          ></span>
+          Active
+        </button>
+
+        <button
+          type="button"
+          class="insurance-filter"
+          data-insurance-filter="expiring"
+          aria-pressed="false"
+        >
+          <span
+            class="insurance-filter-dot expiring-dot"
+            aria-hidden="true"
+          ></span>
+          Expiring Soon
+        </button>
+
+        <button
+          type="button"
+          class="insurance-filter"
+          data-insurance-filter="expired"
+          aria-pressed="false"
+        >
+          <span
+            class="insurance-filter-dot expired-dot"
+            aria-hidden="true"
+          ></span>
+          Expired
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         TOTAL POLICIES OVERVIEW
+    ====================================== -->
+
+    <section
+      class="insurance-overview"
+      aria-labelledby="insuranceOverviewHeading"
+    >
+
+      <div class="insurance-overview-main">
+
+        <div class="insurance-overview-copy">
+
+          <h2 id="insuranceOverviewHeading">
+            Total Policies
+          </h2>
+
+          <div
+            class="insurance-total-count"
+            id="insuranceTotalPolicies"
+            aria-live="polite"
+          >
+            0
+          </div>
+
+          <p id="insuranceOverviewDescription">
+            No policies added yet
+          </p>
+
+        </div>
+
+
+        <!-- DECORATIVE SHIELD ILLUSTRATION -->
+
+        <div
+          class="insurance-overview-art"
+          aria-hidden="true"
+        >
+
+          <svg
+            viewBox="0 0 170 150"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+
+            <defs>
+              <linearGradient
+                id="insuranceShieldGradient"
+                x1="20"
+                y1="10"
+                x2="140"
+                y2="145"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stop-color="#97FFE0"/>
+                <stop
+                  offset=".55"
+                  stop-color="#34D6A4"
+                />
+                <stop
+                  offset="1"
+                  stop-color="#108F71"
+                />
+              </linearGradient>
+            </defs>
+
+            <circle
+              cx="88"
+              cy="75"
+              r="65"
+              fill="#B9FFE9"
+              fill-opacity=".08"
+            />
+
+            <!-- UMBRELLA -->
+
+            <path
+              d="M83 42C97 12 139 13 153 43"
+              stroke="#A9FFE1"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+
+            <path
+              d="M83 42Q99 33 109 43Q119 32 130 43Q141 33 153 43"
+              fill="#3ED9AB"
+              stroke="#B5FFE7"
+              stroke-width="2"
+            />
+
+            <path
+              d="M118 42V76Q118 89 109 89"
+              stroke="#B2FFE5"
+              stroke-width="4"
+              stroke-linecap="round"
+            />
+
+            <!-- POLICY DOCUMENT -->
+
+            <rect
+              x="92"
+              y="65"
+              width="49"
+              height="62"
+              rx="6"
+              fill="#E2FFF2"
+              transform="rotate(9 92 65)"
+            />
+
+            <path
+              d="M105 82h23M105 92h19M105 102h23"
+              stroke="#178E70"
+              stroke-width="3"
+              stroke-linecap="round"
+              transform="rotate(9 105 82)"
+            />
+
+            <!-- SHIELD -->
+
+            <path
+              d="M48 45L85 59V91C85 112 70 127 48 139C26 127 11 112 11 91V59L48 45Z"
+              fill="url(#insuranceShieldGradient)"
+              stroke="#C5FFED"
+              stroke-width="3"
+            />
+
+            <path
+              d="M31 91L43 103L66 78"
+              stroke="#F0FFF9"
+              stroke-width="7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+
+            <!-- SPARKLES -->
+
+            <path
+              d="M22 16L26 25L35 29L26 33L22 42L18 33L9 29L18 25Z"
+              fill="#B4FFE6"
+            />
+
+            <path
+              d="M145 88L148 94L154 97L148 100L145 106L142 100L136 97L142 94Z"
+              fill="#B4FFE6"
+            />
+
+          </svg>
+
+        </div>
+
+      </div>
+
+
+      <!-- STATUS DIVIDER -->
+
+      <div class="insurance-overview-divider"></div>
+
+
+      <!-- STATUS SUMMARY -->
+
+      <div class="insurance-status-grid">
+
+        <!-- ACTIVE -->
+
+        <div class="insurance-status-item">
+
+          <div class="insurance-status-top">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#64F0B9"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 2 20 5v6c0 5-3.1 8.7-8
+                11-4.9-2.3-8-6-8-11V5l8-3Z"
+              />
+              <path d="m8 12 3 3 5-6"/>
+            </svg>
+
+            <strong id="insuranceActiveCount">
+              0
+            </strong>
+
+          </div>
+
+          <span>Active</span>
+
+        </div>
+
+
+        <!-- EXPIRING SOON -->
+
+        <div class="insurance-status-item">
+
+          <div class="insurance-status-top">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#FFCC74"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="9"/>
+              <path d="M12 7v5l3 2"/>
+            </svg>
+
+            <strong id="insuranceExpiringCount">
+              0
+            </strong>
+
+          </div>
+
+          <span>Expiring Soon</span>
+
+        </div>
+
+
+        <!-- EXPIRED -->
+
+        <div class="insurance-status-item">
+
+          <div class="insurance-status-top">
+
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#FF919B"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M12 2 20 5v6c0 5-3.1 8.7-8
+                11-4.9-2.3-8-6-8-11V5l8-3Z"
+              />
+              <path d="M9 9l6 6M15 9l-6 6"/>
+            </svg>
+
+            <strong id="insuranceExpiredCount">
+              0
+            </strong>
+
+          </div>
+
+          <span>Expired</span>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         STORAGE ERROR MESSAGE
+    ====================================== -->
+
+    <p
+      id="insuranceDataWarning"
+      class="insurance-data-warning"
+      role="alert"
+      hidden
+    ></p>
+
+
+    <!-- =====================================
+         EMPTY POLICY STATE
+    ====================================== -->
+
+    <section
+      id="insuranceEmptyState"
+      class="insurance-empty-state"
+      aria-labelledby="insuranceEmptyTitle"
+    >
+
+      <div
+        class="insurance-empty-art"
+        aria-hidden="true"
+      >
+
+        <svg
+          viewBox="0 0 260 220"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+
+          <defs>
+            <linearGradient
+              id="insuranceClipboardGradient"
+              x1="30"
+              y1="30"
+              x2="210"
+              y2="210"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stop-color="#34D6A4"/>
+              <stop
+                offset="1"
+                stop-color="#167B67"
+              />
+            </linearGradient>
+
+            <linearGradient
+              id="insuranceEmptyShieldGradient"
+              x1="140"
+              y1="100"
+              x2="235"
+              y2="200"
+              gradientUnits="userSpaceOnUse"
+            >
+              <stop stop-color="#8FF2D2"/>
+              <stop
+                offset="1"
+                stop-color="#21AD86"
+              />
+            </linearGradient>
+          </defs>
+
+          <!-- CLIPBOARD -->
+
+          <rect
+            x="52"
+            y="37"
+            width="142"
+            height="161"
+            rx="17"
+            fill="#161E26"
+            stroke="url(#insuranceClipboardGradient)"
+            stroke-width="7"
+          />
+
+          <rect
+            x="92"
+            y="24"
+            width="62"
+            height="26"
+            rx="8"
+            fill="#286E5C"
+            stroke="#58DDB1"
+            stroke-width="3"
+          />
+
+          <circle
+            cx="123"
+            cy="28"
+            r="7"
+            fill="#09090F"
+            stroke="#58DDB1"
+            stroke-width="3"
+          />
+
+          <!-- DOCUMENT LINES -->
+
+          <path
+            d="M77 79h88M77 105h88M77 131h65M77 157h55"
+            stroke="#6F978C"
+            stroke-width="5"
+            stroke-linecap="round"
+          />
+
+          <!-- SHIELD -->
+
+          <path
+            d="M186 105L232 121V156C232 182 214 199 186 214C158 199 140 182 140 156V121L186 105Z"
+            fill="url(#insuranceEmptyShieldGradient)"
+            stroke="#D4FFF0"
+            stroke-width="3"
+          />
+
+          <path
+            d="M186 139v37M167.5 157.5h37"
+            stroke="#F5FFFB"
+            stroke-width="7"
+            stroke-linecap="round"
+          />
+
+          <!-- SPARKLES -->
+
+          <path
+            d="M36 118L40 128L50 132L40 136L36 146L32 136L22 132L32 128Z"
+            fill="#3EDDB0"
+            opacity=".85"
+          />
+
+          <path
+            d="M208 49L211 56L218 59L211 62L208 69L205 62L198 59L205 56Z"
+            fill="#68E9BD"
+            opacity=".85"
+          />
+
+        </svg>
+
+      </div>
+
+      <h2 id="insuranceEmptyTitle">
+        No policies yet
+      </h2>
+
+      <p id="insuranceEmptyDescription">
+        Add your insurance policies to keep
+        track of premiums, due dates,
+        and coverage details.
+      </p>
+
+      <button
+        type="button"
+        id="insuranceAddFirstBtn"
+        class="insurance-primary-button"
+        data-insurance-add
+      >
+        <span aria-hidden="true">+</span>
+        Add Your First Policy
+      </button>
+
+    </section>
+
+
+    <!-- =====================================
+         SAVED POLICY LIST
+         Populated by insurance.js
+    ====================================== -->
+
+    <section
+      id="insurancePoliciesSection"
+      class="insurance-policies-section"
+      aria-labelledby="insurancePoliciesHeading"
+      hidden
+    >
+
+      <div class="insurance-list-heading">
+
+        <h2 id="insurancePoliciesHeading">
+          Your Policies
+        </h2>
+
+        <span
+          id="insuranceVisibleCount"
+          class="insurance-visible-count"
+        >
+          0 policies
+        </span>
+
+      </div>
+
+      <div
+        id="insurancePolicyList"
+        class="insurance-policy-list"
+        aria-live="polite"
+      >
+        <!-- Policy cards inserted here -->
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         HELPFUL INFORMATION CARD
+    ====================================== -->
+
+    <section class="insurance-help-card">
+
+      <div
+        class="insurance-help-icon"
+        aria-hidden="true"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M9 18h6M10 21h4"
+          />
+          <path
+            d="M8 15c-1.8-1.4-3-3.4-3-5.8a7 7 0 0 1
+            14 0c0 2.4-1.2 4.4-3 5.8-.8.6-1
+            1.6-1 3h-6c0-1.4-.2-2.4-1-3Z"
+          />
+        </svg>
+      </div>
+
+      <div class="insurance-help-copy">
+
+        <h2>
+          Stay protected, stay prepared
+        </h2>
+
+        <p>
+          Keep your insurance policy
+          information organized and review
+          upcoming renewal dates.
+        </p>
+
+      </div>
+
+      <span
+        class="insurance-help-chevron"
+        aria-hidden="true"
+      >
+        ›
+      </span>
+
+    </section>
+
+
+    <!-- =====================================
+         DISCLAIMER
+    ====================================== -->
+
+    <p class="insurance-page-note">
+      MoneyFlow helps you record and
+      track policy information.
+      It does not provide insurance
+      coverage or automatically renew
+      policies. Your records are
+      stored locally on this device.
+    </p>
+
+  </main>
+
+
+  <!-- =====================================
+       ADD / EDIT POLICY BOTTOM SHEET
+  ====================================== -->
+
+  <div
+    id="insuranceFormOverlay"
+    class="insurance-form-overlay"
+    hidden
+  >
+
+    <section
+      class="insurance-form-sheet"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="insuranceFormTitle"
+      tabindex="-1"
+    >
+
+      <div
+        class="insurance-sheet-handle"
+        aria-hidden="true"
+      ></div>
+
+      <header class="insurance-form-header">
+
+        <h2 id="insuranceFormTitle">
+          Add Insurance Policy
+        </h2>
+
+        <button
+          type="button"
+          id="insuranceCloseFormBtn"
+          class="insurance-close-form"
+          aria-label="Close policy form"
+        >
+          ×
+        </button>
+
+      </header>
+
+      <p class="insurance-form-description">
+        Enter the details of your
+        insurance policy below.
+      </p>
+
+
+      <!-- POLICY FORM -->
+
+      <form
+        id="insurancePolicyForm"
+        class="insurance-policy-form"
+      >
+
+        <input
+          type="hidden"
+          id="insuranceEditingId"
+        >
+
+
+        <!-- POLICY NAME -->
+
+        <div class="insurance-form-field">
+
+          <label for="insurancePolicyName">
+            Policy Name
+            <span aria-hidden="true">*</span>
+          </label>
+
+          <input
+            type="text"
+            id="insurancePolicyName"
+            name="policyName"
+            placeholder="e.g. My Health Insurance"
+            maxlength="100"
+            autocomplete="off"
+            required
+          >
+
+        </div>
+
+
+        <!-- INSURANCE PROVIDER -->
+
+        <div class="insurance-form-field">
+
+          <label for="insuranceProvider">
+            Insurance Provider
+            <span aria-hidden="true">*</span>
+          </label>
+
+          <input
+            type="text"
+            id="insuranceProvider"
+            name="provider"
+            placeholder="e.g. Insurance company"
+            maxlength="100"
+            autocomplete="organization"
+            required
+          >
+
+        </div>
+
+
+        <!-- POLICY TYPE -->
+
+        <div class="insurance-form-field">
+
+          <label for="insurancePolicyType">
+            Insurance Type
+          </label>
+
+          <select
+            id="insurancePolicyType"
+            name="policyType"
+          >
+            <option value="Health">
+              Health Insurance
+            </option>
+
+            <option value="Life">
+              Life Insurance
+            </option>
+
+            <option value="Car">
+              Car / Vehicle Insurance
+            </option>
+
+            <option value="Home">
+              Home / Property Insurance
+            </option>
+
+            <option value="Business">
+              Business Insurance
+            </option>
+
+            <option value="Travel">
+              Travel Insurance
+            </option>
+
+            <option value="Other">
+              Other Insurance
+            </option>
+          </select>
+
+        </div>
+
+
+        <!-- POLICY NUMBER -->
+
+        <div class="insurance-form-field">
+
+          <label for="insurancePolicyNumber">
+            Policy Number
+            <small>(Optional)</small>
+          </label>
+
+          <input
+            type="text"
+            id="insurancePolicyNumber"
+            name="policyNumber"
+            placeholder="Enter policy reference"
+            maxlength="100"
+            autocomplete="off"
+          >
+
+        </div>
+
+
+        <!-- COVERAGE AMOUNT -->
+
+        <div class="insurance-form-field">
+
+          <label for="insuranceCoverageAmount">
+            Coverage Amount (₦)
+            <small>(Optional)</small>
+          </label>
+
+          <input
+            type="number"
+            id="insuranceCoverageAmount"
+            name="coverageAmount"
+            placeholder="0.00"
+            inputmode="decimal"
+            min="0"
+            step="0.01"
+          >
+
+        </div>
+
+
+        <!-- PREMIUM -->
+
+        <div class="insurance-form-field">
+
+          <label for="insurancePremium">
+            Premium Amount (₦)
+            <small>(Optional)</small>
+          </label>
+
+          <input
+            type="number"
+            id="insurancePremium"
+            name="premium"
+            placeholder="0.00"
+            inputmode="decimal"
+            min="0"
+            step="0.01"
+          >
+
+        </div>
+
+
+        <!-- PREMIUM FREQUENCY -->
+
+        <div class="insurance-form-field">
+
+          <label for="insurancePremiumFrequency">
+            Premium Frequency
+          </label>
+
+          <select
+            id="insurancePremiumFrequency"
+            name="premiumFrequency"
+          >
+
+            <option value="monthly">
+              Monthly
+            </option>
+
+            <option value="quarterly">
+              Quarterly
+            </option>
+
+            <option value="half-yearly">
+              Every 6 Months
+            </option>
+
+            <option value="yearly" selected>
+              Yearly
+            </option>
+
+            <option value="one-time">
+              One-time Payment
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <!-- START DATE -->
+
+        <div class="insurance-form-field">
+
+          <label for="insuranceStartDate">
+            Policy Start Date
+            <small>(Optional)</small>
+          </label>
+
+          <input
+            type="date"
+            id="insuranceStartDate"
+            name="startDate"
+          >
+
+        </div>
+
+
+        <!-- EXPIRY DATE -->
+
+        <div class="insurance-form-field">
+
+          <label for="insuranceExpiryDate">
+            Policy Expiry Date
+            <span aria-hidden="true">*</span>
+          </label>
+
+          <input
+            type="date"
+            id="insuranceExpiryDate"
+            name="expiryDate"
+            required
+          >
+
+        </div>
+
+
+        <!-- RENEWAL DATE -->
+
+        <div class="insurance-form-field">
+
+          <label for="insuranceRenewalDate">
+            Next Renewal / Premium Due Date
+            <small>(Optional)</small>
+          </label>
+
+          <input
+            type="date"
+            id="insuranceRenewalDate"
+            name="renewalDate"
+          >
+
+        </div>
+
+
+        <!-- NOTES -->
+
+        <div class="insurance-form-field">
+
+          <label for="insuranceNotes">
+            Notes
+            <small>(Optional)</small>
+          </label>
+
+          <textarea
+            id="insuranceNotes"
+            name="notes"
+            rows="3"
+            maxlength="500"
+            placeholder="Additional policy details..."
+          ></textarea>
+
+        </div>
+
+
+        <!-- DATE EXPLANATION -->
+
+        <p class="insurance-form-note">
+          Policy status is calculated from
+          its expiry date. Policies expiring
+          within the next 30 days will be
+          shown under Expiring Soon.
+        </p>
+
+
+        <!-- FORM ERROR -->
+
+        <p
+          id="insuranceFormFeedback"
+          class="insurance-form-feedback"
+          role="status"
+          aria-live="polite"
+        ></p>
+
+
+        <!-- SAVE BUTTON -->
+
+        <button
+          type="submit"
+          id="insuranceSavePolicyBtn"
+          class="insurance-save-button"
+        >
+          Save Policy
+        </button>
+
+
+        <!-- CANCEL BUTTON -->
+
+        <button
+          type="button"
+          id="insuranceCancelFormBtn"
+          class="insurance-cancel-button"
+        >
+          Cancel
+        </button>
+
+
+        <!-- DELETE (EDIT MODE ONLY) -->
+
+        <button
+          type="button"
+          id="insuranceDeletePolicyBtn"
+          class="insurance-delete-button"
+          hidden
+        >
+          Delete Policy
+        </button>
+
+      </form>
+
+    </section>
+
+  </div>
+
+</body>
+</html>

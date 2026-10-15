@@ -1,376 +1,327 @@
-/* =====================================================================
-   MONEYFLOW — SETTINGS PAGE
-   Depends on core.js (load it first). Handles only what's specific
-   to settings.html: profile, appearance, notification prefs, and
-   data management (export / import / clear / reset).
-   ===================================================================== */
+
+/* MONEYFLOW — SETTINGS FUNCTIONALITY
+   Requires core.js to load first.
+*/
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  MoneyFlow.initTheme();
-  bindEvents();
-  render();
-  seedProfileFromAuthUser();
-  initProfilePanel();
-  MoneyFlow.onExternalChange(render);
+  const $ = (id) => document.getElementById(id);
 
-  /* ---------------- Events ---------------- */
+  // FIX: Access the global MoneyFlow variable
+  // defined in core.js.
+  const MF = MoneyFlow;
 
-  function bindEvents() {
-    MoneyFlow.bindThemeToggle(); // header "Theme" button
-
-    const settingsThemeToggle = document.getElementById("settingsThemeToggle");
-    if (settingsThemeToggle) {
-      settingsThemeToggle.addEventListener("click", () => {
-        MoneyFlow.toggleTheme();
-        renderAppearance();
-      });
-    }
-
-    const profileForm = document.getElementById("profileForm");
-    if (profileForm) profileForm.addEventListener("submit", handleProfileSubmit);
-
-    const editProfileBtn = document.getElementById("editProfileBtn");
-    if (editProfileBtn) editProfileBtn.addEventListener("click", enterProfileEditMode);
-
-    const logoutBtn = document.getElementById("logoutBtn");
-    if (logoutBtn) {
-      logoutBtn.addEventListener("click", async () => {
-        const confirmed = await MoneyFlow.showConfirm({
-          message: "Log out of MoneyFlow?",
-          confirmText: "Log Out",
-        });
-        if (confirmed) MoneyFlow.logout();
-      });
-    }
-
-    const cancelProfileEditBtn = document.getElementById("cancelProfileEditBtn");
-    if (cancelProfileEditBtn) cancelProfileEditBtn.addEventListener("click", exitProfileEditMode);
-
-    const currencySelect = document.getElementById("currencySelect");
-    if (currencySelect) {
-      currencySelect.addEventListener("change", (e) => {
-        updateSettings({ currency: e.target.value });
-      });
-    }
-
-    const dateFormatSelect = document.getElementById("dateFormatSelect");
-    if (dateFormatSelect) {
-      dateFormatSelect.addEventListener("change", (e) => {
-        updateSettings({ dateFormat: e.target.value });
-      });
-    }
-
-    const spendingAlertsToggle = document.getElementById("spendingAlertsToggle");
-    if (spendingAlertsToggle) {
-      spendingAlertsToggle.addEventListener("click", () => {
-        const settings = MoneyFlow.getSettings();
-        updateSettings({ spendingAlerts: !settings.spendingAlerts });
-      });
-    }
-
-    const monthlySummaryToggle = document.getElementById("monthlySummaryToggle");
-    if (monthlySummaryToggle) {
-      monthlySummaryToggle.addEventListener("click", () => {
-        const settings = MoneyFlow.getSettings();
-        updateSettings({ monthlySummary: !settings.monthlySummary });
-      });
-    }
-
-    const exportBtn = document.getElementById("exportDataBtn");
-    if (exportBtn) exportBtn.addEventListener("click", handleExport);
-
-    const importBtn = document.getElementById("importDataBtn");
-    const importFile = document.getElementById("importFile");
-    if (importBtn && importFile) {
-      importBtn.addEventListener("click", () => importFile.click());
-      importFile.addEventListener("change", handleImport);
-    }
-
-    const clearBtn = document.getElementById("clearTransactionsBtn");
-    if (clearBtn) clearBtn.addEventListener("click", handleClearTransactions);
-
-    const resetBtn = document.getElementById("resetAppBtn");
-    if (resetBtn) resetBtn.addEventListener("click", handleResetApp);
-
-    const checkUpdateBtn = document.getElementById("checkUpdateBtn");
-    if (checkUpdateBtn) checkUpdateBtn.addEventListener("click", handleCheckUpdate);
-  }
-
-  /* ---------------- Profile: edit / view panels ---------------- */
-
-  function handleProfileSubmit(event) {
-    event.preventDefault();
-
-    const userName = document.getElementById("userName")?.value.trim() || "";
-    const userEmail = document.getElementById("userEmail")?.value.trim() || "";
-
-    updateSettings({ userName, userEmail });
-    renderProfileView();
-    MoneyFlow.showToast("Profile saved.");
-    switchProfilePanel("view");
-  }
-
-  function enterProfileEditMode() {
-    const settings = MoneyFlow.getSettings();
-    const hasProfile = !!(settings.userName && settings.userName.trim());
-
-    const cancelBtn = document.getElementById("cancelProfileEditBtn");
-    if (cancelBtn) cancelBtn.hidden = !hasProfile;
-
-    switchProfilePanel("form");
-  }
-
-  function exitProfileEditMode() {
-    // Discard any unsaved edits by re-filling the form from what's
-    // actually saved, then go back to the view.
-    const settings = MoneyFlow.getSettings();
-    setValue("userName", settings.userName);
-    setValue("userEmail", settings.userEmail);
-    switchProfilePanel("view");
-  }
-
-  /* Instant, no-animation panel choice — used once on page load. */
-  function initProfilePanel() {
-    const settings = MoneyFlow.getSettings();
-    const hasProfile = !!(settings.userName && settings.userName.trim());
-
-    const formCard = document.getElementById("profileFormCard");
-    const viewCard = document.getElementById("profileViewCard");
-    const cancelBtn = document.getElementById("cancelProfileEditBtn");
-    if (!formCard || !viewCard) return;
-
-    formCard.hidden = hasProfile;
-    viewCard.hidden = !hasProfile;
-    if (cancelBtn) cancelBtn.hidden = true;
-  }
-
-  /* Animated crossfade between the two panels — used for user actions. */
-  function switchProfilePanel(target) {
-    const formCard = document.getElementById("profileFormCard");
-    const viewCard = document.getElementById("profileViewCard");
-    if (!formCard || !viewCard) return;
-
-    const showEl = target === "view" ? viewCard : formCard;
-    const hideEl = target === "view" ? formCard : viewCard;
-
-    if (!hideEl.hidden) {
-      hideEl.classList.add("fade-out");
-    }
-
-    setTimeout(() => {
-      hideEl.hidden = true;
-      hideEl.classList.remove("fade-out");
-
-      showEl.hidden = false;
-      showEl.classList.add("fade-out");
-      // Force layout so the browser registers the starting state
-      // before we remove the class — otherwise it just snaps in.
-      void showEl.offsetWidth;
-      showEl.classList.remove("fade-out");
-    }, 160);
-  }
-
-  function renderProfileView() {
-    const settings = MoneyFlow.getSettings();
-    setText("profileViewName", settings.userName?.trim() || "—");
-    setText("profileViewEmail", settings.userEmail?.trim() || "—");
-  }
-
-  // Runs once per settings.js load. If the local display name/email
-  // has never been set, seed it from the real authenticated account
-  // so "Signed In" shows the real name/email immediately rather than
-  // an empty profile. After this, editing Name/Email here only
-  // updates this local display copy — it does not change the real
-  // account (there's no backend endpoint for that yet).
-  function seedProfileFromAuthUser() {
-  const user = MoneyFlow.getAuthUser();
-  if (!user) return;
-
-  const settings = MoneyFlow.getSettings();
-
-  // If the authenticated account is different from the profile
-  // currently stored on this device, replace the old account details.
-  const authEmail = (user.email || "").trim().toLowerCase();
-  const savedEmail = (settings.userEmail || "").trim().toLowerCase();
-
-  if (authEmail && authEmail !== savedEmail) {
-    updateSettings({
-      userName: user.name?.trim() || "MoneyFlow User",
-      userEmail: user.email || "",
-    });
+  if (!MF) {
+    console.error("MoneyFlow core.js is missing");
     return;
   }
 
-  // Same account, but profile has never been initialized.
-  if (!settings.userName?.trim()) {
-    updateSettings({
-      userName: user.name?.trim() || "MoneyFlow User",
-      userEmail: user.email || "",
-    });
-  }
-}
+  const settings = () => MF.getSettings();
 
-  /* ---------------- Data management ---------------- */
+  const save = (partial) => MF.saveSettings({
+    ...settings(),
+    ...partial
+  });
 
-  function handleExport() {
-    const data = {
-      transactions: MoneyFlow.getTransactions(),
-      settings: MoneyFlow.getSettings(),
-      exportedAt: new Date().toISOString(),
-      version: MoneyFlow.getSettings().version,
-    };
+  const user = MF.getAuthUser?.() || {};
 
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
+  const accountEmail =
+    user.email || settings().userEmail || "";
 
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `moneyflow-backup-${new Date().toISOString().split("T")[0]}.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  function refreshIdentity() {
+    const name =
+      settings().userName?.trim() ||
+      user.name?.trim() ||
+      "MoneyFlow User";
 
-    URL.revokeObjectURL(url);
+    $("accountName").textContent = name;
+    $("accountEmail").textContent =
+      accountEmail || "Signed in";
+
+    $("accountAvatar").textContent =
+      name.charAt(0).toUpperCase();
   }
 
-  function handleImport(event) {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  refreshIdentity();
 
-    const reader = new FileReader();
+  /* NOTIFICATION PREFERENCES */
 
-    reader.onload = async () => {
-      try {
-        const data = JSON.parse(reader.result);
+  $("paymentRemindersToggle").checked =
+    !!settings().paymentReminders;
 
-        if (!Array.isArray(data.transactions)) {
-          MoneyFlow.showToast("This file doesn't look like a valid MoneyFlow backup.", "error");
-          return;
-        }
+  $("insuranceAlertsToggle").checked =
+    !!settings().insuranceAlerts;
 
-        const confirmed = await MoneyFlow.showConfirm({
-          message: `Import ${data.transactions.length} transaction(s)? This will replace your current data.`,
-          confirmText: "Import",
-        });
-
-        if (!confirmed) return;
-
-        MoneyFlow.saveTransactions(data.transactions);
-
-        if (data.settings) {
-          MoneyFlow.saveSettings(data.settings);
-          MoneyFlow.applyTheme(MoneyFlow.getSettings().theme);
-        }
-
-        render();
-        initProfilePanel();
-        MoneyFlow.showToast("Data imported successfully.");
-
-      } catch (error) {
-        console.error("MoneyFlow: Import failed.", error);
-        MoneyFlow.showToast("Unable to read that file. Make sure it's a valid MoneyFlow backup.", "error");
-      } finally {
-        event.target.value = "";
+  $("paymentRemindersToggle")
+    .addEventListener("change", (e) => {
+      if (!save({ paymentReminders: e.target.checked })) {
+        e.target.checked = !!settings().paymentReminders;
+        MF.showToast?.("Unable to save reminder preference.", "error");
       }
-    };
-
-    reader.readAsText(file);
-  }
-
-  async function handleClearTransactions() {
-    const confirmed = await MoneyFlow.showConfirm({
-      message: "This will permanently delete all your transactions. This cannot be undone. Continue?",
-      confirmText: "Clear",
     });
-    if (!confirmed) return;
 
-    MoneyFlow.saveTransactions([]);
-    render();
-    MoneyFlow.showToast("All transactions have been cleared.");
-  }
-
-  async function handleResetApp() {
-    const confirmed = await MoneyFlow.showConfirm({
-      message: "This will delete all transactions and reset every setting to default. This cannot be undone. Continue?",
-      confirmText: "Reset",
-    });
-    if (!confirmed) return;
-
-    localStorage.removeItem(MoneyFlow.STORAGE_KEYS.transactions);
-    localStorage.removeItem(MoneyFlow.STORAGE_KEYS.settings);
-
-    MoneyFlow.applyTheme("light");
-    render();
-    initProfilePanel();
-    MoneyFlow.showToast("MoneyFlow has been reset to its default settings.");
-  }
-
-  function handleCheckUpdate() {
-    const status = document.getElementById("updateStatus");
-    if (status) status.textContent = "Checking for updates...";
-
-    setTimeout(() => {
-      if (status) {
-        status.textContent = `You're on the latest version (v${MoneyFlow.getSettings().version}).`;
+  $("insuranceAlertsToggle")
+    .addEventListener("change", (e) => {
+      if (!save({ insuranceAlerts: e.target.checked })) {
+        e.target.checked = !!settings().insuranceAlerts;
+        MF.showToast?.("Unable to save insurance alert preference.", "error");
       }
-    }, 700);
+    });
+
+  /* POPUP PANELS */
+
+  let previousFocus = null;
+
+  const sheets = [
+    "profileSheet",
+    "preferencesSheet",
+    "privacySheet"
+  ];
+
+  function openSheet(which, title) {
+    previousFocus = document.activeElement;
+
+    sheets.forEach((id) => {
+      $(id).hidden = id !== which;
+    });
+
+    $("sheetTitle").textContent = title;
+    $("sheetOverlay").hidden = false;
+
+    document.body.style.overflow = "hidden";
+    $("closeSheetBtn").focus();
   }
 
-  /* ---------------- Helpers ---------------- */
+  function closeSheet() {
+    $("sheetOverlay").hidden = true;
+    document.body.style.overflow = "";
 
-  function updateSettings(partial) {
-    const settings = MoneyFlow.getSettings();
-    MoneyFlow.saveSettings({ ...settings, ...partial });
-    render();
-  }
-
-  /* ---------------- Render ---------------- */
-
-  function render() {
-    const settings = MoneyFlow.getSettings();
-
-    setValue("userName", settings.userName);
-    setValue("userEmail", settings.userEmail);
-    setValue("currencySelect", settings.currency);
-    setValue("dateFormatSelect", settings.dateFormat);
-
-    setToggleText("spendingAlertsToggle", settings.spendingAlerts);
-    setToggleText("monthlySummaryToggle", settings.monthlySummary);
-
-    setText("appVersion", `v${settings.version}`);
-
-    renderProfileView();
-    renderAppearance();
-  }
-
-  function renderAppearance() {
-    // Nothing extra needed right now — MoneyFlow.applyTheme already
-    // keeps the <html class="dark"> state in sync with settings.
-    // Kept as its own function in case the appearance section grows.
-  }
-
-  function setValue(id, value) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.value = value ?? "";
-    // Syncs the custom dropdown's visible label without re-firing
-    // 'change' (that would loop back into updateSettings -> render).
-    if (typeof el.moneyflowRefresh === "function") {
-      el.moneyflowRefresh();
+    if (previousFocus?.focus) {
+      previousFocus.focus();
     }
   }
 
-  function setText(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
+  $("closeSheetBtn")
+    .addEventListener("click", closeSheet);
+
+  $("sheetOverlay")
+    .addEventListener("click", (e) => {
+      if (e.target === $("sheetOverlay")) {
+        closeSheet();
+      }
+    });
+
+  document.addEventListener("keydown", (e) => {
+    if (
+      e.key === "Escape" &&
+      !$("sheetOverlay").hidden
+    ) {
+      closeSheet();
+    }
+  });
+
+  /* PROFILE */
+
+  $("profileBtn")
+    .addEventListener("click", () => {
+
+      $("userName").value =
+        settings().userName ||
+        user.name ||
+        "MoneyFlow User";
+
+      $("userEmail").value = accountEmail;
+
+      openSheet("profileSheet", "Profile");
+    });
+
+  $("profileForm")
+    .addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const name = $("userName").value.trim();
+
+      if (!name) return;
+
+      if (!save({ userName: name })) {
+        MF.showToast?.("Unable to save profile. Existing settings were preserved.", "error");
+        return;
+      }
+
+      refreshIdentity();
+      closeSheet();
+
+      MF.showToast?.("Profile saved");
+    });
+
+  /* PREFERENCES */
+
+  $("preferencesBtn")
+    .addEventListener("click", () => {
+
+      $("currencySelect").value =
+        settings().currency || "NGN";
+
+      $("dateFormatSelect").value =
+        settings().dateFormat || "DD/MM/YYYY";
+
+      openSheet("preferencesSheet", "Preferences");
+    });
+
+  $("savePreferencesBtn")
+    .addEventListener("click", () => {
+
+      if (!save({
+        currency: $("currencySelect").value,
+        dateFormat: $("dateFormatSelect").value
+      })) {
+        MF.showToast?.("Unable to save preferences. Existing settings were preserved.", "error");
+        return;
+      }
+
+      closeSheet();
+
+      MF.showToast?.("Preferences saved");
+    });
+
+  /* PRIVACY INFORMATION */
+
+  $("privacyBtn")
+    .addEventListener("click", () => {
+      openSheet(
+        "privacySheet",
+        "Privacy Information"
+      );
+    });
+
+ 
+  /* Human-readable PDF or CSV exports use a dedicated screen. */
+  $("exportDataBtn").addEventListener("click", () => {
+    window.location.href = "export.html";
+  });
+
+  /* Keep the existing full-fidelity backup available separately.
+     PDF/CSV can't be used to restore settings, debts and recurring rules. */
+  $("backupDataBtn")
+    .addEventListener("click", () => {
+      let downloadUrl = null;
+
+      try {
+        // These are the financial-data keys actually used
+        // by the current MoneyFlow app.
+        
+const storageKeys = {
+  transactions: "moneyflow_transactions",
+  payments: "moneyflow_payments",
+  debts: "moneyflow_debts",
+  insurance: "moneyflow_insurance",
+  incomeRepeatRules: "moneyflow_income_repeat_rules",
+  settings: "moneyflow_settings"
+};
+
+
+        const readableData = {};
+        const rawStorage = {};
+        const unreadableKeys = [];
+
+        for (const [label, key] of Object.entries(storageKeys)) {
+          const raw = localStorage.getItem(key);
+
+          // Store exact original values for safe future recovery.
+          // null means this key did not exist on this device.
+          rawStorage[key] = raw;
+
+          if (raw === null) {
+            readableData[label] = null;
+            continue;
+          }
+
+          try {
+            readableData[label] = JSON.parse(raw);
+          } catch (error) {
+            readableData[label] = null;
+            unreadableKeys.push(key);
+          }
+        }
+
+        const backup = {
+          app: "MoneyFlow",
+          backupFormat: "moneyflow-local-backup-v2",
+          exportedAt: new Date().toISOString(),
+          data: readableData,
+          rawStorage: rawStorage,
+          unreadableKeys: unreadableKeys,
+          note: "rawStorage preserves exact saved values. " +
+            "This export does not include authentication tokens."
+        };
+
+        const blob = new Blob(
+          [JSON.stringify(backup, null, 2)],
+          { type: "application/json" }
+        );
+
+        downloadUrl = URL.createObjectURL(blob);
+
+        const link = document.createElement("a");
+        link.href = downloadUrl;
+        link.download =
+          "moneyflow-full-backup-" +
+          new Date().toISOString().slice(0, 10) +
+          ".json";
+
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        const urlToRelease = downloadUrl;
+        downloadUrl = null;
+
+        setTimeout(() => {
+          URL.revokeObjectURL(urlToRelease);
+        }, 10000);
+
+        if (unreadableKeys.length) {
+          MF.showToast?.(
+            "Backup created. Some saved data was unreadable, " +
+            "but its original values were preserved.",
+            "error"
+          );
+        } else {
+          MF.showToast?.("MoneyFlow backup prepared.");
+        }
+
+      } catch (error) {
+        console.error("MoneyFlow backup failed:", error);
+
+        if (downloadUrl) {
+          URL.revokeObjectURL(downloadUrl);
+        }
+
+        MF.showToast?.(
+          "Unable to export your data. Nothing was changed.",
+          "error"
+        );
+      }
+    });
+
+
+  if (location.hash === "#backup-data") {
+    document.getElementById("backupDataBtn")?.scrollIntoView({ block: "center", behavior: "auto" });
   }
 
-  function setToggleText(id, isOn) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.textContent = isOn ? "On" : "Off";
-    el.classList.toggle("active", isOn);
-  }
+  /* LOG OUT */
+
+  $("logoutBtn")
+    .addEventListener("click", async () => {
+
+      const confirmed = await MF.showConfirm({
+        message: "Log out of MoneyFlow?",
+        confirmText: "Log Out"
+      });
+
+      if (confirmed) {
+        MF.logout();
+      }
+    });
 
 });

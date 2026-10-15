@@ -1,0 +1,462 @@
+
+/* MONEYFLOW — SETTINGS DESIGN */
+
+:root {
+  --settings-bg: #080e17;
+  --settings-card: #131e2b;
+  --settings-border: #273744;
+  --settings-green: #2fca9f;
+  --settings-text: #f5faf9;
+  --settings-muted: #91a3b2;
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--settings-bg) !important;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(
+      ellipse 80% 20% at 50% 0%,
+      rgba(29,154,118,.09),
+      transparent 80%
+    ),
+    var(--settings-bg) !important;
+  color: var(--settings-text) !important;
+  font-family:
+    var(--font-body, system-ui, sans-serif);
+}
+
+.settings-page {
+  display: block;
+  width: min(100%,600px);
+  margin: auto;
+  padding:
+    calc(18px + env(safe-area-inset-top))
+    23px
+    calc(38px + env(safe-area-inset-bottom));
+}
+
+/* HEADER */
+
+.settings-header {
+  display: grid;
+  grid-template-columns: 45px 1fr 45px;
+  align-items: center;
+  min-height: 55px;
+  margin-bottom: 38px;
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -.045em;
+  text-align: center;
+  color: #fff;
+}
+
+.back-button {
+  width: 43px;
+  height: 43px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 13px;
+  color: #e7f6f0;
+  text-decoration: none;
+}
+
+.back-button svg {
+  width: 26px;
+  height: 26px;
+}
+
+.back-button:active {
+  background: #1b3040;
+}
+
+/* ACCOUNT IDENTITY */
+
+.account-intro {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 0 0 37px;
+}
+
+.account-avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 17px;
+  display: grid;
+  place-items: center;
+  flex: none;
+  background:
+    linear-gradient(140deg,#34d4a8,#087b65);
+  font-size: 22px;
+  font-weight: 800;
+  box-shadow: 0 8px 25px #0a8e6b33;
+}
+
+.account-identity {
+  min-width: 0;
+}
+
+.account-identity h2 {
+  margin: 0 0 5px;
+  font-size: 21px;
+  line-height: 1.25;
+  letter-spacing: -.025em;
+  color: #fff;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.account-identity p {
+  margin: 0;
+  color: var(--settings-muted);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* SECTIONS */
+
+.settings-section {
+  margin: 0 0 32px;
+}
+
+.section-label {
+  margin: 0 0 12px 2px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .11em;
+  color: #8095a3;
+}
+
+.settings-card {
+  overflow: hidden;
+  border: 1px solid var(--settings-border);
+  border-radius: 19px;
+  background:
+    linear-gradient(145deg,#172533,#111b29);
+  box-shadow: 0 10px 25px #0000001c;
+}
+
+/* SETTING ROWS */
+
+.settings-row {
+  width: 100%;
+  min-height: 74px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 16px 17px;
+  border: 0;
+  background: transparent;
+  color: var(--settings-text);
+  text-align: left;
+  font: inherit;
+  position: relative;
+}
+
+.settings-row + .settings-row::before {
+  content: "";
+  position: absolute;
+  left: 17px;
+  right: 17px;
+  top: 0;
+  height: 1px;
+  background: #2a3948;
+}
+
+button.settings-row {
+  cursor: pointer;
+}
+
+button.settings-row:active {
+  background: #213647;
+}
+
+.row-icon {
+  width: 25px;
+  height: 25px;
+  flex: none;
+  color: #9baeb9;
+  display: grid;
+  place-items: center;
+}
+
+.row-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.row-label {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.35;
+  color: #f4f8f8;
+}
+
+.chevron {
+  color: #7b909e;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 300;
+  margin-left: auto;
+}
+
+/* GREEN SWITCHES */
+
+.switch-row label {
+  cursor: pointer;
+}
+
+.switch-input {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex: none;
+  width: 48px;
+  height: 28px;
+  margin: 0;
+  border: 1px solid #425563;
+  border-radius: 40px;
+  background: #344653;
+  cursor: pointer;
+  transition:
+    background .18s ease,
+    border-color .18s ease;
+}
+
+.switch-input::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #e9f2f2;
+  box-shadow: 0 1px 4px #0005;
+  transition: transform .18s ease;
+}
+
+.switch-input:checked {
+  background:
+    linear-gradient(100deg,#22b98f,#11866b);
+  border-color: #28c79b;
+}
+
+.switch-input:checked::after {
+  transform: translateX(20px);
+  background: #fff;
+}
+
+.section-note {
+  margin: 12px 2px 0;
+  color: #7e91a0;
+  font-size: 11.5px;
+  line-height: 1.65;
+}
+
+/* LOGOUT */
+
+.logout-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin: 46px auto 0;
+  padding: 14px 24px;
+  border: 0;
+  background: transparent;
+  color: #ff797b;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.logout-button svg {
+  width: 21px;
+  height: 21px;
+}
+
+.settings-version {
+  text-align: center;
+  margin: 15px 0 0;
+  font-size: 11px;
+  color: #607787;
+}
+
+/* BOTTOM SHEET POPUPS */
+
+.sheet-overlay {
+  position: fixed;
+  z-index: 900;
+  inset: 0;
+  background: #000b;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding:
+    16px 12px
+    max(16px,env(safe-area-inset-bottom));
+}
+
+.sheet-overlay[hidden],
+.sheet-content[hidden] {
+  display: none !important;
+}
+
+.sheet {
+  width: min(100%,540px);
+  max-height: 85vh;
+  overflow-y: auto;
+  padding: 20px;
+  border: 1px solid #34505b;
+  border-radius: 23px;
+  background: #132230;
+  box-shadow: 0 20px 65px #0009;
+}
+
+.sheet-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 23px;
+}
+
+.sheet-header h2 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0;
+  color: #fff;
+}
+
+.sheet-close {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #344958;
+  border-radius: 10px;
+  background: #1b3040;
+  color: #d4e5e9;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* POPUP CONTENT */
+
+.sheet-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sheet-content label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .07em;
+  color: #a5bbc5;
+  margin-top: 6px;
+}
+
+.sheet-content input,
+.sheet-content select {
+  display: block;
+  width: 100%;
+  height: 48px;
+  border: 1px solid #36515f;
+  border-radius: 12px;
+  padding: 0 13px;
+  background: #0a1724;
+  color: #fff;
+  font: inherit;
+  font-size: 14px;
+}
+
+.sheet-content input[readonly] {
+  color: #92a5b0;
+}
+
+.sheet-content p {
+  color: #a5b9c2;
+  font-size: 13px;
+  line-height: 1.7;
+  margin: 0 0 12px;
+}
+
+.sheet-content .field-note {
+  font-size: 11.5px;
+  color: #849ca8;
+  margin: 0 0 10px;
+}
+
+#profileForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.save-button {
+  min-height: 48px;
+  width: 100%;
+  margin-top: 12px;
+  border: 0;
+  border-radius: 12px;
+  background:
+    linear-gradient(110deg,#30cfa1,#0d846b);
+  color: #fff;
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* ACCESSIBILITY */
+
+:where(button,a,input,select):focus-visible {
+  outline: 2px solid #52e4b8;
+  outline-offset: 3px;
+}
+
+/* SMALL PHONES */
+
+@media (max-width:370px) {
+  .settings-page {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .settings-row {
+    padding: 15px 13px;
+    gap: 11px;
+  }
+
+  .row-label {
+    font-size: 14px;
+  }
+
+  .account-identity h2 {
+    font-size: 19px;
+  }
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .switch-input,
+  .switch-input::after {
+    transition: none;
+  }
+}

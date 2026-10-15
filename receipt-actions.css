@@ -1,0 +1,38 @@
+/* MoneyFlow receipt shortcuts, intentionally scoped to existing records. */
+.mf-receipt-link {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 34px;
+  width: 34px;
+  height: 34px;
+  margin-left: 3px;
+  border-radius: 11px;
+  background: rgba(30, 182, 143, .12);
+  border: 1px solid rgba(51, 214, 165, .35);
+  color: #4de4b2;
+  text-decoration: none;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.mf-receipt-link svg {width: 19px; height: 19px; pointer-events: none}
+.mf-receipt-link:hover,.mf-receipt-link:focus-visible {
+  background: rgba(30, 182, 143, .24);
+  color: #b3ffe4;
+  outline-offset: 2px;
+}
+.payment-actions .mf-paid-receipt {
+  text-decoration: none;
+  border-color: rgba(53, 207, 155, .45);
+  color: #58e6b2;
+  background: rgba(35, 186, 137, .14);
+}
+/* Allow amount and receipt action to share narrow screens without overlap. */
+.income-entry-amount,.spending-entry-amount {min-width: 0; overflow-wrap: anywhere}
+.transaction-item .mf-receipt-link {flex-shrink: 0;}
+@media(max-width:390px) {
+ .income-entry,.spending-entry{gap:8px}
+ .income-entry-icon,.spending-entry-icon{width:36px;height:36px}
+ .income-entry-amount,.spending-entry-amount{font-size:12px}
+ .mf-receipt-link{width:32px;height:32px;flex-basis:32px;margin-left:0}
+ .transaction-item .mf-receipt-link{width:30px;height:30px;flex-basis:30px}
+}

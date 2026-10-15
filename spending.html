@@ -1,0 +1,1393 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+
+  <!-- LOGIN PROTECTION -->
+  <script>
+    (function () {
+      try {
+        if (
+          !localStorage.getItem(
+            "moneyflow_auth_token"
+          )
+        ) {
+          location.replace("login.html");
+        }
+      } catch (error) {
+        location.replace("login.html");
+      }
+
+      document.documentElement.classList.add("dark");
+      document.documentElement.style.backgroundColor =
+        "#09090f";
+    })();
+  </script>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#09090f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+
+  <title>MoneyFlow | Spending</title>
+
+  <link rel="manifest" href="manifest.json">
+
+  <link
+    rel="icon"
+    href="icons/icon-192.png"
+    type="image/png"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    href="icons/icon-192.png"
+  >
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="spending.css">
+  <link rel="stylesheet" href="category-icons.css">
+  <link rel="stylesheet" href="month-picker.css">
+
+  <link rel="stylesheet" href="date-picker.css">
+
+  <link rel="stylesheet" href="receipt-actions.css">
+
+  <script src="core.js" defer></script>
+  <script src="date-picker.js" defer></script>
+  <script src="month-picker.js" defer></script>
+  <script src="category-icons.js" defer></script>
+  <script src="spending.js" defer></script>
+</head>
+
+<body class="spending-body">
+
+  <!-- =====================================
+       SPENDING MAIN PAGE
+  ====================================== -->
+
+  <main
+    id="spendingMainView"
+    class="spending-page"
+  >
+
+    <!-- HEADER -->
+
+    <header class="spending-header">
+
+      <a
+        href="home.html"
+        class="spending-back"
+        aria-label="Back to Home"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5"/>
+          <path d="m12 19-7-7 7-7"/>
+        </svg>
+      </a>
+
+      <h1>Spending</h1>
+
+      <div class="spending-header-actions">
+
+        <!-- CALENDAR -->
+
+        <button
+          type="button"
+          id="spendingCalendarBtn"
+          class="spending-icon-button"
+          aria-label="Choose spending month"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.9"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect
+              x="3"
+              y="5"
+              width="18"
+              height="16"
+              rx="2"
+            />
+            <path d="M7 3v4M17 3v4M3 10h18"/>
+            <path d="M7 14h3M14 14h3"/>
+          </svg>
+        </button>
+
+        <!-- SEARCH -->
+
+        <button
+          type="button"
+          id="spendingSearchBtn"
+          class="spending-icon-button"
+          aria-label="Search spending"
+          aria-expanded="false"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
+            <circle cx="10.5" cy="10.5" r="7"/>
+            <path d="m16 16 5 5"/>
+          </svg>
+        </button>
+
+        <!-- ADD SPENDING -->
+
+        <button
+          type="button"
+          id="spendingAddTopBtn"
+          class="spending-icon-button spending-add-circle"
+          aria-label="Add spending"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+          >
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+
+      </div>
+
+    </header>
+
+    <p class="spending-subtitle">
+      See where your money goes.
+    </p>
+
+    <!-- MONTH PICKER -->
+
+    <div class="spending-month-row">
+
+      <label
+        for="spendingMonthPicker"
+        class="spending-visually-hidden"
+      >
+        Select spending month
+      </label>
+
+      <input
+        id="spendingMonthPicker"
+        type="month"
+        aria-label="Select spending month"
+      >
+
+    </div>
+
+    <!-- SEARCH PANEL -->
+
+    <div
+      id="spendingSearchPanel"
+      class="spending-search-panel"
+      hidden
+    >
+      <label
+        for="spendingSearchInput"
+        class="spending-visually-hidden"
+      >
+        Search spending records
+      </label>
+
+      <input
+        id="spendingSearchInput"
+        type="search"
+        placeholder="Search spending records..."
+        autocomplete="off"
+      >
+    </div>
+
+    <!-- =====================================
+         HERO OVERVIEW
+    ====================================== -->
+
+    <section
+      class="spending-overview-card"
+      aria-labelledby="spendingOverviewTitle"
+    >
+
+      <div class="spending-overview-top">
+
+        <h2 id="spendingOverviewTitle">
+          Spending Overview
+        </h2>
+
+        <span
+          id="spendingOverviewMonth"
+          class="spending-month-badge"
+        >
+          This Month
+        </span>
+
+      </div>
+
+      <div class="spending-overview-main">
+
+        <div class="spending-overview-copy">
+
+          <span class="spending-overview-caption">
+            Total Spent
+          </span>
+
+          <strong id="spendingTotalAmount">
+            ₦0.00
+          </strong>
+
+          <p id="spendingComparisonText">
+            No spending last month to compare
+          </p>
+
+        </div>
+
+        <!-- SPENDING ILLUSTRATION -->
+
+        <div
+          class="spending-hero-art"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 170 150"
+            fill="none"
+          >
+
+            <!-- SOFT BACKGROUND -->
+
+            <circle
+              cx="90"
+              cy="78"
+              r="65"
+              fill="#31D3A0"
+              fill-opacity=".10"
+            />
+
+            <!-- RECEIPT -->
+
+            <path
+              d="
+                M62 18
+                H120
+                V117
+                L111 111
+                L101 117
+                L91 111
+                L81 117
+                L72 111
+                L62 117
+                V18Z
+              "
+              fill="#E1FFF1"
+            />
+
+            <path
+              d="
+                M62 18
+                H120
+                V117
+                L111 111
+                L101 117
+                L91 111
+                L81 117
+                L72 111
+                L62 117
+                V18Z
+              "
+              stroke="#37BF92"
+              stroke-width="3"
+              stroke-linejoin="round"
+            />
+
+            <path
+              d="M75 42H107"
+              stroke="#2DAB84"
+              stroke-width="6"
+              stroke-linecap="round"
+            />
+
+            <path
+              d="M75 57H105"
+              stroke="#90D7BC"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+
+            <path
+              d="M75 71H99"
+              stroke="#90D7BC"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+
+            <!-- PAYMENT CARD -->
+
+            <rect
+              x="22"
+              y="66"
+              width="78"
+              height="52"
+              rx="10"
+              fill="#179F79"
+              stroke="#63E8B5"
+              stroke-width="2"
+              transform="rotate(-13 22 66)"
+            />
+
+            <path
+              d="M24 81L101 64"
+              stroke="#0D715B"
+              stroke-width="10"
+              opacity=".7"
+            />
+
+            <rect
+              x="35"
+              y="91"
+              width="19"
+              height="9"
+              rx="3"
+              fill="#A2FFE0"
+              transform="rotate(-13 35 91)"
+            />
+
+            <!-- COIN -->
+
+            <circle
+              cx="125"
+              cy="109"
+              r="29"
+              fill="#EDA73C"
+            />
+
+            <circle
+              cx="125"
+              cy="109"
+              r="22"
+              fill="#FFD57B"
+            />
+
+            <text
+              x="125"
+              y="118"
+              text-anchor="middle"
+              fill="#87550F"
+              font-size="27"
+              font-weight="800"
+            >₦</text>
+
+            <!-- SPARKLE -->
+
+            <path
+              d="
+                M139 19
+                L143 28
+                L152 32
+                L143 36
+                L139 45
+                L135 36
+                L126 32
+                L135 28Z
+              "
+              fill="#98F4D0"
+            />
+
+          </svg>
+        </div>
+
+      </div>
+
+      <div class="spending-overview-divider"></div>
+
+      <!-- THREE SUMMARY STATS -->
+
+      <div class="spending-stats">
+
+        <div class="spending-stat">
+
+          <div class="spending-stat-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M4 7h16v12H4z"/>
+              <path d="M4 10h16"/>
+              <path d="M8 15h4"/>
+            </svg>
+          </div>
+
+          <strong id="spendingTotalStat">
+            ₦0.00
+          </strong>
+
+          <span>Total Spent</span>
+
+        </div>
+
+        <div class="spending-stat">
+
+          <div class="spending-stat-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M7 5h14M7 12h14M7 19h14"/>
+              <circle
+                cx="3"
+                cy="5"
+                r="1"
+                fill="currentColor"
+              />
+              <circle
+                cx="3"
+                cy="12"
+                r="1"
+                fill="currentColor"
+              />
+              <circle
+                cx="3"
+                cy="19"
+                r="1"
+                fill="currentColor"
+              />
+            </svg>
+          </div>
+
+          <strong id="spendingTransactionCount">
+            0
+          </strong>
+
+          <span>Transactions</span>
+
+        </div>
+
+        <div class="spending-stat">
+
+          <div class="spending-stat-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect
+                x="3"
+                y="5"
+                width="18"
+                height="16"
+                rx="2"
+              />
+              <path d="M7 3v4M17 3v4M3 10h18"/>
+            </svg>
+          </div>
+
+          <strong id="spendingDailyAverage">
+            ₦0.00
+          </strong>
+
+          <span>Daily Avg</span>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =====================================
+         CATEGORY BREAKDOWN
+    ====================================== -->
+
+    <section
+      class="spending-breakdown-section"
+      aria-labelledby="spendingBreakdownTitle"
+    >
+
+      <div class="spending-section-title-row">
+
+        <h2 id="spendingBreakdownTitle">
+          Where Your Money Went
+        </h2>
+
+        <span
+          id="spendingCategoryCount"
+          class="spending-section-meta"
+        >
+          0 categories
+        </span>
+
+      </div>
+
+      <div class="spending-breakdown-card">
+
+        <div class="spending-chart-layout">
+
+          <!-- DONUT CHART -->
+
+          <div
+            id="spendingDonutChart"
+            class="spending-donut-chart"
+            role="img"
+            aria-label="Spending breakdown by category"
+          >
+
+            <div class="spending-donut-center">
+              <span>Total</span>
+
+              <strong id="spendingChartTotal">
+                ₦0
+              </strong>
+            </div>
+
+          </div>
+
+          <!-- CATEGORY LEGEND -->
+
+          <div
+            id="spendingCategoryLegend"
+            class="spending-category-legend"
+          >
+
+            <p class="spending-chart-placeholder">
+              Add spending to see your breakdown.
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- =====================================
+         CATEGORY FILTERS
+    ====================================== -->
+
+    <section
+      class="spending-filter-section"
+      aria-label="Filter spending by category"
+    >
+
+      <div
+        id="spendingCategoryFilters"
+        class="spending-filter-scroll"
+      >
+
+        <button
+          type="button"
+          class="spending-filter-chip active"
+          data-category="all"
+          aria-pressed="true"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          All
+        </button>
+
+        <button
+          type="button"
+          class="spending-filter-chip"
+          data-category="Food"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Food
+        </button>
+
+        <button
+          type="button"
+          class="spending-filter-chip"
+          data-category="Shopping"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Shopping
+        </button>
+
+        <button
+          type="button"
+          class="spending-filter-chip"
+          data-category="Transport"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Transport
+        </button>
+
+        <button
+          type="button"
+          class="spending-filter-chip"
+          data-category="Bills"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Bills
+        </button>
+
+        <button
+          type="button"
+          class="spending-filter-chip"
+          data-category="Health"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Health
+        </button>
+
+        <button
+          type="button"
+          class="spending-filter-chip"
+          data-category="Entertainment"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Entertainment
+        </button>
+
+        <button
+          type="button"
+          class="spending-filter-chip"
+          data-category="Other"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Other
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- =====================================
+         TRANSACTION RECORDS
+    ====================================== -->
+
+    <section
+      class="spending-records-section"
+      aria-labelledby="spendingRecordsTitle"
+    >
+
+      <div class="spending-records-heading">
+
+        <div>
+          <h2 id="spendingRecordsTitle">
+            Transactions
+          </h2>
+
+          <span id="spendingEntriesCount">
+            0 entries
+          </span>
+        </div>
+
+        <button
+          type="button"
+          id="spendingSortBtn"
+          class="spending-sort-button"
+          aria-label="Change spending sort order"
+        >
+          Date ↓
+        </button>
+
+      </div>
+
+      <div
+        id="spendingTransactionsList"
+        class="spending-transactions-list"
+        aria-live="polite"
+      ></div>
+
+      <!-- EMPTY STATE -->
+
+      <div
+        id="spendingEmptyState"
+        class="spending-empty-state"
+      >
+
+        <div
+          class="spending-empty-art"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 190 155"
+            fill="none"
+          >
+
+            <circle
+              cx="95"
+              cy="78"
+              r="65"
+              fill="#163E34"
+            />
+
+            <rect
+              x="57"
+              y="24"
+              width="76"
+              height="101"
+              rx="10"
+              fill="#E3FFF1"
+              stroke="#3CD29F"
+              stroke-width="3"
+            />
+
+            <path
+              d="M73 45h43M73 60h35M73 75h41"
+              stroke="#8FD6BA"
+              stroke-width="6"
+              stroke-linecap="round"
+            />
+
+            <path
+              d="m72 104 10 10 22-24"
+              stroke="#149B74"
+              stroke-width="6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+
+            <circle
+              cx="134"
+              cy="116"
+              r="26"
+              fill="#1BB98C"
+            />
+
+            <path
+              d="M134 104v24M122 116h24"
+              stroke="#fff"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+
+            <path
+              d="
+                M151 29l3 8 8 3-8 3
+                -3 8-3-8-8-3 8-3Z
+              "
+              fill="#8FF1C9"
+            />
+
+          </svg>
+        </div>
+
+        <h3 id="spendingEmptyTitle">
+          No spending logged this month
+        </h3>
+
+        <p id="spendingEmptyDescription">
+          Add your first expense to start
+          understanding your spending habits.
+        </p>
+
+        <button
+          type="button"
+          id="spendingEmptyAddBtn"
+          class="spending-primary-button"
+        >
+          <span>＋</span>
+          Add Spending
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- =====================================
+         SPENDING TIP
+    ====================================== -->
+
+    <aside class="spending-tip-card">
+
+      <div class="spending-tip-icon">
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="
+              M9 18h6
+              M10 22h4
+              M8 14c-2-2-3-3-3-6
+              a7 7 0 0 1 14 0
+              c0 3-1 4-3 6
+              l-1 3h-6l-1-3Z
+            "
+          />
+        </svg>
+
+      </div>
+
+      <div>
+
+        <h3>Know where your money goes</h3>
+
+        <p>
+          Record everyday expenses to spot
+          patterns and make better decisions.
+        </p>
+
+      </div>
+
+    </aside>
+
+  </main>
+
+  <!-- =====================================
+       ADD SPENDING SCREEN
+  ====================================== -->
+
+  <section
+    id="spendingAddView"
+    class="spending-add-page"
+    aria-labelledby="spendingAddTitle"
+    hidden
+  >
+
+    <header class="spending-form-header">
+
+      <button
+        type="button"
+        id="spendingBackFromAdd"
+        class="spending-back"
+        aria-label="Back to Spending"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5"/>
+          <path d="m12 19-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <h2 id="spendingAddTitle">
+        Add Spending
+      </h2>
+
+      <button
+        type="submit"
+        form="spendingForm"
+        id="spendingSaveTopBtn"
+        class="spending-save-button"
+      >
+        Save
+      </button>
+
+    </header>
+
+    <form
+      id="spendingForm"
+      class="spending-form"
+    >
+
+      <!-- SPENDING NAME -->
+
+      <div class="spending-form-field">
+
+        <label for="spendingName">
+          Spending Name
+        </label>
+
+        <input
+          id="spendingName"
+          type="text"
+          maxlength="100"
+          placeholder="e.g. Groceries, Lunch, Transport..."
+          autocomplete="off"
+          required
+        >
+
+      </div>
+
+      <!-- AMOUNT -->
+
+      <div class="spending-form-field">
+
+        <label for="spendingAmount">
+          Amount (₦)
+        </label>
+
+        <input
+          id="spendingAmount"
+          type="number"
+          min="0.01"
+          step="0.01"
+          inputmode="decimal"
+          placeholder="0.00"
+          required
+        >
+
+      </div>
+
+      <!-- DATE -->
+
+      <div class="spending-form-field">
+
+        <label for="spendingDate">
+          Date
+        </label>
+
+        <input
+          id="spendingDate"
+          type="date"
+          required
+        >
+
+      </div>
+
+      <!-- CATEGORY -->
+
+      <fieldset
+        class="spending-form-fieldset"
+      >
+
+        <legend>
+          Category
+        </legend>
+
+        <div class="spending-choice-scroll">
+
+          <label class="spending-choice">
+            <input
+              type="radio"
+              name="spendingCategory"
+              value="Food"
+              checked
+            >
+            <span>Food</span>
+          </label>
+
+          <label class="spending-choice">
+            <input
+              type="radio"
+              name="spendingCategory"
+              value="Shopping"
+            >
+            <span>Shopping</span>
+          </label>
+
+          <label class="spending-choice">
+            <input
+              type="radio"
+              name="spendingCategory"
+              value="Transport"
+            >
+            <span>Transport</span>
+          </label>
+
+          <label class="spending-choice">
+            <input
+              type="radio"
+              name="spendingCategory"
+              value="Bills"
+            >
+            <span>Bills</span>
+          </label>
+
+          <label class="spending-choice">
+            <input
+              type="radio"
+              name="spendingCategory"
+              value="Health"
+            >
+            <span>Health</span>
+          </label>
+
+          <label class="spending-choice">
+            <input
+              type="radio"
+              name="spendingCategory"
+              value="Entertainment"
+            >
+            <span>Entertainment</span>
+          </label>
+
+          <label class="spending-choice">
+            <input
+              type="radio"
+              name="spendingCategory"
+              value="Other"
+            >
+            <span>Other</span>
+          </label>
+
+        </div>
+
+      </fieldset>
+
+      <!-- NOTES -->
+
+      <div class="spending-form-field">
+
+        <label for="spendingNotes">
+          Notes
+          <span class="spending-optional">
+            (Optional)
+          </span>
+        </label>
+
+        <textarea
+          id="spendingNotes"
+          rows="4"
+          maxlength="500"
+          placeholder="Add details about this expense..."
+        ></textarea>
+
+      </div>
+
+      <!-- RECEIPT FEATURE NOTICE -->
+
+      <div class="spending-receipt-notice">
+
+        <div class="spending-receipt-icon">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="
+                M6 3h12v18
+                l-3-2-3 2-3-2-3 2V3Z
+              "
+            />
+            <path d="M9 8h6M9 12h6"/>
+          </svg>
+        </div>
+
+        <div>
+          <strong>
+            Receipt Scanning
+          </strong>
+
+          <p>
+            Coming in a future update.
+            You can record spending manually now.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- BOTTOM SAVE -->
+
+      <button
+        type="submit"
+        id="spendingSaveBottomBtn"
+        class="spending-primary-button spending-form-submit"
+      >
+        Save Spending
+      </button>
+
+    </form>
+
+  </section>
+
+  <!-- =====================================
+       BOTTOM NAVIGATION
+  ====================================== -->
+
+  <nav
+    id="spendingBottomNav"
+    class="spending-bottom-nav"
+    aria-label="Main navigation"
+  >
+
+    <!-- HOME -->
+
+    <a
+      href="home.html"
+      class="spending-nav-item"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.9"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m3 10 9-7 9 7v11H3V10Z"/>
+        <path d="M9 21v-8h6v8"/>
+      </svg>
+
+      <span>Home</span>
+    </a>
+
+    <!-- PAYMENTS -->
+
+    <a
+      href="payments.html"
+      class="spending-nav-item"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.9"
+        stroke-linecap="round"
+      >
+        <rect
+          x="3"
+          y="5"
+          width="18"
+          height="14"
+          rx="2"
+        />
+        <path d="M3 10h18"/>
+      </svg>
+
+      <span>Payments</span>
+    </a>
+
+    <!-- SPENDING -->
+
+    <a
+      href="spending.html"
+      class="spending-nav-item active"
+      aria-current="page"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.9"
+        stroke-linecap="round"
+      >
+        <path d="M12 3v9l8 5"/>
+        <path d="M21 12a9 9 0 1 1-9-9"/>
+        <path d="M16 4a9 9 0 0 1 5 8"/>
+      </svg>
+
+      <span>Spending</span>
+    </a>
+
+    <!-- DEBTS -->
+
+    <a
+      href="debts.html"
+      class="spending-nav-item"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.9"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="8" cy="8" r="3"/>
+        <path d="M2 20v-2a6 6 0 0 1 12 0v2"/>
+        <circle cx="18" cy="9" r="2.5"/>
+        <path d="M17 15a5 5 0 0 1 5 5"/>
+      </svg>
+
+      <span>Debts</span>
+    </a>
+
+    <!-- MORE (TEMPORARY LINK) -->
+
+    <a
+      href="more.html"
+      class="spending-nav-item"
+    >
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.9"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <rect
+          x="3"
+          y="3"
+          width="7"
+          height="7"
+          rx="1.5"
+        />
+        <rect
+          x="14"
+          y="3"
+          width="7"
+          height="7"
+          rx="1.5"
+        />
+        <rect
+          x="3"
+          y="14"
+          width="7"
+          height="7"
+          rx="1.5"
+        />
+        <rect
+          x="14"
+          y="14"
+          width="7"
+          height="7"
+          rx="1.5"
+        />
+      </svg>
+
+      <span>More</span>
+    </a>
+
+  </nav>
+
+<!-- ==========================================
+     MONEYFLOW — SPENDING BACK NAVIGATION
+     Return to Home or More
+     ========================================== -->
+
+
+<script>
+(function () {
+  "use strict";
+
+  /* =====================================
+     MONEYFLOW — SPENDING BACK NAVIGATION
+     Supports Home, More and Calendar
+     ===================================== */
+
+  const backButton = document.querySelector(
+    ".spending-header a.spending-back"
+  );
+
+  if (!backButton) return;
+
+  const params = new URLSearchParams(
+    window.location.search
+  );
+
+  let origin = params.get("from");
+
+  /* Identify the previous page only when
+     no explicit source was provided. */
+
+  if (!origin && document.referrer) {
+    try {
+      const previous = new URL(
+        document.referrer
+      );
+
+      if (
+        previous.origin ===
+        window.location.origin
+      ) {
+        if (
+          previous.pathname.endsWith(
+            "/calendar.html"
+          )
+        ) {
+          origin = "calendar";
+
+        } else if (
+          previous.pathname.endsWith(
+            "/more.html"
+          )
+        ) {
+          origin = "more";
+        }
+      }
+
+    } catch (error) {
+      console.warn(
+        "Unable to identify previous page.",
+        error
+      );
+    }
+  }
+
+  let destination = "home.html";
+  let label = "Back to Home";
+
+  if (origin === "calendar") {
+    destination = "calendar.html";
+    label = "Back to Calendar";
+
+  } else if (origin === "more") {
+    destination = "more.html";
+    label = "Back to More";
+  }
+
+  backButton.href = destination;
+
+  backButton.setAttribute(
+    "aria-label",
+    label
+  );
+
+})();
+</script>
+
+
+</body>
+</html>

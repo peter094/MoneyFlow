@@ -1,0 +1,529 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+
+  <!-- MONEYFLOW LOGIN PROTECTION -->
+  <script>
+    (function () {
+      document.documentElement.classList.add("dark");
+
+      try {
+        if (!localStorage.getItem("moneyflow_auth_token")) {
+          window.location.replace("login.html");
+        }
+      } catch (error) {
+        window.location.replace("login.html");
+      }
+    })();
+  </script>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#09090f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <title>MoneyFlow | Notifications</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="notifications.css">
+
+  <script src="core.js" defer></script>
+  <script src="notifications.js" defer></script>
+
+</head>
+
+<body class="notifications-body">
+
+  <main class="notifications-page">
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <header class="notifications-header">
+
+      <a
+        href="home.html"
+        class="notifications-back"
+        aria-label="Back to Home"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M19 12H5"/>
+          <path d="m12 19-7-7 7-7"/>
+        </svg>
+      </a>
+
+      <h1>Notifications</h1>
+
+      <button
+        type="button"
+        id="notificationsRefreshBtn"
+        class="notifications-refresh"
+        aria-label="Refresh notifications"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M20 11a8 8 0 1 0-2.1 5.4"/>
+          <path d="M20 4v7h-7"/>
+        </svg>
+      </button>
+
+    </header>
+
+
+    <!-- =====================================
+         EMERALD OVERVIEW CARD
+    ====================================== -->
+
+    <section
+      class="notifications-overview"
+      aria-labelledby="notificationsOverviewTitle"
+    >
+
+      <div class="notifications-overview-main">
+
+        <div class="notifications-overview-copy">
+
+          <p class="notifications-eyebrow">
+            YOUR MONEYFLOW UPDATES
+          </p>
+
+          <h2 id="notificationsOverviewTitle">
+            Stay one step ahead
+          </h2>
+
+          <div class="notifications-overview-counter">
+
+            <strong
+              id="notificationsUnreadCount"
+              aria-live="polite"
+            >
+              0
+            </strong>
+
+            <span>Unread alerts</span>
+
+          </div>
+
+          <p
+            id="notificationsOverviewText"
+            class="notifications-overview-description"
+          >
+            Track upcoming bills, repayments,
+            insurance renewals and budget alerts.
+          </p>
+
+        </div>
+
+
+        <!-- BELL ILLUSTRATION -->
+
+        <div
+          class="notifications-overview-art"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 130 140"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+
+            <circle
+              cx="65"
+              cy="68"
+              r="56"
+              fill="#D2FFED"
+              fill-opacity=".10"
+            />
+
+            <circle
+              cx="65"
+              cy="68"
+              r="39"
+              fill="#D2FFED"
+              fill-opacity=".12"
+            />
+
+            <path
+              d="M88 60C88 45 78 34 65 34C52 34 42 45 42 60C42 83 32 91 32 95H98C98 91 88 83 88 60Z"
+              fill="#97F4D2"
+              stroke="#E5FFF4"
+              stroke-width="4"
+              stroke-linejoin="round"
+            />
+
+            <path
+              d="M57 109C59 119 71 119 73 109"
+              stroke="#DFFFF0"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+
+            <path
+              d="M100 29L105 20M108 42L118 39M30 29L25 20M22 42L12 39"
+              stroke="#C2FFE8"
+              stroke-width="4"
+              stroke-linecap="round"
+            />
+
+            <circle
+              cx="96"
+              cy="43"
+              r="15"
+              fill="#FFCE77"
+              stroke="#165E50"
+              stroke-width="3"
+            />
+
+            <path
+              d="M96 36V44"
+              stroke="#163B33"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+
+            <circle
+              cx="96"
+              cy="49"
+              r="2"
+              fill="#163B33"
+            />
+
+          </svg>
+        </div>
+
+      </div>
+
+      <div class="notifications-overview-bottom">
+
+        <span class="notifications-live-indicator">
+          <span
+            class="notifications-live-dot"
+            aria-hidden="true"
+          ></span>
+          Updates from your saved records
+        </span>
+
+        <span
+          id="notificationsTotalCount"
+          class="notifications-total-count"
+        >
+          0 alerts
+        </span>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         FILTERS AND MARK ALL AS READ
+    ====================================== -->
+
+    <section
+      class="notifications-controls"
+      aria-label="Notification controls"
+    >
+
+      <div
+        class="notifications-tabs"
+        aria-label="Filter notifications"
+      >
+
+        <button
+          type="button"
+          class="notifications-tab active"
+          data-notification-filter="all"
+          aria-pressed="true"
+        >
+          All
+        </button>
+
+        <button
+          type="button"
+          class="notifications-tab"
+          data-notification-filter="unread"
+          aria-pressed="false"
+        >
+          Unread
+        </button>
+
+      </div>
+
+      <button
+        type="button"
+        id="notificationsMarkAllBtn"
+        class="notifications-mark-all"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m4 12 4 4 7-7"/>
+          <path d="m13 16 3 3 5-7"/>
+        </svg>
+
+        <span>Mark all read</span>
+      </button>
+
+    </section>
+
+
+    <!-- =====================================
+         DATA WARNING
+    ====================================== -->
+
+    <p
+      id="notificationsDataWarning"
+      class="notifications-data-warning"
+      role="alert"
+      hidden
+    ></p>
+
+
+    <!-- =====================================
+         NOTIFICATION LIST
+    ====================================== -->
+
+    <section
+      class="notifications-feed"
+      aria-labelledby="notificationsFeedHeading"
+    >
+
+      <div class="notifications-feed-heading">
+
+        <h2 id="notificationsFeedHeading">
+          Your Alerts
+        </h2>
+
+        <span
+          id="notificationsVisibleCount"
+          class="notifications-visible-count"
+        >
+          0 notifications
+        </span>
+
+      </div>
+
+      <div
+        id="notificationsList"
+        class="notifications-list"
+        aria-live="polite"
+      >
+        <!--
+          notifications.js will insert actual
+          financial notification cards here.
+        -->
+      </div>
+
+
+      <!-- =====================================
+           EMPTY STATE
+      ====================================== -->
+
+      <div
+        id="notificationsEmptyState"
+        class="notifications-empty-state"
+      >
+
+        <div
+          class="notifications-empty-icon"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 100 100"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle
+              cx="50"
+              cy="50"
+              r="39"
+              stroke="#315A4D"
+              stroke-width="2"
+            />
+
+            <path
+              d="M70 43C70 31 62 24 50 24C38 24 30 31 30 43C30 60 22 66 22 72H78C78 66 70 60 70 43Z"
+              fill="#164E3B"
+              stroke="#43DCAA"
+            />
+
+            <path
+              d="M42 81C44 89 56 89 58 81"
+              stroke="#43DCAA"
+            />
+
+            <circle
+              cx="71"
+              cy="29"
+              r="14"
+              fill="#34D6A4"
+              stroke="#09090F"
+              stroke-width="3"
+            />
+
+            <path
+              d="m65 29 4 4 8-9"
+              stroke="#06271D"
+              stroke-width="3"
+            />
+          </svg>
+        </div>
+
+        <h3 id="notificationsEmptyTitle">
+          You're all caught up!
+        </h3>
+
+        <p id="notificationsEmptyDescription">
+          No reminders need your attention
+          right now. We'll show your financial
+          alerts here when relevant.
+        </p>
+
+        <a
+          href="calendar.html"
+          class="notifications-calendar-link"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <rect
+              x="3"
+              y="5"
+              width="18"
+              height="16"
+              rx="2"
+            />
+            <path d="M7 3v4M17 3v4M3 10h18"/>
+          </svg>
+
+          View Calendar
+        </a>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         HELPFUL INFORMATION CARD
+    ====================================== -->
+
+    <section class="notifications-info-card">
+
+      <div
+        class="notifications-info-icon"
+        aria-hidden="true"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 11v5"/>
+          <path d="M12 7h.01"/>
+        </svg>
+      </div>
+
+      <div class="notifications-info-copy">
+
+        <h2>Never miss what matters</h2>
+
+        <p>
+          MoneyFlow checks your saved payment
+          dates, debt deadlines, insurance
+          expiries and monthly budget when
+          the app is opened or refreshed.
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         NOTIFICATION INFORMATION
+    ====================================== -->
+
+    <p class="notifications-page-note">
+      These are in-app reminders based on
+      locally saved information. Marking
+      an alert as read does not change
+      your payment, debt, insurance or
+      transaction records. Background
+      phone push notifications are not
+      enabled yet.
+    </p>
+
+  </main>
+
+</body>
+</html>

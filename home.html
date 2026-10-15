@@ -1,0 +1,978 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1,
+    viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#08090d">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+
+  <title>MoneyFlow | Home</title>
+
+  <!-- LOGIN PROTECTION — HOME ONLY (no splash redirection) -->
+  <script>
+  (function () {
+    document.documentElement.classList.add("dark");
+    document.documentElement.style.backgroundColor = "#08090d";
+
+    try {
+      if (!localStorage.getItem("moneyflow_auth_token")) {
+        window.location.replace("login.html");
+      }
+    } catch (error) {
+      window.location.replace("login.html");
+    }
+  })();
+</script>
+
+  <link rel="manifest" href="manifest.json">
+
+  <link
+    rel="icon"
+    href="icons/icon-192.png"
+    type="image/png"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    href="icons/icon-192.png"
+  >
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="home.css">
+
+ 
+  <link rel="stylesheet" href="date-picker.css">
+
+  <script src="core.js" defer></script>
+  <script src="date-picker.js" defer></script>
+  <script src="dashboard.js" defer></script>
+  <script src="notifications.js" defer></script>
+
+</head>
+
+<body class="home-amoled">
+
+  <!-- ================= HEADER ================= -->
+
+  <header class="app-header home-topbar">
+
+    <div class="brand">
+
+      <span class="brand-mark" aria-hidden="true">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M4 16 9.5 10.5 13.5 14.5 20 8"/>
+          <path d="M15 8h5v5"/>
+        </svg>
+      </span>
+
+      <div class="brand-text">
+        <h1>
+          Money<span class="brand-highlight">Flow</span>
+        </h1>
+      </div>
+
+    </div>
+
+    <div class="home-header-actions">
+
+      <!-- NOTIFICATIONS -->
+      <button
+        type="button"
+        class="notification-bell"
+        id="notificationBellBtn"
+        aria-label="Notifications"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path
+            d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9Z"
+          />
+          <path d="M10 21h4"/>
+        </svg>
+
+        <span
+          class="notification-badge"
+          id="notificationBadge"
+          aria-hidden="true"
+        ></span>
+      </button>
+
+      <!-- PROFILE -->
+      <button
+        type="button"
+        class="user-avatar"
+        id="userAvatar"
+        aria-label="Open profile settings"
+      >
+        M
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- ================= MAIN ================= -->
+
+  <main class="home-main">
+
+    <!-- GREETING -->
+
+    <section class="greeting-section">
+
+      <h2 id="greetingHeading">
+        Good morning! 👋
+      </h2>
+
+      <p>
+        Here's your money overview for today.
+      </p>
+
+    </section>
+
+
+    <!-- ================= MONEY AT A GLANCE ================= -->
+
+    <section
+      class="home-glance"
+      aria-labelledby="glanceHeading"
+    >
+
+      <div class="section-heading">
+
+        <h2 id="glanceHeading">
+          Money at a Glance
+        </h2>
+
+        <div
+          class="month-pill"
+          aria-label="Current month"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect
+              x="3" y="5"
+              width="18" height="16"
+              rx="2"
+            />
+            <path d="M7 3v4m10-4v4M3 10h18"/>
+          </svg>
+
+          <span id="monthPillLabel">
+            This Month
+          </span>
+        </div>
+
+      </div>
+
+
+      <!-- THREE SUMMARY CARDS -->
+
+      <div class="summary-grid">
+
+        <!-- INCOME CARD -->
+
+        <article class="summary-card income-card">
+
+          <span
+            class="home-summary-icon home-summary-income"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="m3 17 6-6 4 4 8-9"/>
+              <path d="M15 6h6v6"/>
+            </svg>
+          </span>
+
+          <p>
+            Income This Month
+          </p>
+
+          <h2 id="monthIncome">
+            ₦0.00
+          </h2>
+
+          <span id="incomeSummaryNote">
+            No income logged yet — tap to add one
+          </span>
+
+        </article>
+
+
+        <!-- REMAINING MONEY CARD -->
+
+        <article class="summary-card balance-card">
+
+          <span
+            class="home-summary-icon home-summary-balance"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect
+                x="2" y="6"
+                width="20" height="15"
+                rx="3"
+              />
+              <path d="M2 9V6a3 3 0 0 1 3-3h14"/>
+              <path
+                d="M16 13h6v5h-6a2.5 2.5 0 0 1 0-5Z"
+              />
+            </svg>
+          </span>
+
+          <p>
+            Remaining money to spend
+          </p>
+
+          <h2 id="monthRemaining">
+            ₦0.00
+          </h2>
+
+          <span>
+            Income minus expenses this month
+          </span>
+
+        </article>
+
+
+        <!-- DEBT CARD -->
+
+        <article class="summary-card expense-card">
+
+          <span
+            class="home-summary-icon home-summary-debts"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect
+                x="2" y="5"
+                width="20" height="14"
+                rx="3"
+              />
+              <path d="M2 10h20m-13 5h5"/>
+            </svg>
+          </span>
+
+          <p>
+            How much money we still owe
+          </p>
+
+          <h2 id="monthOwed">
+            ₦0.00
+          </h2>
+
+          <span id="owedSummaryNote">
+            Debt tracker coming soon
+          </span>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= BUDGET STRIP ================= -->
+
+    <section
+      class="home-budget"
+      aria-label="Monthly budget"
+    >
+
+      <button
+        type="button"
+        class="budget-strip"
+        id="budgetStripBtn"
+      >
+
+        <span
+          class="budget-strip-icon"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect
+              x="2" y="5"
+              width="20" height="15"
+              rx="3"
+            />
+            <path d="M17 12h5M2 9h20"/>
+          </svg>
+        </span>
+
+        <span
+          class="budget-strip-text"
+          id="budgetStripText"
+        >
+          Set a monthly budget to track how much
+          you have left to spend.
+
+          <strong
+            id="budgetStripAmount"
+            hidden
+          >
+            ₦0.00
+          </strong>
+        </span>
+
+        <svg
+          class="budget-strip-chevron"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m9 5 7 7-7 7"/>
+        </svg>
+
+      </button>
+
+    </section>
+
+
+    <!-- ================= QUICK ADD ================= -->
+
+    <section
+      class="quick-actions"
+      aria-labelledby="quickAddHeading"
+    >
+
+      <div class="section-heading">
+        <h2 id="quickAddHeading">
+          Quick Add
+        </h2>
+      </div>
+
+      <div class="action-grid">
+
+        <!-- INCOME -->
+
+        <button
+          type="button"
+          class="action-card"
+          id="incomeBtn"
+          data-type="income"
+        >
+
+          <span class="action-icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <path d="M12 4v16M4 12h16"/>
+            </svg>
+          </span>
+
+          <strong>Income</strong>
+
+        </button>
+
+
+        <!-- EXPENSE -->
+
+        <button
+          type="button"
+          class="action-card"
+          id="expenseBtn"
+          data-type="expense"
+        >
+
+          <span class="action-icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <path d="M4 12h16"/>
+            </svg>
+          </span>
+
+          <strong>Expense</strong>
+
+        </button>
+
+
+        <!-- BILL / LOAN -->
+
+        <button
+          type="button"
+          class="action-card"
+          id="billLoanBtn"
+        >
+
+          <span class="action-icon" aria-hidden="true">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M7 2h8l5 5v15H7a3 3 0 0 1-3-3V5a3 3 0 0 1 3-3Z"
+              />
+              <path d="M15 2v6h5M8 13h8M8 17h6"/>
+            </svg>
+          </span>
+
+          <strong>Bill / Loan</strong>
+
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= TRANSACTIONS ================= -->
+
+    <section
+      class="recent-section"
+      aria-labelledby="transactionsHeading"
+    >
+
+      <div class="section-heading">
+
+        <h2 id="transactionsHeading">
+          Transactions
+        </h2>
+
+      </div>
+
+      <div
+        id="recentTransactions"
+        class="transactions-list"
+      >
+
+        <div class="empty-state">
+
+          <p>
+            No transactions logged yet this month.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ================= REFER FRIENDS ================= -->
+
+    <section
+      class="referral-section"
+      aria-label="Share MoneyFlow"
+    >
+
+      <button
+        type="button"
+        class="referral-card"
+        id="referFriendsBtn"
+      >
+
+        <span
+          class="referral-icon"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <circle cx="9" cy="8" r="3"/>
+            <path d="M3 20v-2a6 6 0 0 1 12 0v2H3Z"/>
+            <circle cx="18" cy="9" r="2"/>
+            <path d="M17 15a5 5 0 0 1 5 5h-5"/>
+          </svg>
+        </span>
+
+        <span class="referral-copy">
+
+          <strong>
+            Know someone who'd love MoneyFlow?
+          </strong>
+
+          <span>
+            Refer friends and help them get on
+            top of their money too.
+          </span>
+
+        </span>
+
+        <svg
+          class="referral-chevron"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.8"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="m9 5 7 7-7 7"/>
+        </svg>
+
+      </button>
+
+    </section>
+
+  </main>
+
+
+  <!-- ================= ADD TRANSACTION MODAL ================= -->
+
+  <div
+    id="transactionModal"
+    class="modal"
+    aria-hidden="true"
+  >
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <div>
+          <p class="eyebrow">NEW TRANSACTION</p>
+          <h2>Add Transaction</h2>
+        </div>
+
+        <button
+          type="button"
+          id="closeModalBtn"
+          class="close-button"
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <form id="transactionForm">
+
+        <div class="modal-body">
+
+          <label for="transactionType">
+            Transaction Type
+          </label>
+
+          <select id="transactionType" required>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+          </select>
+
+          <label for="transactionAmount">
+            Amount
+          </label>
+
+          <input
+            type="number"
+            id="transactionAmount"
+            placeholder="Enter amount"
+            min="0"
+            step="0.01"
+            required
+          >
+
+          <label for="transactionCategory">
+            Category
+          </label>
+
+          <select id="transactionCategory" required>
+            <option value="Salary">Salary</option>
+            <option value="Food">Food</option>
+            <option value="Transport">Transport</option>
+            <option value="Bills">Bills</option>
+            <option value="Entertainment">
+              Entertainment
+            </option>
+            <option value="Shopping">Shopping</option>
+            <option value="Other">Other</option>
+          </select>
+
+          <label for="transactionDescription">
+            Description
+          </label>
+
+          <input
+            type="text"
+            id="transactionDescription"
+            placeholder="e.g. Monthly salary"
+            maxlength="100"
+            required
+          >
+
+          <label for="transactionDate">
+            Date
+          </label>
+
+          <input
+            type="date"
+            id="transactionDate"
+            required
+          >
+
+        </div>
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            id="cancelTransactionBtn"
+            class="secondary-button"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="primary-button"
+          >
+            Save Transaction
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================= BUDGET MODAL ================= -->
+
+  <div
+    id="budgetModal"
+    class="modal"
+    aria-hidden="true"
+  >
+
+    <div class="modal-content">
+
+      <div class="modal-header">
+
+        <div>
+          <p class="eyebrow">MONTHLY BUDGET</p>
+          <h2>Update Budget</h2>
+        </div>
+
+        <button
+          type="button"
+          id="closeBudgetModalBtn"
+          class="close-button"
+          aria-label="Close"
+        >
+          ×
+        </button>
+
+      </div>
+
+      <form id="budgetForm">
+
+        <div class="modal-body">
+
+          <label for="budgetAmount">
+            Monthly Budget Amount
+          </label>
+
+          <input
+            type="number"
+            id="budgetAmount"
+            placeholder="Enter amount"
+            min="0"
+            step="0.01"
+            required
+          >
+
+        </div>
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            id="cancelBudgetBtn"
+            class="secondary-button"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            class="primary-button"
+          >
+            Save Budget
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- ================= BOTTOM NAVIGATION ================= -->
+
+  <nav
+    class="bottom-nav"
+    aria-label="Main navigation"
+  >
+
+    <!-- HOME -->
+
+    <button
+      type="button"
+      class="bottom-nav-item active"
+      aria-current="page"
+    >
+
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path
+          d="M3 9.5 12 3l9 6.5V20a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9.5Z"
+        />
+        <path d="M9 22V12h6v10"/>
+      </svg>
+
+      <span>Home</span>
+
+    </button>
+
+
+    <!-- PAYMENTS -->
+
+    <button
+      type="button"
+      class="bottom-nav-item"
+      id="navPayments"
+    >
+
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <rect
+          x="2" y="5"
+          width="20" height="14"
+          rx="2"
+        />
+        <path d="M2 10h20"/>
+      </svg>
+
+      <span>Payments</span>
+
+    </button>
+
+
+    <!-- SPENDING -->
+
+    <button
+      type="button"
+      class="bottom-nav-item"
+      id="navSpending"
+    >
+
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path d="M12 2v10h10"/>
+        <path
+          d="M21.2 15.9A10 10 0 1 1 8 2.8"
+        />
+        <path
+          d="M12 2a10 10 0 0 1 10 10H12Z"
+        />
+      </svg>
+
+      <span>Spending</span>
+
+    </button>
+
+
+    <!-- DEBTS -->
+
+    <button
+      type="button"
+      class="bottom-nav-item"
+      id="navDebts"
+    >
+
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <path
+          d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+        />
+        <circle cx="9" cy="7" r="4"/>
+        <path
+          d="M23 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"
+        />
+      </svg>
+
+      <span>Debts</span>
+
+    </button>
+
+
+    <!-- MORE -->
+
+    <button
+      type="button"
+      class="bottom-nav-item"
+      id="navMore"
+    >
+
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <rect
+          x="3" y="3"
+          width="7" height="7"
+          rx="1.5"
+        />
+        <rect
+          x="14" y="3"
+          width="7" height="7"
+          rx="1.5"
+        />
+        <rect
+          x="3" y="14"
+          width="7" height="7"
+          rx="1.5"
+        />
+        <rect
+          x="14" y="14"
+          width="7" height="7"
+          rx="1.5"
+        />
+      </svg>
+
+      <span>More</span>
+
+    </button>
+
+  </nav>
+
+</body>
+</html>

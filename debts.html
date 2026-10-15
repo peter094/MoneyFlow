@@ -1,0 +1,879 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+
+  <!-- LOGIN PROTECTION -->
+  <script>
+    (function () {
+      try {
+        if (!localStorage.getItem("moneyflow_auth_token")) {
+          location.replace("login.html");
+        }
+      } catch (error) {
+        location.replace("login.html");
+      }
+    })();
+  </script>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#09090f">
+  <meta name="mobile-web-app-capable" content="yes">
+
+  <title>MoneyFlow | Debt Tracker</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="debts.css">
+
+  <link rel="stylesheet" href="date-picker.css">
+
+  <script src="core.js" defer></script>
+  <script src="date-picker.js" defer></script>
+  <script src="debts.js" defer></script>
+</head>
+
+<body class="debts-body">
+
+  <!-- ======================================
+       DEBT TRACKER MAIN SCREEN
+  ======================================= -->
+
+  <main id="debtsMainView" class="debts-page">
+
+    <header class="debts-header">
+
+      <a
+        href="home.html"
+        class="debts-back-button"
+        aria-label="Go back to Home"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5"/>
+          <path d="m12 19-7-7 7-7"/>
+        </svg>
+      </a>
+
+      <div class="debts-header-title">
+        <h1>Debt Tracker</h1>
+        <p>Keep track of money borrowed and lent.</p>
+      </div>
+
+      <button
+        type="button"
+        id="debtsAddTopBtn"
+        class="debts-add-button"
+        aria-label="Add debt"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        >
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+      </button>
+
+    </header>
+
+    <!-- LENT / BORROWED TABS -->
+
+    <div
+      class="debts-tab-switch"
+      role="group"
+      aria-label="Debt type"
+    >
+
+      <button
+        type="button"
+        id="debtsBorrowedTab"
+        class="debts-tab active"
+        data-debt-type="borrowed"
+        aria-pressed="true"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 3v16m-6-6 6 6 6-6"/>
+        </svg>
+        Borrowed
+      </button>
+
+      <button
+        type="button"
+        id="debtsLentTab"
+        class="debts-tab"
+        data-debt-type="lent"
+        aria-pressed="false"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M12 21V5m-6 6 6-6 6 6"/>
+        </svg>
+        Lent
+      </button>
+
+    </div>
+
+    <!-- ======================================
+         OVERVIEW CARD
+    ======================================= -->
+
+    <section class="debts-overview-card">
+
+      <div class="debts-overview-heading">
+        <span id="debtsOverviewLabel">
+          Total Money You Owe
+        </span>
+
+        <span class="debts-overview-tag">
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          >
+            <rect x="3" y="5" width="18" height="16" rx="2"/>
+            <path d="M7 3v4M17 3v4M3 10h18"/>
+          </svg>
+          All Time
+        </span>
+      </div>
+
+      <div class="debts-overview-content">
+
+        <div class="debts-overview-amount">
+
+          <strong id="debtsOutstandingAmount">
+            ₦0.00
+          </strong>
+
+          <p id="debtsOverviewDescription">
+            Your outstanding borrowed balance.
+          </p>
+
+        </div>
+
+        <div class="debts-overview-art" aria-hidden="true">
+          <svg viewBox="0 0 170 145" fill="none">
+
+            <circle
+              cx="91"
+              cy="75"
+              r="61"
+              fill="#39CFA0"
+              fill-opacity=".10"
+            />
+
+            <rect
+              x="38"
+              y="38"
+              width="93"
+              height="91"
+              rx="15"
+              fill="#126F60"
+              stroke="#58D8AA"
+              stroke-width="2"
+            />
+
+            <rect
+              x="52"
+              y="22"
+              width="65"
+              height="84"
+              rx="9"
+              fill="#219F7B"
+              stroke="#73F2C4"
+              stroke-width="2"
+              transform="rotate(9 52 22)"
+            />
+
+            <path
+              d="M77 56h30M77 68h23"
+              stroke="#B2FFE0"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+
+            <circle
+              cx="121"
+              cy="104"
+              r="29"
+              fill="#F4B343"
+            />
+
+            <circle
+              cx="121"
+              cy="104"
+              r="22"
+              fill="#FFD579"
+            />
+
+            <text
+              x="121"
+              y="113"
+              fill="#855311"
+              text-anchor="middle"
+              font-size="26"
+              font-weight="800"
+            >₦</text>
+
+            <path
+              d="m145 27 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"
+              fill="#99F3CF"
+            />
+
+          </svg>
+        </div>
+
+      </div>
+
+      <div class="debts-overview-divider"></div>
+
+      <div class="debts-summary-grid">
+
+        <div class="debts-summary-item">
+          <strong id="debtsTotalPrincipal">₦0.00</strong>
+          <span>Total Amount</span>
+        </div>
+
+        <div class="debts-summary-item">
+          <strong id="debtsTotalRepaid">₦0.00</strong>
+          <span>Repaid</span>
+        </div>
+
+        <div class="debts-summary-item">
+          <strong id="debtsActiveCount">0</strong>
+          <span>Active Debts</span>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ======================================
+         DEBT RECORDS
+    ======================================= -->
+
+    <section class="debts-records-section">
+
+      <div class="debts-records-heading">
+
+        <h2 id="debtsRecordsTitle">
+          Borrowed Money
+        </h2>
+
+        <button
+          type="button"
+          id="debtsSortBtn"
+          class="debts-sort-button"
+        >
+          Latest First ↓
+        </button>
+
+      </div>
+
+      <div
+        id="debtsRecordsList"
+        class="debts-records-list"
+        aria-live="polite"
+      ></div>
+
+      <!-- EMPTY STATE -->
+
+      <div
+        id="debtsEmptyState"
+        class="debts-empty-state"
+      >
+
+        <div class="debts-empty-icon" aria-hidden="true">
+
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="5" width="18" height="15" rx="3"/>
+            <path d="M3 10h18M8 15h8"/>
+            <circle cx="18" cy="6" r="4" fill="#1BC08E"/>
+          </svg>
+
+        </div>
+
+        <h3 id="debtsEmptyTitle">
+          No borrowed money yet
+        </h3>
+
+        <p id="debtsEmptyDescription">
+          Record money you've borrowed
+          to keep track of repayments.
+        </p>
+
+        <button
+          type="button"
+          id="debtsEmptyAddBtn"
+          class="debts-primary-button"
+        >
+          <span>＋</span>
+          Add Debt
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- BOTTOM SPACING FOR NAVIGATION -->
+
+    <div class="debts-bottom-space"></div>
+
+  </main>
+
+  <!-- ======================================
+       ADD DEBT SCREEN
+  ======================================= -->
+
+  <section
+    id="debtsAddView"
+    class="debts-form-page"
+    aria-labelledby="debtsAddTitle"
+    hidden
+  >
+
+    <header class="debts-form-header">
+
+      <button
+        type="button"
+        id="debtsBackFromAdd"
+        class="debts-back-button"
+        aria-label="Back to Debt Tracker"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5"/>
+          <path d="m12 19-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <h2 id="debtsAddTitle">Add Borrowed Money</h2>
+
+      <button
+        type="submit"
+        form="debtsForm"
+        id="debtsSaveBtn"
+        class="debts-header-save"
+      >
+        Save
+      </button>
+
+    </header>
+
+    <form id="debtsForm" class="debts-form">
+
+      <!-- DEBT TYPE -->
+
+      <fieldset class="debts-form-fieldset">
+
+        <legend>Debt Type</legend>
+
+        <div class="debts-type-choices">
+
+          <label class="debts-type-choice">
+            <input
+              type="radio"
+              name="debtType"
+              value="borrowed"
+              checked
+            >
+            <span>Borrowed</span>
+          </label>
+
+          <label class="debts-type-choice">
+            <input
+              type="radio"
+              name="debtType"
+              value="lent"
+            >
+            <span>Lent</span>
+          </label>
+
+        </div>
+
+      </fieldset>
+
+      <!-- PERSON -->
+
+      <div class="debts-form-field">
+
+        <label for="debtsPersonName">
+          Person's Name
+        </label>
+
+        <input
+          type="text"
+          id="debtsPersonName"
+          placeholder="Who did you borrow from or lend to?"
+          maxlength="100"
+          autocomplete="off"
+          required
+        >
+
+      </div>
+
+      <!-- AMOUNT -->
+
+      <div class="debts-form-field">
+
+        <label for="debtsAmount">
+          Amount (₦)
+        </label>
+
+        <input
+          type="number"
+          id="debtsAmount"
+          placeholder="0.00"
+          min="0.01"
+          step="0.01"
+          inputmode="decimal"
+          required
+        >
+
+      </div>
+
+      <!-- DATE -->
+
+      <div class="debts-form-field">
+
+        <label for="debtsDate">
+          Date
+        </label>
+
+        <input
+          type="date"
+          id="debtsDate"
+          required
+        >
+
+      </div>
+
+      <!-- REPAYMENT DATE -->
+
+      <div class="debts-form-field">
+
+        <label for="debtsDueDate">
+          Expected Repayment Date
+          <span class="debts-optional">(Optional)</span>
+        </label>
+
+        <input
+          type="date"
+          id="debtsDueDate"
+        >
+
+      </div>
+
+      <!-- NOTES -->
+
+      <div class="debts-form-field">
+
+        <label for="debtsNotes">
+          Notes
+          <span class="debts-optional">(Optional)</span>
+        </label>
+
+        <textarea
+          id="debtsNotes"
+          rows="4"
+          maxlength="500"
+          placeholder="Add details about this debt..."
+        ></textarea>
+
+      </div>
+
+      <button
+        type="submit"
+        class="debts-primary-button debts-form-submit"
+      >
+        Save Debt
+      </button>
+
+    </form>
+
+  </section>
+
+  <!-- ======================================
+       REPAYMENT SCREEN
+  ======================================= -->
+
+  <section
+    id="debtsRepaymentView"
+    class="debts-form-page"
+    aria-labelledby="debtsRepaymentTitle"
+    hidden
+  >
+
+    <header class="debts-form-header">
+
+      <button
+        type="button"
+        id="debtsBackFromRepayment"
+        class="debts-back-button"
+        aria-label="Back to Debt Tracker"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <path d="M19 12H5"/>
+          <path d="m12 19-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <h2 id="debtsRepaymentTitle">
+        Record Repayment
+      </h2>
+
+      <span class="debts-form-header-spacer"></span>
+
+    </header>
+
+    <div class="debts-repayment-summary">
+
+      <p id="debtsRepaymentPerson">
+        Debt repayment
+      </p>
+
+      <span>Outstanding Balance</span>
+
+      <strong id="debtsRepaymentBalance">
+        ₦0.00
+      </strong>
+
+    </div>
+
+    <form id="debtsRepaymentForm" class="debts-form">
+
+      <input type="hidden" id="debtsRepaymentDebtId">
+
+      <div class="debts-form-field">
+
+        <label for="debtsRepaymentAmount">
+          Repayment Amount (₦)
+        </label>
+
+        <input
+          type="number"
+          id="debtsRepaymentAmount"
+          min="0.01"
+          step="0.01"
+          inputmode="decimal"
+          placeholder="0.00"
+          required
+        >
+
+      </div>
+
+      <div class="debts-form-field">
+
+        <label for="debtsRepaymentDate">
+          Repayment Date
+        </label>
+
+        <input
+          type="date"
+          id="debtsRepaymentDate"
+          required
+        >
+
+      </div>
+
+      <div class="debts-form-field">
+
+        <label for="debtsRepaymentNotes">
+          Notes
+          <span class="debts-optional">(Optional)</span>
+        </label>
+
+        <textarea
+          id="debtsRepaymentNotes"
+          rows="3"
+          maxlength="300"
+          placeholder="Add repayment details..."
+        ></textarea>
+
+      </div>
+
+      <button
+        type="submit"
+        id="debtsRepaymentSaveBtn"
+        class="debts-primary-button debts-form-submit"
+      >
+        Save Repayment
+      </button>
+
+    </form>
+
+  </section>
+
+  <!-- ======================================
+       BOTTOM NAVIGATION
+  ======================================= -->
+
+  <nav
+    id="debtsBottomNav"
+    class="debts-bottom-nav"
+    aria-label="Main navigation"
+  >
+
+    <a href="home.html" class="debts-nav-item">
+
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.9"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <path d="m3 10 9-7 9 7v11H3V10Z"/>
+        <path d="M9 21v-8h6v8"/>
+      </svg>
+
+      <span>Home</span>
+
+    </a>
+
+    <a href="payments.html" class="debts-nav-item">
+
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.9"
+        stroke-linecap="round"
+      >
+        <rect x="3" y="5" width="18" height="14" rx="2"/>
+        <path d="M3 10h18"/>
+      </svg>
+
+      <span>Payments</span>
+
+    </a>
+
+    <a href="spending.html" class="debts-nav-item">
+
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.9"
+        stroke-linecap="round"
+      >
+        <path d="M12 3v9l8 5"/>
+        <path d="M21 12a9 9 0 1 1-9-9"/>
+        <path d="M16 4a9 9 0 0 1 5 8"/>
+      </svg>
+
+      <span>Spending</span>
+
+    </a>
+
+    <a
+      href="debts.html"
+      class="debts-nav-item active"
+      aria-current="page"
+    >
+
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.9"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      >
+        <circle cx="8" cy="8" r="3"/>
+        <path d="M2 20v-2a6 6 0 0 1 12 0v2"/>
+        <circle cx="18" cy="9" r="2.5"/>
+        <path d="M17 15a5 5 0 0 1 5 5"/>
+      </svg>
+
+      <span>Debts</span>
+
+    </a>
+
+    
+<a href="more.html" class="debts-nav-item">
+
+
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.9"
+        stroke-linecap="round"
+      >
+        <rect x="3" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="3" width="7" height="7" rx="1.5"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5"/>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"/>
+      </svg>
+
+      <span>More</span>
+
+    </a>
+
+  </nav>
+
+<!-- ==========================================
+     MONEYFLOW — DEBTS BACK NAVIGATION
+     Return to Home or More
+     ========================================== -->
+
+
+<script>
+(function () {
+  "use strict";
+
+  /* =====================================
+     MONEYFLOW — DEBTS BACK NAVIGATION
+     Supports Home, More and Calendar
+     ===================================== */
+
+  const backButton = document.querySelector(
+    ".debts-header a.debts-back-button"
+  );
+
+  if (!backButton) return;
+
+  const params = new URLSearchParams(
+    window.location.search
+  );
+
+  let origin = params.get("from");
+
+  /* Detect previous page only when
+     there is no explicit URL source. */
+
+  if (!origin && document.referrer) {
+    try {
+      const previous = new URL(
+        document.referrer
+      );
+
+      if (
+        previous.origin ===
+        window.location.origin
+      ) {
+        if (
+          previous.pathname.endsWith(
+            "/calendar.html"
+          )
+        ) {
+          origin = "calendar";
+
+        } else if (
+          previous.pathname.endsWith(
+            "/more.html"
+          )
+        ) {
+          origin = "more";
+        }
+      }
+
+    } catch (error) {
+      console.warn(
+        "Unable to identify previous page.",
+        error
+      );
+    }
+  }
+
+  let destination = "home.html";
+  let label = "Back to Home";
+
+  if (origin === "calendar") {
+    destination = "calendar.html";
+    label = "Back to Calendar";
+
+  } else if (origin === "more") {
+    destination = "more.html";
+    label = "Back to More";
+  }
+
+  backButton.href = destination;
+
+  backButton.setAttribute(
+    "aria-label",
+    label
+  );
+
+})();
+</script>
+
+
+</body>
+</html>

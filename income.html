@@ -1,0 +1,954 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+
+  <!-- LOGIN PROTECTION -->
+  <script>
+    (function () {
+      try {
+        if (!localStorage.getItem("moneyflow_auth_token")) {
+          location.replace("login.html");
+        }
+      } catch (error) {
+        location.replace("login.html");
+      }
+    })();
+  </script>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#09090f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <title>MoneyFlow | Income</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="income.css">
+  <link rel="stylesheet" href="category-icons.css">
+  <link rel="stylesheet" href="month-picker.css">
+
+  <link rel="stylesheet" href="date-picker.css">
+
+  <link rel="stylesheet" href="receipt-actions.css">
+
+  <script src="core.js" defer></script>
+  <script src="date-picker.js" defer></script>
+  <script src="month-picker.js" defer></script>
+  <script src="category-icons.js" defer></script>
+  <script src="income.js" defer></script>
+</head>
+
+<body class="income-body">
+
+  <!-- ==================================
+       INCOME DASHBOARD
+  =================================== -->
+
+  <main id="incomeMainView" class="income-page">
+
+    <!-- HEADER -->
+
+    <header class="income-header">
+
+      <a
+        href="home.html"
+        class="income-back"
+        aria-label="Back to Home"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5"/>
+          <path d="m12 19-7-7 7-7"/>
+        </svg>
+      </a>
+
+      <h1>Income</h1>
+
+      <div class="income-header-actions">
+
+        <!-- CALENDAR -->
+
+        <button
+          type="button"
+          id="incomeCalendarBtn"
+          class="income-icon-button"
+          aria-label="Choose income month"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="5" width="18" height="16" rx="2"/>
+            <path d="M7 3v4M17 3v4M3 10h18"/>
+            <path d="M7 14h3M14 14h3M7 18h3"/>
+          </svg>
+        </button>
+
+        <!-- SEARCH -->
+
+        <button
+          type="button"
+          id="incomeSearchBtn"
+          class="income-icon-button"
+          aria-label="Search income"
+          aria-expanded="false"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
+            <circle cx="10.5" cy="10.5" r="7"/>
+            <path d="m16 16 5 5"/>
+          </svg>
+        </button>
+
+        <!-- ADD -->
+
+        <button
+          type="button"
+          id="incomeAddTopBtn"
+          class="income-icon-button income-add-circle"
+          aria-label="Add income"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.2"
+            stroke-linecap="round"
+          >
+            <path d="M12 5v14M5 12h14"/>
+          </svg>
+        </button>
+
+      </div>
+
+    </header>
+
+    <p class="income-subtitle">
+      Track all your income sources in one place.
+    </p>
+
+    <!-- MONTH SELECTOR -->
+
+    <div class="income-month-control">
+      <label for="incomeMonthPicker" class="sr-only">
+        Select month
+      </label>
+
+      <input
+        type="month"
+        id="incomeMonthPicker"
+        aria-label="Select income month"
+      >
+    </div>
+
+    <!-- SEARCH PANEL -->
+
+    <div
+      class="income-search-panel"
+      id="incomeSearchPanel"
+      hidden
+    >
+      <label for="incomeSearchInput" class="sr-only">
+        Search income
+      </label>
+
+      <input
+        type="search"
+        id="incomeSearchInput"
+        placeholder="Search income records..."
+        autocomplete="off"
+      >
+    </div>
+
+    <!-- ==================================
+         INCOME OVERVIEW CARD
+    =================================== -->
+
+    <section
+      class="income-overview"
+      aria-labelledby="incomeOverviewTitle"
+    >
+
+      <div class="income-overview-top">
+
+        <h2 id="incomeOverviewTitle">
+          Income Overview
+        </h2>
+
+        <span id="incomeOverviewMonth" class="income-month-badge">
+          October 2026
+        </span>
+
+      </div>
+
+      <div class="income-overview-middle">
+
+        <div class="income-overview-copy">
+
+          <strong id="incomeOverviewAmount">
+            ₦0.00
+          </strong>
+
+          <p id="incomeComparison">
+            No income last month to compare
+          </p>
+
+        </div>
+
+        <!-- WALLET ILLUSTRATION -->
+
+        <div class="income-wallet-art" aria-hidden="true">
+
+          <svg viewBox="0 0 180 145" fill="none">
+
+            <circle
+              cx="95"
+              cy="72"
+              r="59"
+              fill="#39CFA0"
+              fill-opacity=".11"
+            />
+
+            <rect
+              x="57"
+              y="28"
+              width="82"
+              height="86"
+              rx="14"
+              fill="#126F60"
+              stroke="#6CE6BC"
+              stroke-width="2"
+            />
+
+            <path
+              d="M57 51H140"
+              stroke="#62DAB1"
+              stroke-width="2"
+              stroke-opacity=".7"
+            />
+
+            <rect
+              x="43"
+              y="46"
+              width="91"
+              height="77"
+              rx="13"
+              fill="#1CB78A"
+            />
+
+            <rect
+              x="43"
+              y="46"
+              width="91"
+              height="77"
+              rx="13"
+              stroke="#64E7B9"
+              stroke-width="2"
+            />
+
+            <rect
+              x="100"
+              y="72"
+              width="45"
+              height="28"
+              rx="9"
+              fill="#0E7D65"
+              stroke="#7EF4C7"
+              stroke-width="2"
+            />
+
+            <circle cx="116" cy="86" r="4" fill="#B6FFE1"/>
+
+            <circle cx="46" cy="111" r="19" fill="#F5AD32"/>
+            <circle cx="46" cy="111" r="14" fill="#FFD16A"/>
+
+            <text
+              x="46"
+              y="119"
+              fill="#865313"
+              text-anchor="middle"
+              font-size="22"
+              font-weight="800"
+            >₦</text>
+
+            <path
+              d="m151 30 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"
+              fill="#A1F5D2"
+            />
+
+            <circle cx="28" cy="55" r="3" fill="#89EFC8"/>
+
+          </svg>
+
+        </div>
+
+      </div>
+
+      <div class="income-overview-divider"></div>
+
+      <!-- THREE OVERVIEW STATS -->
+
+      <div class="income-overview-stats">
+
+        <div class="income-overview-stat">
+
+          <span class="income-stat-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <rect x="3" y="6" width="18" height="15" rx="3"/>
+              <path d="m7 13 3 3 6-7"/>
+            </svg>
+          </span>
+
+          <div>
+            <strong id="incomeTotalStat">₦0.00</strong>
+            <span>Total Income</span>
+          </div>
+
+        </div>
+
+        <div class="income-overview-stat">
+
+          <span class="income-stat-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <path d="M8 6h13M8 12h13M8 18h13"/>
+              <path d="M3 6h.01M3 12h.01M3 18h.01"/>
+            </svg>
+          </span>
+
+          <div>
+            <strong id="incomeTransactionCount">0</strong>
+            <span>Transactions</span>
+          </div>
+
+        </div>
+
+        <div class="income-overview-stat">
+
+          <span class="income-stat-icon">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            >
+              <rect x="3" y="5" width="18" height="16" rx="2"/>
+              <path d="M3 10h18M8 14h3M8 18h7"/>
+            </svg>
+          </span>
+
+          <div>
+            <strong id="incomeDailyAverage">₦0.00</strong>
+            <span>Daily Avg</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ==================================
+         CATEGORY FILTERS
+    =================================== -->
+
+    <section
+      class="income-filter-section"
+      aria-label="Income categories"
+    >
+
+      <div class="income-category-scroll" id="incomeCategoryFilters">
+
+        <button
+          type="button"
+          class="income-filter-chip active"
+          data-category="all"
+          aria-pressed="true"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          All
+        </button>
+
+        <button
+          type="button"
+          class="income-filter-chip"
+          data-category="Salary"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Salary
+        </button>
+
+        <button
+          type="button"
+          class="income-filter-chip"
+          data-category="Business"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Business
+        </button>
+
+        <button
+          type="button"
+          class="income-filter-chip"
+          data-category="Returns"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Returns
+        </button>
+
+        <button
+          type="button"
+          class="income-filter-chip"
+          data-category="Gift"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Gift
+        </button>
+
+        <button
+          type="button"
+          class="income-filter-chip"
+          data-category="Other"
+          aria-pressed="false"
+        >
+          <span class="mf-category-icon" aria-hidden="true"></span>
+          Other
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- ==================================
+         INCOME RECORDS
+    =================================== -->
+
+    <section class="income-records">
+
+      <div class="income-records-header">
+
+        <span id="incomeEntriesCount">0 entries</span>
+
+        <button
+          type="button"
+          id="incomeSortBtn"
+          class="income-sort-btn"
+          aria-label="Change income sorting"
+        >
+          Sort · Date ↓
+        </button>
+
+      </div>
+
+      <div
+        id="incomeTransactionsList"
+        class="income-transactions-list"
+        aria-live="polite"
+      ></div>
+
+      <!-- EMPTY STATE -->
+
+      <div id="incomeEmptyState" class="income-empty-state">
+
+        <div class="income-empty-art" aria-hidden="true">
+
+          <svg viewBox="0 0 190 155" fill="none">
+
+            <circle
+              cx="93"
+              cy="76"
+              r="62"
+              fill="#144537"
+              fill-opacity=".45"
+            />
+
+            <rect
+              x="47"
+              y="48"
+              width="96"
+              height="77"
+              rx="15"
+              fill="#137D64"
+              stroke="#59D7A8"
+              stroke-width="2"
+            />
+
+            <rect
+              x="57"
+              y="24"
+              width="76"
+              height="65"
+              rx="7"
+              fill="#1A9B76"
+              transform="rotate(-9 57 24)"
+            />
+
+            <path
+              d="M69 44h39M69 57h30"
+              stroke="#9AF8D2"
+              stroke-width="6"
+              stroke-linecap="round"
+            />
+
+            <circle cx="136" cy="111" r="30" fill="#2CD09A"/>
+
+            <path
+              d="M136 97v28M122 111h28"
+              stroke="white"
+              stroke-width="5"
+              stroke-linecap="round"
+            />
+
+            <path
+              d="m155 28 3 8 8 3-8 3-3 8-3-8-8-3 8-3Z"
+              fill="#6CE9BA"
+            />
+
+          </svg>
+
+        </div>
+
+        <h2 id="incomeEmptyTitle">
+          No income logged this month
+        </h2>
+
+        <p id="incomeEmptyDescription">
+          Add your first income to start tracking
+          and see your overview here.
+        </p>
+
+        <button
+          type="button"
+          id="incomeEmptyAddBtn"
+          class="income-primary-button"
+        >
+          <span>＋</span>
+          Add Income
+        </button>
+
+      </div>
+
+    </section>
+
+    <!-- ==================================
+         INFORMATION CARD
+    =================================== -->
+
+    <aside class="income-info-card">
+
+      <div class="income-info-icon">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <path d="M4 20V12M9 20V5M14 20V9M19 20V3"/>
+        </svg>
+      </div>
+
+      <div>
+        <h3>Track every source</h3>
+
+        <p>
+          Add all your income sources to
+          understand your cash flow better.
+        </p>
+      </div>
+
+      <span class="income-info-chevron" aria-hidden="true">
+        ›
+      </span>
+
+    </aside>
+
+  </main>
+
+  <!-- ==================================
+       ADD INCOME SCREEN
+  =================================== -->
+
+  <section
+    id="incomeAddView"
+    class="income-add-view"
+    aria-labelledby="incomeAddTitle"
+    hidden
+  >
+
+    <header class="income-add-header">
+
+      <button
+        type="button"
+        id="incomeBackFromAdd"
+        class="income-back"
+        aria-label="Back to Income"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M19 12H5"/>
+          <path d="m12 19-7-7 7-7"/>
+        </svg>
+      </button>
+
+      <h2 id="incomeAddTitle">Add Income</h2>
+
+      <button
+        type="submit"
+        form="incomeForm"
+        id="incomeSaveTopBtn"
+        class="income-save-button"
+      >
+        Save
+      </button>
+
+    </header>
+
+    <form id="incomeForm" class="income-form">
+
+      <!-- NAME -->
+
+      <div class="income-form-field">
+
+        <label for="incomeName">
+          Income Name
+        </label>
+
+        <input
+          type="text"
+          id="incomeName"
+          placeholder="e.g. Salary, Freelance project..."
+          maxlength="100"
+          autocomplete="off"
+          required
+        >
+
+      </div>
+
+      <!-- AMOUNT -->
+
+      <div class="income-form-field">
+
+        <label for="incomeAmount">
+          Amount (₦)
+        </label>
+
+        <input
+          type="number"
+          id="incomeAmount"
+          placeholder="0.00"
+          min="0.01"
+          step="0.01"
+          inputmode="decimal"
+          required
+        >
+
+      </div>
+
+      <!-- DATE -->
+
+      <div class="income-form-field">
+
+        <label for="incomeDate">
+          Date
+        </label>
+
+        <input
+          type="date"
+          id="incomeDate"
+          required
+        >
+
+      </div>
+
+      <!-- REPEAT -->
+
+      <fieldset class="income-form-field income-choice-field">
+
+        <legend>Repeat</legend>
+
+        <div class="income-choice-scroll">
+
+          <label class="income-choice">
+            <input
+              type="radio"
+              name="incomeRepeat"
+              value="none"
+              checked
+            >
+            <span>Does not repeat</span>
+          </label>
+
+          <label class="income-choice">
+            <input
+              type="radio"
+              name="incomeRepeat"
+              value="weekly"
+            >
+            <span>Weekly</span>
+          </label>
+
+          <label class="income-choice">
+            <input
+              type="radio"
+              name="incomeRepeat"
+              value="monthly"
+            >
+            <span>Monthly</span>
+          </label>
+
+          <label class="income-choice">
+            <input
+              type="radio"
+              name="incomeRepeat"
+              value="yearly"
+            >
+            <span>Yearly</span>
+          </label>
+
+        </div>
+
+      </fieldset>
+
+      <!-- CATEGORY -->
+
+      <fieldset class="income-form-field income-choice-field">
+
+        <legend>Category</legend>
+
+        <div class="income-choice-scroll">
+
+          <label class="income-choice">
+            <input
+              type="radio"
+              name="incomeCategory"
+              value="Salary"
+              checked
+            >
+            <span>Salary</span>
+          </label>
+
+          <label class="income-choice">
+            <input
+              type="radio"
+              name="incomeCategory"
+              value="Business"
+            >
+            <span>Business</span>
+          </label>
+
+          <label class="income-choice">
+            <input
+              type="radio"
+              name="incomeCategory"
+              value="Returns"
+            >
+            <span>Returns</span>
+          </label>
+
+          <label class="income-choice">
+            <input
+              type="radio"
+              name="incomeCategory"
+              value="Gift"
+            >
+            <span>Gift</span>
+          </label>
+
+          <label class="income-choice">
+            <input
+              type="radio"
+              name="incomeCategory"
+              value="Other"
+            >
+            <span>Other</span>
+          </label>
+
+        </div>
+
+      </fieldset>
+
+      <!-- NOTES -->
+
+      <div class="income-form-field">
+
+        <label for="incomeNotes">
+          Notes (Optional)
+        </label>
+
+        <textarea
+          id="incomeNotes"
+          rows="4"
+          maxlength="300"
+          placeholder="Add notes..."
+        ></textarea>
+
+      </div>
+
+    </form>
+
+  </section>
+
+<!-- ==========================================
+     MONEYFLOW — INCOME BACK NAVIGATION
+     Return to the originating page
+     ========================================== -->
+
+
+<script>
+(function () {
+  "use strict";
+
+  /* =====================================
+     MONEYFLOW — INCOME BACK NAVIGATION
+     Supports Home, More and Calendar
+     ===================================== */
+
+  const backButton = document.querySelector(
+    ".income-header a.income-back"
+  );
+
+  if (!backButton) return;
+
+  const params = new URLSearchParams(
+    window.location.search
+  );
+
+  let origin = params.get("from");
+
+  /* Use referrer only when no explicit
+     source was provided in the URL. */
+
+  if (
+    !origin &&
+    document.referrer
+  ) {
+    try {
+      const previous = new URL(
+        document.referrer
+      );
+
+      if (
+        previous.origin ===
+        window.location.origin
+      ) {
+        if (
+          previous.pathname.endsWith(
+            "/calendar.html"
+          )
+        ) {
+          origin = "calendar";
+
+        } else if (
+          previous.pathname.endsWith(
+            "/more.html"
+          )
+        ) {
+          origin = "more";
+        }
+      }
+
+    } catch (error) {
+      console.warn(
+        "Unable to identify previous page.",
+        error
+      );
+    }
+  }
+
+  let destination = "home.html";
+  let label = "Back to Home";
+
+  if (origin === "calendar") {
+    destination = "calendar.html";
+    label = "Back to Calendar";
+
+  } else if (origin === "more") {
+    destination = "more.html";
+    label = "Back to More";
+  }
+
+  backButton.href = destination;
+
+  backButton.setAttribute(
+    "aria-label",
+    label
+  );
+
+})();
+</script>
+
+
+</body>
+</html>

@@ -2,6 +2,30 @@
 <html lang="en">
 
 <head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
+
 
     <meta charset="UTF-8">
 
@@ -60,15 +84,17 @@
     <title>MoneyFlow | Transactions</title>
 
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="transactions.css">
+    <link rel="stylesheet" href="receipt-actions.css">
 
     <!-- PWA: manifest + icons -->
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon-192.png" type="image/png">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 
     <!-- Prefetch the other pages so nav clicks don't wait on a fresh
          network fetch, which is what causes the occasional white flash. -->
-    <link rel="prefetch" href="index.html">
+    <link rel="prefetch" href="home.html">
     <link rel="prefetch" href="transactions.html">
     <link rel="prefetch" href="analytics.html">
     <link rel="prefetch" href="settings.html">
@@ -82,7 +108,7 @@
     {
       "prerender": [
         {
-          "urls": ["index.html", "transactions.html", "analytics.html", "settings.html"],
+          "urls": ["home.html", "transactions.html", "analytics.html", "settings.html"],
           "eagerness": "moderate"
         }
       ]
@@ -125,25 +151,37 @@
 
     <!-- ================= NAVIGATION ================= -->
 
-    <nav class="main-nav">
+    <nav class="moneyflow-bottom-nav"
+     aria-label="Main navigation">
 
-        <a href="index.html">
-            Dashboard
-        </a>
+  <a href="home.html" class="mf-nav-item">
+    <span class="mf-nav-icon">⌂</span>
+    <span>Home</span>
+  </a>
 
-        <a href="transactions.html" class="active">
-            Transactions
-        </a>
+  <a href="payments.html" class="mf-nav-item">
+    <span class="mf-nav-icon">▣</span>
+    <span>Payments</span>
+  </a>
 
-        <a href="analytics.html">
-            Analytics
-        </a>
+  <a href="analytics.html" class="mf-nav-item">
+    <span class="mf-nav-icon">◫</span>
+    <span>Spending</span>
+  </a>
 
-        <a href="settings.html">
-            Settings
-        </a>
+  <a href="transactions.html"
+     class="mf-nav-item active"
+     aria-current="page">
+    <span class="mf-nav-icon">⇄</span>
+    <span>History</span>
+  </a>
 
-    </nav>
+  <a href="settings.html" class="mf-nav-item">
+    <span class="mf-nav-icon">☷</span>
+    <span>More</span>
+  </a>
+
+</nav>
 
 
     <!-- ================= MAIN ================= -->
@@ -678,7 +716,10 @@
     </footer>
 
 
-    <script src="core.js" defer></script>
+    <link rel="stylesheet" href="date-picker.css">
+
+  <script src="core.js" defer></script>
+  <script src="date-picker.js" defer></script>
     <script src="transactions.js" defer></script>
 
 </body>

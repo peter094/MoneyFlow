@@ -1,512 +1,1109 @@
-/* =====================================================================
-   MONEYFLOW — PAYMENTS PAGE (PHASE 2)
-   Loaded AFTER style.css, on payments.html only. Same pattern as
-   home.css: overrides the CSS custom properties style.css's existing
-   components already use (buttons, modal, cards...), so those
-   automatically re-theme here without touching style.css itself or
-   affecting transactions/analytics/settings.
 
-   Colors match MoneyFlow's established Phase 2 green identity (same
-   values used on Home) — not a new palette invented for this page.
-   ===================================================================== */
+/* ============================================
+   MONEYFLOW — PAYMENTS PAGE
+   AMOLED BLACK + EMERALD EDITION
+
+   Loaded after style.css
+   Presentation only — no data changes.
+   ============================================ */
+
+/* DESIGN SYSTEM */
 
 :root,
 html.dark,
 html.dark-theme,
 html[data-theme="dark"] {
-    --color-bg: #090E17;
-    --color-bg-soft: #0D1420;
-    --color-surface: #111A28;
-    --color-surface-alt: #0D1520;
-    --color-border: #1E2A3C;
-    --color-border-strong: #2C3B52;
+  --color-bg: #09090f;
+  --color-bg-soft: #101017;
+  --color-surface: #191922;
+  --color-surface-alt: #22232e;
+  --color-border: #30313e;
+  --color-border-strong: #454655;
 
-    --color-text-primary: #EEF2F8;
-    --color-text-secondary: #9AA6BC;
-    --color-text-muted: #6B7690;
-    --color-text-on-primary: #F2FAF7;
+  --color-text-primary: #f8f8fa;
+  --color-text-secondary: #a2a4b3;
+  --color-text-muted: #808394;
+  --color-text-on-primary: #fff;
 
-    --color-primary: #1B9A78;
-    --color-primary-dark: #157C60;
-    --color-primary-light: #2DBE9A;
-    --color-primary-soft: rgba(27, 154, 120, 0.14);
+  --color-primary: #20ba86;
+  --color-primary-light: #42dda7;
+  --color-primary-dark: #11946e;
+  --color-primary-soft: rgba(45,207,151,.14);
 
-    --color-income: #2DBE9A;
-    --color-income-soft: rgba(45, 190, 154, 0.13);
-    --color-expense: #E2685A;
-    --color-expense-soft: rgba(226, 104, 90, 0.13);
-    --color-danger: #E2685A;
+  --color-income: #32d39e;
+  --color-income-soft: rgba(50,211,158,.14);
+  --color-expense: #ff626f;
+  --color-expense-soft: rgba(255,98,111,.14);
+  --color-danger: #ff626f;
 
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 8px 24px -6px rgba(0, 0, 0, 0.45);
-    --shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.55);
-    --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  --shadow-sm: 0 3px 12px rgba(0,0,0,.18);
+  --shadow-md: 0 12px 30px rgba(0,0,0,.3);
+  --shadow-lg: 0 24px 65px rgba(0,0,0,.55);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,.04);
 
-    color-scheme: dark;
+  color-scheme: dark;
 }
 
+/* ============================================
+   PAGE FOUNDATION
+   ============================================ */
+
 html {
-    background: var(--color-bg);
-    overflow-x: hidden;
+  background: #09090f !important;
+  overflow-x: hidden;
 }
 
 body {
-    background: var(--color-bg);
-    padding-bottom: calc(88px + env(safe-area-inset-bottom));
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  background: #09090f !important;
+  color: #f8f8fa;
+  -webkit-font-smoothing: antialiased;
 }
 
-main {
-    max-width: 640px;
+body *,
+body *::before,
+body *::after {
+  box-sizing: border-box;
 }
 
+body > main {
+  display: flex;
+  flex-direction: column;
 
-/* =====================================================================
-   HEADER (shared structure with Home — bell, add button, avatar)
-   ===================================================================== */
+  width: min(100%,600px);
+  max-width: 600px;
+
+  margin: 0 auto;
+
+  padding:
+    26px
+    max(20px,env(safe-area-inset-right))
+    calc(120px + env(safe-area-inset-bottom))
+    max(20px,env(safe-area-inset-left)) !important;
+
+  gap: 28px;
+}
+
+/* ============================================
+   APP HEADER
+   ============================================ */
+
+.app-header {
+  position: relative;
+  top: auto;
+
+  height: auto;
+  min-height: calc(78px + env(safe-area-inset-top));
+
+  padding:
+    calc(16px + env(safe-area-inset-top))
+    max(20px,env(safe-area-inset-right))
+    16px
+    max(20px,env(safe-area-inset-left));
+
+  gap: 10px;
+
+  background: #09090f !important;
+  border: 0 !important;
+  box-shadow: none;
+
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.brand {
+  min-width: 0;
+  gap: 9px;
+}
+
+.brand-mark {
+  width: 43px;
+  height: 43px;
+  flex: 0 0 43px;
+
+  border-radius: 14px !important;
+  border: 0;
+
+  background: linear-gradient(
+    135deg,#34dbaa,#159c79
+  ) !important;
+
+  color: #fff;
+  box-shadow: none;
+}
+
+.brand-mark svg {
+  width: 25px;
+  height: 25px;
+}
+
+.brand-text {
+  min-width: 0;
+}
+
+.brand-text h1 {
+  margin: 0;
+  color: #fff;
+
+  font-size: clamp(17px,4.9vw,23px);
+  font-weight: 800;
+  letter-spacing: -.06em;
+
+  white-space: nowrap;
+}
+
+/* HEADER ACTIONS */
 
 .home-header-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.notification-bell,
+.add-fab,
+.user-avatar {
+  position: relative;
+
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 41px;
+  width: 41px;
+  height: 41px;
+
+  padding: 0;
+  border-radius: 50%;
 }
 
 .notification-bell {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-full);
-    background: var(--color-surface-alt);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-secondary);
-    transition: background var(--transition-fast), color var(--transition-fast);
+  border: 0;
+  background: #191922;
+  color: #f8f8fa;
 }
 
-.notification-bell svg {
-    width: 19px;
-    height: 19px;
-}
-
-.notification-bell:hover {
-    background: var(--color-primary-soft);
-    color: var(--color-primary-light);
+.notification-bell svg,
+.add-fab svg {
+  width: 22px;
+  height: 22px;
 }
 
 .notification-badge {
-    position: absolute;
-    top: 6px;
-    right: 7px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--color-expense);
-    border: 1.5px solid var(--color-surface);
+  position: absolute;
+  display: none;
+
+  width: 8px;
+  height: 8px;
+
+  top: 3px;
+  right: 3px;
+
+  border-radius: 50%;
+  border: 2px solid #09090f;
+  background: #ff626f;
+}
+
+.notification-badge.show {
+  display: block;
 }
 
 .add-fab {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark));
-    color: var(--color-text-on-primary);
-    border: none;
-    box-shadow: var(--shadow-sm), var(--shadow-inset);
-    transition: transform var(--transition-fast);
-}
+  border: 0;
 
-.add-fab svg {
-    width: 19px;
-    height: 19px;
+  background: linear-gradient(
+    135deg,#32d39e,#159876
+  );
+
+  color: white;
+  box-shadow: none;
 }
 
 .add-fab:active {
-    transform: scale(0.94);
+  transform: scale(.96);
 }
 
 .user-avatar {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-full);
-    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark));
-    color: var(--color-text-on-primary);
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: 15px;
-    flex-shrink: 0;
+  border: 0;
+
+  background: #169f79;
+  color: #fff;
+
+  font-size: 16px;
+  font-weight: 800;
+
+  box-shadow: none;
 }
 
-
-/* =====================================================================
-   PAGE INTRO
-   ===================================================================== */
+/* ============================================
+   PAGE TITLE
+   ============================================ */
 
 .page-intro {
-    padding-top: 8px;
+  padding: 0;
 }
 
 .page-intro h2 {
-    font-size: 26px;
-    font-weight: 700;
-    margin-bottom: 4px;
+  margin: 0 0 7px;
+
+  color: #f8f8fa;
+
+  font-size: clamp(27px,7vw,34px);
+  font-weight: 800;
+  letter-spacing: -.045em;
+  line-height: 1.2;
 }
 
 .page-intro p {
-    font-size: 13.5px;
-    color: var(--color-text-secondary);
+  margin: 0;
+  max-width: 430px;
+
+  color: #9b9daa;
+
+  font-size: 13px;
+  line-height: 1.6;
 }
 
+/* SECTION HEADING */
 
-/* =====================================================================
-   OVERVIEW HERO
-   ===================================================================== */
+.section-heading {
+  margin: 0 0 16px;
+}
+
+.section-heading h2 {
+  color: #f8f8fa;
+
+  font-size: clamp(19px,5vw,23px);
+  font-weight: 800;
+  letter-spacing: -.03em;
+}
+
+/* ============================================
+   OUTSTANDING PAYMENTS SUMMARY
+   ============================================ */
 
 .payments-hero {
-    padding: 26px 24px 24px;
-    border-radius: var(--radius-lg);
-    background: linear-gradient(135deg, var(--color-primary-light), var(--color-primary-dark));
-    box-shadow: var(--shadow-lg);
-    color: var(--color-text-on-primary);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+
+  padding: 25px 21px;
+
+  border: 1px solid #30313e;
+  border-radius: 23px;
+
+  background: linear-gradient(
+    150deg,
+    #1d2029 0%,
+    #191922 65%,
+    #171820 100%
+  );
+
+  color: #fff;
+  box-shadow: none;
+}
+
+/* SUBTLE EMERALD GLOW */
+
+.payments-hero::before {
+  content: "";
+
+  position: absolute;
+  top: -92px;
+  right: -90px;
+
+  width: 245px;
+  height: 245px;
+
+  border-radius: 50%;
+
+  background: radial-gradient(
+    circle,
+    rgba(42,203,149,.16),
+    transparent 72%
+  );
+
+  z-index: -1;
+  pointer-events: none;
+}
+
+.payments-hero::after {
+  content: "";
+
+  position: absolute;
+  right: 20px;
+  bottom: 0;
+
+  width: 70px;
+  height: 2px;
+
+  background: #37d7a4;
+  opacity: .65;
 }
 
 .payments-hero-label {
-    font-size: 13.5px;
-    font-weight: 600;
-    color: rgba(242, 250, 247, 0.85);
-    margin-bottom: 8px;
+  margin: 0 0 13px;
+
+  color: #aeb0bd;
+
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: .01em;
 }
 
 .payments-hero-amount {
-    font-size: 34px;
-    font-weight: 700;
-    margin-bottom: 18px;
-    color: var(--color-text-on-primary);
+  margin: 0 0 23px;
+
+  color: #f8f8fa;
+
+  font-family: var(--font-display);
+  font-size: clamp(31px,8vw,43px);
+  font-weight: 800;
+  line-height: 1.12;
+  letter-spacing: -.055em;
+
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+
+  text-shadow: none;
 }
 
+/* SUMMARY STATUS CHIPS */
+
 .payments-hero-pills {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .payments-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    padding: 7px 13px;
-    border-radius: var(--radius-full);
-    background: rgba(255, 255, 255, 0.16);
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--color-text-on-primary);
+  display: inline-flex;
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 7px 10px;
+
+  border: 1px solid #383a47;
+  border-radius: 999px;
+
+  background: #272832;
+  color: #c3c5ce;
+
+  font-size: 11px;
+  font-weight: 650;
+
+  white-space: nowrap;
 }
 
 .payments-pill span {
-    font-weight: 700;
+  font-size: 12px;
+  font-weight: 800;
 }
 
+.payments-pill-danger span {
+  color: #ff858c;
+}
 
-/* =====================================================================
-   PAYMENTS LIST
-   ===================================================================== */
+.payments-pill-warning span {
+  color: #f3bf66;
+}
+
+.payments-pill-success span {
+  color: #43dca9;
+}
+
+/* ============================================
+   ALL PAYMENTS LIST
+   ============================================ */
 
 .payments-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .payment-item {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 18px;
-    background: var(--color-surface);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+
+  gap: 11px;
+  padding: 16px;
+
+  border: 1px solid #30313e;
+  border-radius: 19px;
+
+  background: #191922;
+  box-shadow: none;
 }
 
+/* PAYMENT ICON */
+
 .payment-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 42px;
-    height: 42px;
-    flex-shrink: 0;
-    border-radius: var(--radius-sm);
-    background: var(--color-primary-soft);
-    color: var(--color-primary-light);
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 44px;
+
+  width: 44px;
+  height: 44px;
+
+  border-radius: 14px;
+
+  background: rgba(50,211,158,.13);
+  color: #40dcaa;
 }
 
 .payment-icon svg {
-    width: 20px;
-    height: 20px;
+  width: 22px;
+  height: 22px;
 }
 
+/* PAYMENT DETAILS */
+
 .payment-details {
-    flex: 1;
-    min-width: 0;
+  flex: 1 1 140px;
+  min-width: 0;
 }
 
 .payment-details strong {
-    display: block;
-    font-size: 14.5px;
-    font-weight: 600;
-    color: var(--color-text-primary);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  display: block;
+  margin-bottom: 4px;
+
+  color: #f8f8fa;
+
+  font-size: 15px;
+  font-weight: 750;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .payment-details span {
-    font-size: 12.5px;
-    color: var(--color-text-muted);
+  display: block;
+
+  color: #9b9daa;
+
+  font-size: 11.5px;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
 }
 
+/* PAYMENT AMOUNT AND STATUS */
+
 .payment-meta {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 6px;
-    flex-shrink: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 10px;
+
+  width: 100%;
+  min-width: 0;
+
+  padding-top: 10px;
+
+  border-top: 1px solid #30313e;
 }
 
 .payment-amount {
-    font-weight: 600;
-    font-size: 14.5px;
-    color: var(--color-text-primary);
-    white-space: nowrap;
+  color: #f8f8fa;
+
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+
+  font-variant-numeric: tabular-nums;
 }
 
 .payment-status {
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+
+  padding: 5px 10px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .03em;
+
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .payment-status.status-overdue {
-    background: var(--color-expense-soft);
-    color: var(--color-expense);
+  color: #ff8790;
+  background: rgba(255,98,111,.13);
 }
 
 .payment-status.status-upcoming {
-    background: rgba(217, 159, 46, 0.16);
-    color: #D99F2E;
+  color: #f0bd69;
+  background: rgba(241,184,78,.13);
 }
 
 .payment-status.status-paid {
-    background: var(--color-income-soft);
-    color: var(--color-income);
+  color: #43dca9;
+  background: rgba(50,211,158,.13);
 }
 
+/* ============================================
+   PAYMENT ACTION BUTTONS
+   ============================================ */
+
 .payment-actions {
-    display: flex;
-    gap: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 8px;
+  width: 100%;
 }
 
 .payment-action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: var(--radius-sm);
-    background: var(--color-surface-alt);
-    border: 1px solid var(--color-border);
-    color: var(--color-text-secondary);
-    transition: background var(--transition-fast), color var(--transition-fast);
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 38px;
+
+  width: 38px;
+  height: 38px;
+
+  padding: 0;
+
+  border: 1px solid #3b3d4b;
+  border-radius: 12px;
+
+  background: #22232e;
+  color: #b9bac7;
+
+  cursor: pointer;
 }
 
 .payment-action-btn svg {
-    width: 15px;
-    height: 15px;
+  width: 19px;
+  height: 19px;
 }
 
-.payment-action-btn:hover {
-    background: var(--color-primary-soft);
-    color: var(--color-primary-light);
+.payment-action-btn:active {
+  color: #42dda7;
+  background: #2a2c35;
 }
 
-.payment-action-btn.danger:hover {
-    background: var(--color-expense-soft);
-    color: var(--color-expense);
+.payment-action-btn.danger:active {
+  color: #ff8790;
+  background: #34242d;
 }
 
+/* ============================================
+   EMPTY STATE
+   ============================================ */
 
-/* =====================================================================
-   ADD PAYMENT FORM
-   style.css's form field styling (label placement, input sizing,
-   select arrow, focus states) is scoped specifically to
-   #transactionForm by ID, so none of it applied to this form's
-   different ID — it was rendering with zero custom layout, just raw
-   browser-default form flow. That's what actually caused the
-   cramped/overlapping appearance, not a multi-column layout bug.
-   This mirrors that same proven treatment, scoped to #paymentForm.
-   ===================================================================== */
+.payments-list .empty-state {
+  padding: 35px 20px;
+
+  border: 1px solid #30313e;
+  border-radius: 20px;
+
+  background: #191922;
+
+  text-align: center;
+}
+
+.payments-list .empty-state h3 {
+  margin: 0 0 8px;
+
+  color: #f8f8fa;
+
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.payments-list .empty-state p {
+  max-width: 320px;
+  margin: 0 auto 20px;
+
+  color: #a2a4b3;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.payments-list .empty-state .primary-button {
+  border: 0;
+  border-radius: 12px;
+
+  background: linear-gradient(
+    135deg,#32d39e,#159876
+  );
+
+  color: #092117;
+  font-weight: 800;
+}
+
+/* ============================================
+   ADD PAYMENT POPUP
+   ============================================ */
+
+#paymentModal {
+  z-index: 500;
+  background: rgba(0,0,0,.76);
+}
+
+#paymentModal .modal-content {
+  max-height: min(90vh,90dvh);
+
+  background: #191922;
+
+  border: 1px solid #363846;
+  border-radius: 23px;
+}
+
+#paymentModal .modal-header {
+  background: #191922;
+  border-color: #30313e;
+}
+
+#paymentModal .modal-header h2 {
+  color: #fff;
+  font-weight: 800;
+}
+
+#paymentModal .eyebrow {
+  color: #42dda7;
+}
+
+#paymentModal .close-button {
+  border: 1px solid #393b49;
+  background: #252630;
+  color: #f8f8fa;
+}
+
+/* FORM STRUCTURE */
 
 #paymentForm {
-    display: contents;
+  display: contents;
 }
 
-.form-field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+#paymentModal .modal-body {
+  display: flex;
+  flex-direction: column;
+
+  flex: 1;
+  min-height: 0;
+
+  gap: 16px;
+
+  overflow-y: auto;
+}
+
+#paymentModal .form-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+  min-width: 0;
 }
 
 #paymentForm label {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--color-text-secondary);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+  color: #bcbec9;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  letter-spacing: .025em;
+  text-transform: uppercase;
 }
 
-#paymentForm input,
-#paymentForm select {
-    width: 100%;
-    height: 46px;
-    padding: 0 14px;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--color-border);
-    background: var(--color-surface-alt);
-    color: var(--color-text-primary);
-    font-family: var(--font-body);
-    font-size: 14.5px;
-    transition: border-color var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
-}
+/* FORM INPUTS */
 
-#paymentForm select {
-    appearance: none;
-    background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
-    background-position: calc(100% - 20px) center, calc(100% - 15px) center;
-    background-size: 5px 5px, 5px 5px;
-    background-repeat: no-repeat;
-    color: var(--color-text-primary);
-    padding-right: 36px;
+#paymentForm input:not([type="hidden"]),
+#paymentForm select,
+#paymentForm .custom-select-trigger {
+  width: 100%;
+  min-width: 0;
+  height: 49px;
+
+  padding: 0 14px;
+
+  border: 1.5px solid #3a3c4a;
+  border-radius: 12px;
+
+  background: #101017;
+  color: #f8f8fa;
+
+  font-family: var(--font-body);
+  font-size: 14px;
+
+  color-scheme: dark;
 }
 
 #paymentForm input::placeholder {
-    color: var(--color-text-muted);
-}
-
-#paymentForm input:hover,
-#paymentForm select:hover {
-    border-color: var(--color-border-strong);
+  color: #777b8d;
 }
 
 #paymentForm input:focus,
-#paymentForm select:focus {
-    outline: none;
-    border-color: var(--color-primary-light);
-    background: var(--color-surface);
-    box-shadow: 0 0 0 3px var(--color-primary-soft);
+#paymentForm select:focus,
+#paymentForm .custom-select.open .custom-select-trigger {
+  outline: none;
+
+  border-color: #42dda7;
+
+  box-shadow:
+    0 0 0 3px rgba(66,221,167,.13);
+}
+
+/* CUSTOM DROPDOWNS FROM CORE.JS */
+
+#paymentForm .custom-select {
+  display: block;
+  width: 100%;
+}
+
+#paymentForm .custom-select-native {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+}
+
+#paymentForm .custom-select-menu {
+  background: #22232e;
+  border-color: #3a3c4a;
+  z-index: 120;
+}
+
+#paymentForm .custom-select-option {
+  color: #f8f8fa;
+}
+
+#paymentForm .custom-select-option.selected {
+  color: #42dda7;
+  background: rgba(50,211,158,.13);
+}
+
+#paymentForm input[type="date"] {
+  color-scheme: dark;
 }
 
 #paymentAmount {
-    font-family: var(--font-mono);
-    font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
-@media (min-width: 640px) {
-    /* Larger screens only: pair Amount+Category and Due Date+
-       Frequency per row for a more balanced look. Name and the
-       action buttons always span the full width. This rule simply
-       doesn't exist below 640px, so mobile always stays single-column.
-       Targets .modal-body specifically — that's what actually
-       contains the .form-field elements now, not #paymentForm
-       directly (which is just the structural height wrapper). */
-    #paymentModal .modal-body {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 16px 14px;
-    }
+/* MODAL ACTION BUTTONS */
 
-    .form-field-full {
-        grid-column: 1 / -1;
-    }
+#paymentModal .form-actions {
+  gap: 11px;
+
+  background: #191922;
+
+  border-top: 1px solid #30313e;
 }
 
+#paymentModal .primary-button,
+#paymentModal .secondary-button {
+  border-radius: 12px;
+  font-weight: 750;
+}
 
-/* =====================================================================
+#paymentModal .primary-button {
+  border-color: transparent;
+
+  background: linear-gradient(
+    135deg,#32d39e,#11946e
+  );
+
+  color: #082119;
+}
+
+#paymentModal .secondary-button {
+  border-color: #3a3c4a;
+
+  background: #252630;
+  color: #f8f8fa;
+}
+
+/* ============================================
    BOTTOM NAVIGATION
-   Ported from home.css — payments.html doesn't load that file, so
-   without this the nav buttons had no custom styling at all and fell
-   back to the browser's raw default button appearance.
-   ===================================================================== */
+   FULL WIDTH — MATCHES OTHER PAGES
+   ============================================ */
 
 .bottom-nav {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 100;
-    display: flex;
-    background: var(--color-surface);
-    border-top: 1px solid var(--color-border);
-    padding: 8px max(16px, env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-    box-shadow: var(--shadow-lg);
+  position: fixed;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  z-index: 250;
+
+  display: grid;
+  grid-template-columns:
+    repeat(5,minmax(0,1fr));
+
+  align-items: center;
+  gap: 0;
+
+  width: 100%;
+  max-width: none;
+
+  min-height: 76px;
+  margin: 0;
+
+  padding:
+    10px
+    max(8px,env(safe-area-inset-right))
+    calc(11px + env(safe-area-inset-bottom))
+    max(8px,env(safe-area-inset-left));
+
+  border: 0;
+  border-top: 1px solid #30313e;
+  border-radius: 0;
+
+  background: #191922;
+
+  box-shadow:
+    0 -5px 22px rgba(0,0,0,.13);
+
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
-.bottom-nav-item {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 6px 4px;
-    background: none;
-    border: none;
-    color: var(--color-text-muted);
-    font-family: var(--font-body);
-    font-size: 11.5px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: color var(--transition-fast);
+/* NAVIGATION ITEMS */
+
+.bottom-nav-item,
+.bottom-nav > a.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  width: auto;
+  min-width: 0;
+  min-height: 52px;
+
+  padding: 4px 1px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: transparent !important;
+  box-shadow: none;
+
+  color: #858899;
+
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 750;
+  line-height: 1.3;
+
+  text-decoration: none;
+  text-align: center;
 }
 
 .bottom-nav-item svg {
+  display: block;
+  flex-shrink: 0;
+
+  width: 24px;
+  height: 24px;
+}
+
+.bottom-nav-item span {
+  white-space: nowrap;
+}
+
+/* ACTIVE PAYMENT TAB */
+
+.bottom-nav-item.active,
+.bottom-nav-item[aria-current="page"] {
+  color: #3bdbaa;
+  background: transparent !important;
+}
+
+.bottom-nav-item:active {
+  background: #252631 !important;
+}
+
+/* ============================================
+   MOBILE RESPONSIVENESS
+   ============================================ */
+
+@media (max-width: 620px) {
+
+  body > main {
+    padding-top: 21px !important;
+    gap: 25px;
+  }
+
+  .app-header {
+    gap: 8px;
+  }
+
+  .home-header-actions {
+    gap: 7px;
+  }
+
+  #paymentModal .modal-content {
+    width: 100%;
+    max-height: 92dvh;
+
+    border-radius: 23px 23px 0 0;
+  }
+
+}
+
+/* SMALLER PHONES */
+
+@media (max-width: 380px) {
+
+  .app-header {
+    padding-left:
+      max(14px,env(safe-area-inset-left));
+
+    padding-right:
+      max(14px,env(safe-area-inset-right));
+  }
+
+  .brand {
+    gap: 7px;
+  }
+
+  .brand-mark {
+    width: 37px;
+    height: 37px;
+    flex-basis: 37px;
+  }
+
+  .brand-mark svg {
     width: 22px;
     height: 22px;
+  }
+
+  .brand-text h1 {
+    font-size: 17px;
+  }
+
+  .home-header-actions {
+    gap: 5px;
+  }
+
+  .notification-bell,
+  .add-fab,
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
+  .payment-item {
+    padding: 14px;
+  }
+
+  .payments-hero {
+    padding: 23px 18px;
+  }
+
+  .payments-pill {
+    padding: 6px 8px;
+    font-size: 10px;
+  }
+
+  .bottom-nav-item {
+    font-size: 9.5px;
+  }
+
 }
 
-.bottom-nav-item.active {
-    color: var(--color-primary-light);
+/* ============================================
+   TABLET AND DESKTOP
+   ============================================ */
+
+@media (min-width: 640px) {
+
+  .payments-hero {
+    padding: 32px;
+  }
+
+  #paymentModal .modal-body {
+    display: grid;
+
+    grid-template-columns:
+      repeat(2,minmax(0,1fr));
+
+    align-content: start;
+    gap: 16px;
+  }
+
+  #paymentModal .form-field-full {
+    grid-column: 1 / -1;
+  }
+
 }
 
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
 
-/* =====================================================================
-   RESPONSIVE
-   ===================================================================== */
+.add-fab:focus-visible,
+.notification-bell:focus-visible,
+.payment-action-btn:focus-visible,
+.bottom-nav-item:focus-visible,
+#paymentModal .close-button:focus-visible {
+  outline: 2px solid #42dda7;
+  outline-offset: 3px;
+}
 
-@media (max-width: 480px) {
-    .payment-item {
-        flex-wrap: wrap;
-        padding: 14px 16px;
-    }
+@media (prefers-reduced-motion: reduce) {
 
-    .payment-meta {
-        width: 100%;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        margin-top: 4px;
-        padding-left: 56px;
-    }
+  .add-fab,
+  .payment-action-btn {
+    transition: none;
+  }
 
-    .payments-hero-amount {
-        font-size: 28px;
-    }
+}
+
+/* ============================================
+   MONEYFLOW — PAYMENTS NAVIGATION FIX
+   Correct active tab color and specificity
+   ============================================ */
+
+/* Normal navigation links */
+
+.bottom-nav > a.bottom-nav-item {
+  color: #858899;
+}
+
+/* Highlight the active Payments tab */
+
+.bottom-nav > a.bottom-nav-item.active,
+.bottom-nav > a.bottom-nav-item[aria-current="page"] {
+  color: #3bdbaa !important;
+  background: transparent !important;
+}
+
+/* SVG icons inherit the active color */
+
+.bottom-nav > a.bottom-nav-item.active svg,
+.bottom-nav > a.bottom-nav-item[aria-current="page"] svg {
+  color: #3bdbaa !important;
+  stroke: currentColor;
+}
+
+/* Make the active label emerald too */
+
+.bottom-nav > a.bottom-nav-item.active span,
+.bottom-nav > a.bottom-nav-item[aria-current="page"] span {
+  color: #3bdbaa !important;
 }

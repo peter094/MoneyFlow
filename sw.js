@@ -1,127 +1,401 @@
-/* =====================================================================
+
+/* ============================================
    MONEYFLOW — SERVICE WORKER
+   AMOLED + EMERALD | MORE PAGE UPDATE
 
-   HOW TO RELEASE AN UPDATE:
-   Bump CACHE_VERSION below (e.g. "v1" -> "v2") whenever you publish
-   changed files. That's the entire update mechanism — activate()
-   automatically deletes every old "moneyflow-*" cache that doesn't
-   match the new version, so nobody stays stuck on stale files.
-   Don't rename anything else in this file when you do that.
-   ===================================================================== */
+   CacheStorage holds only app files.
+   Financial records in localStorage/IndexedDB
+   are never deleted by this worker.
+   ============================================ */
 
-const CACHE_VERSION = "v2";
-const CACHE_NAME = `moneyflow-${CACHE_VERSION}`;
 
-// Paths are relative to this file's own location. That's what makes
-// this work whether MoneyFlow is served from a domain root or a
-// GitHub Pages subpath like /MoneyFlow/ — no hardcoded username or
-// repo name needed anywhere in this file.
+const CACHE_VERSION = "v18-receipts-and-readable-exports-20261015";
+
+
+const CACHE_NAME =
+  `moneyflow-${CACHE_VERSION}`;
+
+/* ============================================
+   APP FILES TO CACHE
+   ============================================ */
+
 const APP_SHELL = [
-  "./",
   "./index.html",
-  "./transactions.html",
+  "./home.html",
+
+  // AUTHENTICATION
+  "./login.html",
+  "./welcome.html",
+
+  // MAIN FINANCE PAGES
+  "./income.html",
+  "./spending.html",
+  "./debts.html",
+  "./payments.html",
+  "./more.html",
+
+  // EXISTING PAGES
   "./analytics.html",
+  "./transactions.html",
   "./settings.html",
+
+  // SHARED STYLES
   "./style.css",
+  "./home.css",
+
+  // AUTH STYLES
+  "./auth.css",
+  "./welcome.css",
+
+  // FINANCE STYLES
+  "./income.css",
+  "./spending.css",
+  "./debts.css",
+  "./payments.css",
+  "./more.css",
+
+  // EXISTING STYLES
+  "./analytics.css",
+  "./transactions.css",
+  "./settings.css",
+
+  // SHARED SCRIPTS
   "./core.js",
   "./dashboard.js",
-  "./transactions.js",
+
+  // AUTH SCRIPTS
+  "./auth.js",
+  "./welcome.js",
+
+  // BRANDED DAY AND MONTH SELECTORS
+  "./date-picker.js",
+  "./date-picker.css",
+  "./month-picker.js",
+  "./month-picker.css",
+
+  // CONSISTENT CATEGORY ICON LIBRARY
+  "./category-icons.js",
+  "./category-icons.css",
+
+  // FINANCE SCRIPTS
+  "./income.js",
+  "./spending.js",
+  "./debts.js",
+  "./payments.js",
+  "./more.js",
+
+  // EXISTING SCRIPTS
   "./analytics.js",
+  "./transactions.js",
   "./settings.js",
+
+  // NEW MORE FEATURE PAGES
+  "./refer.html",
+  "./refer.css",
+  "./refer.js",
+
+  "./help.html",
+  "./help.css",
+
+  "./budget.html",
+  "./budget.css",
+  "./budget.js",
+
+
+  // CALENDAR PAGE
+  "./calendar.html",
+  "./calendar.css",
+  "./calendar.js",
+
+  // INSURANCE PAGE
+  "./insurance.html",
+  "./insurance.css",
+  "./insurance.js",
+
+  // NOTIFICATIONS CENTRE
+  "./notifications.html",
+  "./notifications.css",
+  "./notifications.js",
+
+  // LOCAL RECEIPTS AND FINANCIAL EXPORTS
+  "./receipt.html",
+  "./receipt.css",
+  "./receipt.js",
+  "./receipt-actions.css",
+  "./moneyflow-export-utils.js",
+  "./export.html",
+  "./export.css",
+  "./export.js",
+  "./report.html",
+  "./report.css",
+  "./report.js",
+
+  // PWA ASSETS
   "./manifest.json",
-  "./icon-192.png",
-  "./icon-512.png",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png",
+  "./icons/icon-maskable-192.png",
+  "./icons/icon-maskable-512.png"
 ];
 
-/* ---------------- Install: precache the app shell ---------------- */
+/* ============================================
+   INSTALL
+   ============================================ */
 
 self.addEventListener("install", (event) => {
+
   event.waitUntil(
-    (async () => {
-      const cache = await caches.open(CACHE_NAME);
-      // addAll fails entirely if even one file 404s — that's
-      // intentional here, it surfaces a bad deploy immediately
-      // instead of silently caching a broken app shell.
-      await cache.addAll(APP_SHELL);
-    })()
+    caches.open(CACHE_NAME).then(
+      (cache) => cache.addAll(APP_SHELL)
+    )
   );
+
+  // Wait for the update confirmation
+  // provided by core.js.
+  // Do not reload pages automatically
+  // while a form may be open.
+
 });
 
-/* ---------------- Activate: drop old-version caches ---------------- */
+/* ============================================
+   ACTIVATE
+   ============================================ */
 
 self.addEventListener("activate", (event) => {
+
   event.waitUntil(
     (async () => {
-      const keys = await caches.keys();
+
+      const names = await caches.keys();
+
       await Promise.all(
-        keys
-          .filter((key) => key.startsWith("moneyflow-") && key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
+        names
+          .filter(
+            (name) =>
+              name.startsWith("moneyflow-") &&
+              name !== CACHE_NAME
+          )
+          .map(
+            (name) => caches.delete(name)
+          )
       );
+
       await self.clients.claim();
+
     })()
   );
+
 });
 
-/* ---------------- Fetch: network-first for pages, cache-first for assets ---------------- */
+/* ============================================
+   FETCH REQUESTS
+   ============================================ */
 
 self.addEventListener("fetch", (event) => {
+
   const request = event.request;
 
-  // Only handle GET requests — POST/etc. (none in this app, but
-  // future-proof) should just go straight to the network untouched.
-  if (request.method !== "GET") return;
+  if (request.method !== "GET") {
+    return;
+  }
 
-  const isHTML =
+  const url = new URL(request.url);
+
+  // Do not intercept external services,
+  // including authentication servers.
+
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
+  // Never cache API or authentication calls.
+
+  if (
+    /^\/(api|auth)(\/|$)/i.test(url.pathname)
+  ) {
+    return;
+  }
+
+  // Let the browser fetch the actual
+  // service worker script.
+  // The root is served by index.html, which already renders the
+  // existing welcome experience. No service-worker redirects needed.
+  if (url.pathname.endsWith("/sw.js")) {
+    return;
+  }
+
+  const path = url.pathname.toLowerCase();
+
+  const isDocument =
     request.mode === "navigate" ||
-    (request.headers.get("accept") || "").includes("text/html");
+    path.endsWith(".html") ||
+    (
+      request.headers.get("accept") || ""
+    ).includes("text/html");
 
-  event.respondWith(isHTML ? networkFirst(request) : cacheFirst(request));
+  const isCode =
+    /\.(?:js|css|json)$/i.test(path);
+
+  const isImage =
+    /\.(?:png|jpe?g|webp|svg|ico)$/i.test(path);
+
+  if (isDocument || isCode) {
+
+    // Use fresh deployed files online.
+    // Use cached copies offline.
+
+    event.respondWith(
+      networkFirst(request, isDocument)
+    );
+
+  } else if (isImage) {
+
+    // Images rarely change.
+    // Prefer cached images.
+
+    event.respondWith(
+      cacheFirst(request)
+    );
+
+  }
+
 });
 
-async function networkFirst(request) {
+/* ============================================
+   NETWORK FIRST
+   HTML, CSS, JAVASCRIPT, JSON
+   ============================================ */
+
+async function networkFirst(
+  request,
+  isDocument
+) {
+
   try {
-    const response = await fetch(request);
-    if (response && (response.ok || response.type === "opaque")) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, response.clone());
+
+    // Revalidate HTTP cache to help
+    // detect new Netlify deployments.
+
+    const response = await fetch(
+      request,
+      { cache: "no-cache" }
+    );
+
+    if (
+      response.ok &&
+      response.type === "basic"
+    ) {
+
+      const cache = await caches.open(
+        CACHE_NAME
+      );
+
+      await cache.put(
+        request,
+        response.clone()
+      );
+
     }
+
     return response;
+
   } catch (error) {
-    // Offline, or the network request failed — fall back to
-    // whatever's cached, and if this exact page was never cached,
-    // fall back to the app shell itself rather than a browser
-    // "no internet" error page.
-    const cached = await caches.match(request);
-    return cached || caches.match("./index.html");
+
+    // Network unavailable:
+    // try the saved file.
+
+    const cached = await caches.match(
+      request,
+      { ignoreSearch: true }
+    );
+
+    if (cached) {
+      return cached;
+    }
+
+    // Offline page fallback.
+
+    if (
+      isDocument &&
+      request.mode === "navigate"
+    ) {
+
+      const scopeRoot = new URL("./", self.registration.scope).pathname;
+      const wanted = new URL(request.url).pathname === scopeRoot
+        ? "./index.html"   // Fresh offline website launch: welcome
+        : "./home.html";  // Offline document fallback: dashboard
+      const fallback = await caches.match(wanted);
+      if (fallback) return fallback;
+
+    }
+
+    return Response.error();
+
   }
+
 }
+
+/* ============================================
+   CACHE FIRST
+   STATIC IMAGE ASSETS
+   ============================================ */
 
 async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  if (cached) return cached;
 
-  try {
-    const response = await fetch(request);
-    if (response && (response.ok || response.type === "opaque")) {
-      const cache = await caches.open(CACHE_NAME);
-      cache.put(request, response.clone());
-    }
-    return response;
-  } catch (error) {
-    // Nothing cached and no network — let it fail naturally
-    // (e.g. a font loaded from an external CDN while offline).
+  const cached = await caches.match(
+    request,
+    { ignoreSearch: true }
+  );
+
+  if (cached) {
     return cached;
   }
+
+  try {
+
+    const response = await fetch(
+      request
+    );
+
+    if (
+      response.ok &&
+      response.type === "basic"
+    ) {
+
+      const cache = await caches.open(
+        CACHE_NAME
+      );
+
+      await cache.put(
+        request,
+        response.clone()
+      );
+
+    }
+
+    return response;
+
+  } catch (error) {
+
+    return Response.error();
+
+  }
+
 }
 
-/* ---------------- Update handshake ---------------- */
-// core.js shows a "Refresh to update" banner when a new version has
-// finished installing. When the person taps it, this message tells
-// the waiting worker to take over immediately.
+/* ============================================
+   ACTIVATE UPDATE WHEN REQUESTED
+   ============================================ */
 
 self.addEventListener("message", (event) => {
-  if (event.data === "SKIP_WAITING" || event.data?.type === "SKIP_WAITING") {
+
+  if (
+    event.data === "SKIP_WAITING" ||
+    event.data?.type === "SKIP_WAITING"
+  ) {
+
     self.skipWaiting();
+
   }
+
 });

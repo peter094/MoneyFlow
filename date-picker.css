@@ -1,0 +1,94 @@
+/* MONEYFLOW — APP-STYLE DATE SHEET. Original date fields remain functional. */
+.mf-date-original {
+  position:absolute!important;width:1px!important;height:1px!important;
+  opacity:0!important;pointer-events:none!important;overflow:hidden!important;
+  clip-path:inset(50%)!important;margin:0!important;padding:0!important;
+  border:0!important;z-index:-1!important;
+}
+.mf-date-trigger {
+  box-sizing:border-box!important;display:flex!important;align-items:center!important;
+  justify-content:space-between!important;gap:14px!important;
+  width:100%!important;min-height:53px!important;padding:12px 15px!important;
+  border:1px solid #343e42!important;border-radius:15px!important;
+  background:#1a2027!important;color:#f1faf5!important;
+  font:600 15px/1.4 system-ui,-apple-system,sans-serif!important;
+  cursor:pointer!important;text-align:left!important;letter-spacing:0!important;
+  box-shadow:none!important;text-transform:none!important;
+  -webkit-tap-highlight-color:transparent;
+}
+.mf-date-trigger.is-empty {color:#a4b1b1!important;}
+.mf-date-trigger:disabled {opacity:.5!important;cursor:not-allowed!important;}
+.mf-date-trigger:focus-visible,.mf-date-backdrop button:focus-visible {
+  outline:2px solid #37d6a6!important;outline-offset:3px!important;
+}
+.mf-date-icon {display:grid;place-items:center;color:#46d3a8!important;flex-shrink:0;}
+.mf-date-icon svg {width:21px!important;height:21px!important;}
+.mf-date-backdrop {
+  position:fixed;inset:0;z-index:2147480000;display:flex;align-items:flex-end;
+  justify-content:center;padding:0;background:rgba(0,0,0,.79);
+  -webkit-tap-highlight-color:transparent;
+}
+.mf-date-backdrop[hidden],.mf-date-month-grid[hidden],.mf-date-calendar[hidden],
+.mf-date-footer button[hidden] {display:none!important;}
+.mf-date-sheet {
+  box-sizing:border-box;width:100%;max-width:660px;
+  max-height:min(92dvh,850px);overflow-y:auto;overscroll-behavior:contain;
+  padding:10px 23px calc(24px + env(safe-area-inset-bottom,0px));
+  border:1px solid #303240;border-bottom:0;
+  border-radius:26px 26px 0 0;background:#0c0d15;color:#f8f9fb;
+  box-shadow:0 -18px 50px rgba(0,0,0,.46);
+  font-family:Inter,system-ui,-apple-system,sans-serif;
+}
+.mf-date-handle {display:block;width:49px;height:5px;border-radius:999px;
+  background:#3a414e;margin:0 auto 20px;}
+.mf-date-top {display:flex;align-items:center;justify-content:space-between;gap:14px;}
+.mf-date-title {margin:0;font:800 clamp(21px,5.7vw,27px)/1.25 system-ui,sans-serif;letter-spacing:-.5px;}
+.mf-date-close,.mf-date-nav-arrow,.mf-date-nav-title,.mf-date-day,
+.mf-date-month-option,.mf-date-today,.mf-date-clear {
+  -webkit-tap-highlight-color:transparent;cursor:pointer;font-family:inherit;
+}
+.mf-date-close {display:grid;place-items:center;border:0;background:transparent;
+  color:#e9ebee;font-size:29px;width:43px;height:43px;border-radius:12px;}
+.mf-date-close:active {background:#242732;}
+.mf-date-nav {display:grid;grid-template-columns:45px 1fr 45px;align-items:center;
+  gap:11px;margin:27px 0 21px;}
+.mf-date-nav-arrow {border:0;background:transparent;color:#a8afc0;
+  width:45px;height:46px;font-size:32px;font-weight:400;border-radius:10px;}
+.mf-date-nav-arrow:active {background:#202330;}
+.mf-date-nav-arrow:disabled {opacity:.28;cursor:not-allowed;}
+.mf-date-nav-title {border:0;background:transparent;color:#f7f9fc;
+  font-size:19px;font-weight:800;line-height:1.3;min-width:0;padding:9px 0;letter-spacing:-.3px;}
+.mf-date-week,.mf-date-days {display:grid;grid-template-columns:repeat(7,minmax(0,1fr));}
+.mf-date-week {margin-bottom:13px;color:#868c9e;font-size:12px;font-weight:750;text-align:center;}
+.mf-date-week span {padding:6px 0;}
+.mf-date-days {row-gap:9px;}
+.mf-date-day {justify-self:center;display:grid;place-items:center;
+  padding:0;border:1px solid transparent;border-radius:50%;
+  width:min(11.4vw,47px);height:min(11.4vw,47px);
+  background:transparent;color:#f8f9fb;font-size:15px;font-weight:650;}
+.mf-date-day.is-outside {color:#6d7081;}
+.mf-date-day.is-today:not(.is-selected) {border-color:#25bd96;color:#65e7bd;}
+.mf-date-day.is-selected {background:#32cfa1;color:#062b20;font-weight:850;}
+.mf-date-day:disabled {opacity:.23;cursor:not-allowed;}
+.mf-date-day:not(:disabled):active {background:#1c4037;}
+.mf-date-month-grid {padding:12px 0 17px;}
+.mf-date-months {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;}
+.mf-date-month-option {border:1px solid #333b42;border-radius:14px;min-height:52px;
+  background:#1d222c;color:#dce6e2;font-size:14px;font-weight:700;}
+.mf-date-month-option.is-selected {background:#35d0a4;color:#052c20;border-color:#35d0a4;}
+.mf-date-footer {display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:14px;padding-top:10px;}
+.mf-date-today,.mf-date-clear {background:transparent;border:0;border-radius:12px;
+  color:#47d9ae;font-size:13px;font-weight:800;min-height:43px;padding:8px 12px;}
+.mf-date-clear {color:#aaaec0;}
+@media (max-width:350px) {
+ .mf-date-sheet {padding-left:14px;padding-right:14px;}
+ .mf-date-days {row-gap:5px;}
+ .mf-date-nav {margin-top:17px;}
+}
+@media (min-width:620px) {
+ .mf-date-day {width:49px;height:49px;}
+}
+@media (prefers-reduced-motion:no-preference) {
+ .mf-date-sheet {animation:mf-date-rise .22s cubic-bezier(.2,.8,.2,1) both;}
+ @keyframes mf-date-rise {from{transform:translateY(28px);opacity:.7}to{transform:translateY(0);opacity:1}}
+}

@@ -1,0 +1,1214 @@
+
+/* ============================================
+   MONEYFLOW — MORE PAGE
+   AMOLED BLACK + EMERALD EDITION
+
+   Load after style.css
+   ============================================ */
+
+/* ============================================
+   PAGE COLOURS
+   ============================================ */
+
+html {
+  background: #09090f !important;
+  color-scheme: dark;
+}
+
+body.more-body {
+  --more-bg: #09090f;
+  --more-card: #191922;
+  --more-raised: #22232e;
+  --more-border: #30313e;
+
+  --more-text: #f8f8fa;
+  --more-muted: #9b9daa;
+  --more-dim: #777b8c;
+
+  --more-green: #35d6a2;
+  --more-green-deep: #148f6e;
+
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+
+  background: var(--more-bg) !important;
+  color: var(--more-text);
+
+  font-family:
+    var(--font-body, Inter, system-ui, sans-serif);
+
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+.more-body *,
+.more-body *::before,
+.more-body *::after {
+  box-sizing: border-box;
+}
+
+.more-body [hidden] {
+  display: none !important;
+}
+
+.more-body button,
+.more-body input {
+  font: inherit;
+}
+
+.more-body svg {
+  display: block;
+}
+
+.more-body button {
+  cursor: pointer;
+}
+
+.more-body a {
+  text-decoration: none;
+}
+
+/* ============================================
+   MAIN PAGE
+   ============================================ */
+
+body.more-body .more-page {
+  display: block;
+
+  width: min(100%, 600px);
+  max-width: 600px;
+
+  margin: 0 auto;
+
+  padding:
+    calc(29px + env(safe-area-inset-top))
+    max(20px, env(safe-area-inset-right))
+    calc(118px + env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.more-header {
+  margin-bottom: 24px;
+}
+
+.more-header h1 {
+  margin: 0;
+
+  color: #fff;
+
+  font-family:
+    var(--font-display, Inter, sans-serif);
+
+  font-size: clamp(29px, 8vw, 36px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -.045em;
+}
+
+/* ============================================
+   MORE FEATURE CARDS
+   ============================================ */
+
+.more-features {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.more-feature-card {
+  display: flex;
+  align-items: center;
+
+  gap: 15px;
+
+  width: 100%;
+  min-height: 83px;
+
+  padding: 15px 16px;
+
+  border: 1px solid var(--more-border);
+  border-radius: 19px;
+
+  background: var(--more-card);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, .025);
+
+  color: var(--more-text);
+
+  text-align: left;
+  text-decoration: none;
+
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    background-color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.more-feature-card:active {
+  transform: scale(.992);
+  background: #242530;
+  border-color: #3c3e4d;
+}
+
+@media (hover: hover) {
+  .more-feature-card:hover {
+    background: #20212c;
+    border-color: #424451;
+  }
+}
+
+/* ============================================
+   FEATURE ICON CONTAINERS
+   ============================================ */
+
+.more-feature-icon {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 49px;
+
+  width: 49px;
+  height: 49px;
+
+  border-radius: 15px;
+}
+
+.more-feature-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* PURPLE ACCENT */
+
+.more-feature-icon.icon-purple {
+  color: #a99bf5;
+  background: rgba(149, 126, 235, .16);
+}
+
+/* EMERALD ACCENT */
+
+.more-feature-icon.icon-green {
+  color: #3cdda8;
+  background: rgba(41, 197, 141, .15);
+}
+
+/* GOLD ACCENT */
+
+.more-feature-icon.icon-gold {
+  color: #f5b84f;
+  background: rgba(235, 164, 48, .14);
+}
+
+/* BLUE ACCENT */
+
+.more-feature-icon.icon-blue {
+  color: #74b2f3;
+  background: rgba(77, 143, 226, .15);
+}
+
+/* GREY ACCENT */
+
+.more-feature-icon.icon-grey {
+  color: #adb0c0;
+  background: rgba(146, 149, 171, .13);
+}
+
+/* ============================================
+   FEATURE TEXT
+   ============================================ */
+
+.more-feature-text {
+  display: flex;
+  flex: 1 1 auto;
+
+  flex-direction: column;
+  justify-content: center;
+
+  min-width: 0;
+  gap: 4px;
+}
+
+.more-feature-text strong {
+  display: block;
+
+  color: var(--more-text);
+
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -.015em;
+
+  overflow-wrap: anywhere;
+}
+
+.more-feature-text small {
+  display: block;
+
+  color: var(--more-muted);
+
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+/* ============================================
+   RIGHT ARROW
+   ============================================ */
+
+.more-chevron {
+  flex: 0 0 16px;
+
+  color: #777b8c;
+
+  font-family: Arial, sans-serif;
+  font-size: 30px;
+  font-weight: 300;
+  line-height: 1;
+
+  text-align: right;
+}
+
+/* ============================================
+   FIXED BOTTOM NAVIGATION
+   ============================================ */
+
+.more-bottom-nav {
+  position: fixed;
+
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  z-index: 80;
+
+  display: grid;
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  align-items: center;
+
+  width: 100%;
+  min-height: 76px;
+  margin: 0;
+
+  padding:
+    10px
+    max(8px, env(safe-area-inset-right))
+    calc(11px + env(safe-area-inset-bottom))
+    max(8px, env(safe-area-inset-left));
+
+  border: 0;
+  border-top: 1px solid var(--more-border);
+  border-radius: 0;
+
+  background: #191922;
+
+  box-shadow:
+    0 -5px 22px rgba(0, 0, 0, .16);
+}
+
+/* NAVIGATION BUTTONS */
+
+.more-nav-item {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 5px;
+
+  min-width: 0;
+  min-height: 52px;
+
+  padding: 4px 1px;
+
+  border: 0;
+  border-radius: 10px;
+
+  background: transparent;
+  color: #858899;
+
+  font-size: 10.5px;
+  font-weight: 750;
+  line-height: 1.25;
+
+  text-align: center;
+  text-decoration: none;
+}
+
+.more-nav-item svg {
+  flex: 0 0 auto;
+
+  width: 24px;
+  height: 24px;
+}
+
+.more-nav-item span {
+  white-space: nowrap;
+}
+
+/* ACTIVE TAB */
+
+.more-nav-item.active,
+.more-nav-item[aria-current="page"] {
+  color: #3bdbaa;
+}
+
+.more-nav-item:active {
+  background: #252631;
+}
+
+/* ============================================
+   REUSABLE BOTTOM SHEET OVERLAY
+   ============================================ */
+
+.more-sheet-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 500;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  padding: 0;
+
+  background: rgba(0, 0, 0, .76);
+
+  overscroll-behavior: contain;
+
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+}
+
+/* ============================================
+   BOTTOM SHEET
+   ============================================ */
+
+.more-sheet {
+  display: flex;
+  flex-direction: column;
+
+  width: min(100%, 600px);
+
+  max-height: min(90vh, 90dvh);
+  min-height: 0;
+
+  padding:
+    9px 20px
+    calc(24px + env(safe-area-inset-bottom));
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  border: 1px solid #393a48;
+  border-bottom: 0;
+
+  border-radius: 25px 25px 0 0;
+
+  background: #191922;
+  color: var(--more-text);
+
+  box-shadow:
+    0 -12px 55px rgba(0, 0, 0, .52);
+
+  animation:
+    more-sheet-appear 200ms ease both;
+}
+
+/* BOTTOM SHEET ANIMATION */
+
+@keyframes more-sheet-appear {
+  from {
+    opacity: .6;
+    transform: translateY(22px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* DRAG HANDLE */
+
+.more-sheet-grip {
+  flex-shrink: 0;
+
+  width: 39px;
+  height: 5px;
+
+  margin: 0 auto 16px;
+
+  border-radius: 99px;
+
+  background: #555766;
+}
+
+/* ============================================
+   SHEET HEADER
+   ============================================ */
+
+.more-sheet-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.more-sheet-header h2 {
+  margin: 0;
+
+  color: #fff;
+
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+
+/* CLOSE BUTTON */
+
+.more-sheet-close {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 36px;
+
+  width: 36px;
+  height: 36px;
+
+  padding: 0;
+
+  border: 1px solid #3a3b4a;
+  border-radius: 11px;
+
+  background: #272833;
+
+  color: #e8e8ee;
+
+  font-size: 27px;
+  line-height: 1;
+}
+
+.more-sheet-close:active {
+  background: #323440;
+}
+
+/* ============================================
+   COMMON PANEL STYLES
+   ============================================ */
+
+.more-panel {
+  min-width: 0;
+}
+
+.more-panel-note {
+  margin: 0 0 17px;
+
+  color: var(--more-muted);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* PANEL LINK ROWS */
+
+.more-panel-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  min-height: 57px;
+
+  margin-bottom: 9px;
+  padding: 12px 15px;
+
+  border: 1px solid #353744;
+  border-radius: 13px;
+
+  background: #23242f;
+  color: #f8f8fa;
+
+  font-size: 14px;
+  font-weight: 650;
+
+  text-decoration: none;
+}
+
+.more-panel-link span {
+  flex-shrink: 0;
+
+  color: #8f92a2;
+
+  font-size: 27px;
+  line-height: 1;
+}
+
+.more-panel-link:active {
+  background: #2b2d39;
+}
+
+/* ============================================
+   MONTHLY BUDGET FORM
+   ============================================ */
+
+#moreBudgetForm {
+  display: flex;
+  flex-direction: column;
+
+  gap: 13px;
+}
+
+#moreBudgetForm label {
+  color: #e8e9ed;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+#moreBudgetAmount {
+  display: block;
+
+  width: 100%;
+  height: 52px;
+
+  padding: 0 15px;
+
+  border: 1.5px solid #3a3b49;
+  border-radius: 13px;
+
+  outline: none;
+
+  background: #101017;
+  color: #fff;
+
+  font-size: 16px;
+  font-weight: 650;
+
+  font-variant-numeric: tabular-nums;
+
+  color-scheme: dark;
+}
+
+#moreBudgetAmount::placeholder {
+  color: #787b8a;
+}
+
+#moreBudgetAmount:focus-visible {
+  border-color: #40dcaa;
+
+  box-shadow:
+    0 0 0 3px rgba(53, 214, 162, .15);
+}
+
+#moreBudgetForm .more-panel-note {
+  margin: -2px 0 3px;
+  font-size: 12px;
+}
+
+/* ============================================
+   REFER FRIENDS
+   ============================================ */
+
+.more-referral-feature {
+  margin-bottom: 17px;
+  padding: 23px 18px;
+
+  border: 1px solid rgba(60, 221, 168, .24);
+  border-radius: 18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #194537,
+      #142b2a 65%,
+      #1d2430
+    );
+}
+
+.more-referral-emoji {
+  display: grid;
+  place-items: center;
+
+  width: 46px;
+  height: 46px;
+
+  margin-bottom: 17px;
+
+  border-radius: 14px;
+
+  background: rgba(57, 216, 161, .16);
+  color: #53e7ba;
+
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.more-referral-feature h3 {
+  margin: 0 0 9px;
+
+  color: #fff;
+
+  font-size: 19px;
+  line-height: 1.35;
+  font-weight: 800;
+}
+
+.more-referral-feature p {
+  color: #b9d5cb;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ============================================
+   SHEET ACTION BUTTONS
+   ============================================ */
+
+.more-primary-button,
+.more-secondary-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 51px;
+
+  padding: 12px 16px;
+
+  border-radius: 13px;
+
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.4;
+
+  text-align: center;
+}
+
+.more-primary-button {
+  border: 1px solid transparent;
+
+  background:
+    linear-gradient(
+      135deg,
+      #37d6a4,
+      #159775
+    );
+
+  color: #071b15;
+}
+
+.more-primary-button:active {
+  filter: brightness(.94);
+}
+
+.more-secondary-button {
+  margin-top: 10px;
+
+  border: 1px solid #3c3e4b;
+
+  background: #242630;
+  color: #f8f8fa;
+}
+
+.more-secondary-button:active {
+  background: #2e303d;
+}
+
+/* ============================================
+   HELP & SUPPORT — FAQ
+   ============================================ */
+
+.more-faq-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 10px;
+}
+
+.more-faq {
+  overflow: hidden;
+
+  border: 1px solid #353744;
+  border-radius: 14px;
+
+  background: #23242f;
+}
+
+.more-faq summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+  padding: 15px;
+
+  color: #f7f8fa;
+
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+
+  cursor: pointer;
+  list-style: none;
+}
+
+.more-faq summary::-webkit-details-marker {
+  display: none;
+}
+
+.more-faq summary::after {
+  content: "+";
+
+  flex-shrink: 0;
+
+  color: #42d9a6;
+
+  font-size: 21px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.more-faq[open] summary::after {
+  content: "−";
+}
+
+.more-faq p {
+  margin: 0;
+
+  padding: 0 15px 17px;
+
+  color: var(--more-muted);
+
+  font-size: 12.5px;
+  line-height: 1.65;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.more-body :where(
+  a,
+  button,
+  input,
+  summary
+):focus-visible {
+  outline: 2px solid #43e2b0;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   SMALL PHONES
+   ============================================ */
+
+@media (max-width: 390px) {
+
+  body.more-body .more-page {
+    padding-left:
+      max(16px, env(safe-area-inset-left));
+
+    padding-right:
+      max(16px, env(safe-area-inset-right));
+  }
+
+  .more-feature-card {
+    min-height: 78px;
+
+    gap: 11px;
+    padding: 13px 12px;
+  }
+
+  .more-feature-icon {
+    flex-basis: 44px;
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 13px;
+  }
+
+  .more-feature-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .more-feature-text strong {
+    font-size: 14px;
+  }
+
+  .more-feature-text small {
+    font-size: 11px;
+  }
+
+  .more-nav-item {
+    font-size: 9.5px;
+  }
+
+}
+
+/* ============================================
+   TABLETS / LARGER SCREENS
+   ============================================ */
+
+@media (min-width: 640px) {
+
+  body.more-body .more-page {
+    padding-top:
+      calc(38px + env(safe-area-inset-top));
+  }
+
+  .more-feature-card {
+    min-height: 90px;
+    padding: 17px 20px;
+  }
+
+  .more-sheet {
+    margin-bottom: 16px;
+
+    border-bottom:
+      1px solid #393a48;
+
+    border-radius: 24px;
+  }
+
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .more-feature-card {
+    transition: none;
+  }
+
+  .more-sheet {
+    animation: none;
+  }
+
+}
+
+/* ============================================
+   MONEYFLOW — CATEGORIES & REPORTS
+   BOTTOM SHEET CARD DESIGN
+   AMOLED BLACK + EMERALD GREEN
+
+   Add at the END of more.css.
+   ============================================ */
+
+/* PANEL CONTAINER */
+
+.more-choices-panel {
+  width: 100%;
+  min-width: 0;
+
+  padding: 0 0 4px;
+}
+
+/* CARD LIST */
+
+.more-choices-panel .more-choice-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 11px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* INDIVIDUAL CARDS */
+
+.more-choices-panel .more-choice-card {
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 76px;
+
+  gap: 14px;
+  padding: 13px 15px;
+
+  border: 1px solid #383846;
+  border-radius: 16px;
+
+  background: #242430;
+
+  color: #f7f8fc;
+  text-decoration: none;
+  text-align: left;
+
+  box-shadow:
+    inset 0 1px 0 rgba(
+      255, 255, 255, 0.025
+    );
+
+  -webkit-tap-highlight-color: transparent;
+
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+/* PRESSED STATE */
+
+.more-choices-panel .more-choice-card:active {
+  background: #30313e;
+
+  border-color: #4c4d5e;
+
+  transform: scale(0.99);
+}
+
+/* ============================================
+   CATEGORY ICONS
+   ============================================ */
+
+.more-choices-panel .more-choice-icon {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 49px;
+
+  width: 49px;
+  height: 49px;
+
+  border-radius: 15px;
+}
+
+.more-choices-panel .more-choice-icon svg {
+  display: block;
+
+  width: 25px;
+  height: 25px;
+}
+
+/* PAYMENTS — PURPLE */
+
+.more-choices-panel .more-choice-payments {
+  color: #ae9aff;
+
+  background: rgba(
+    149, 122, 245, 0.16
+  );
+}
+
+/* SPENDING — EMERALD */
+
+.more-choices-panel .more-choice-spending {
+  color: #43e0af;
+
+  background: rgba(
+    53, 213, 158, 0.14
+  );
+}
+
+/* INCOME — WARM GOLD */
+
+.more-choices-panel .more-choice-income {
+  color: #e8b75b;
+
+  background: rgba(
+    230, 171, 66, 0.13
+  );
+}
+
+/* ============================================
+   CARD TITLE AND SUBTITLE
+   ============================================ */
+
+.more-choices-panel .more-choice-copy {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+
+  justify-content: center;
+
+  gap: 5px;
+
+  min-width: 0;
+}
+
+.more-choices-panel .more-choice-copy strong {
+  display: block;
+
+  color: #f8f8fb;
+
+  font-size: 15px;
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+}
+
+.more-choices-panel .more-choice-copy small {
+  display: block;
+
+  color: #a1a2b1;
+
+  font-size: 12px;
+  font-weight: 450;
+  line-height: 1.4;
+}
+
+/* ============================================
+   RIGHT CHEVRON
+   ============================================ */
+
+.more-choices-panel .more-choice-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 23px;
+
+  width: 23px;
+  height: 30px;
+
+  margin-left: auto;
+
+  color: #9495a7;
+
+  font-size: 29px;
+  font-weight: 350;
+  line-height: 1;
+}
+
+/* ============================================
+   BOTTOM SHEET HEADER POLISH
+   ============================================ */
+
+.more-sheet-header {
+  padding-bottom: 2px;
+}
+
+.more-sheet-header h2 {
+  color: #f8f9fc;
+
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.more-sheet-close {
+  color: #f4f4fa;
+}
+
+/* ============================================
+   LINK FOCUS ACCESSIBILITY
+   ============================================ */
+
+.more-choices-panel .more-choice-card:focus-visible {
+  outline: 2px solid #43e0af;
+  outline-offset: 3px;
+}
+
+/* ============================================
+   SMALL MOBILE SCREENS
+   ============================================ */
+
+@media (max-width: 390px) {
+
+  .more-choices-panel .more-choice-list {
+    gap: 10px;
+  }
+
+  .more-choices-panel .more-choice-card {
+    min-height: 72px;
+
+    padding: 12px 13px;
+    gap: 12px;
+  }
+
+  .more-choices-panel .more-choice-icon {
+    flex-basis: 45px;
+
+    width: 45px;
+    height: 45px;
+
+    border-radius: 13px;
+  }
+
+  .more-choices-panel .more-choice-icon svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  .more-choices-panel .more-choice-copy strong {
+    font-size: 14px;
+  }
+
+  .more-choices-panel .more-choice-copy small {
+    font-size: 11.5px;
+  }
+
+  .more-choices-panel .more-choice-arrow {
+    font-size: 26px;
+  }
+
+}
+
+/* ============================================
+   LARGER SCREENS
+   ============================================ */
+
+@media (min-width: 640px) {
+
+  .more-choices-panel .more-choice-card {
+    min-height: 82px;
+
+    padding: 16px 18px;
+  }
+
+}
+
+/* ============================================
+   HOVER EFFECTS
+   ============================================ */
+
+@media (hover: hover) {
+
+  .more-choices-panel .more-choice-card:hover {
+    background: #2c2d3a;
+
+    border-color: #4d4f60;
+  }
+
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .more-choices-panel .more-choice-card {
+    transition: none;
+  }
+
+}
+
+/* ============================================
+   END — MONEYFLOW CATEGORY STYLES
+   ============================================ */

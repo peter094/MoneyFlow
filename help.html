@@ -1,0 +1,758 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+
+  <!-- ==================================
+       MONEYFLOW LOGIN PROTECTION
+  =================================== -->
+
+  <script>
+    (function () {
+      try {
+        if (
+          !localStorage.getItem(
+            "moneyflow_auth_token"
+          )
+        ) {
+          window.location.replace(
+            "login.html"
+          );
+        }
+      } catch (error) {
+        window.location.replace(
+          "login.html"
+        );
+      }
+    })();
+  </script>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#09090f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+
+  <title>MoneyFlow | Help &amp; Support</title>
+
+  <!-- OFFICIAL MONEYFLOW ICON -->
+
+  <link rel="manifest" href="manifest.json">
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="icons/icon-192.png"
+  >
+
+  <!-- STYLESHEETS -->
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="help.css">
+
+</head>
+
+<body class="help-body">
+
+  <main class="help-page">
+
+    <!-- ==================================
+         HEADER
+    =================================== -->
+
+    <header class="help-header">
+
+      <a
+        href="more.html"
+        class="help-back-button"
+        aria-label="Back to More"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.1"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M19 12H5"/>
+          <path d="m12 19-7-7 7-7"/>
+        </svg>
+      </a>
+
+      <h1>Help &amp; Support</h1>
+
+      <span
+        class="help-header-spacer"
+        aria-hidden="true"
+      ></span>
+
+    </header>
+
+
+    <!-- ==================================
+         INTRODUCTION
+    =================================== -->
+
+    <section class="help-introduction">
+
+      <div
+        class="help-illustration"
+        aria-hidden="true"
+      >
+        <div class="help-illustration-ring">
+
+          <svg
+            viewBox="0 0 64 64"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M13 16h38a7 7 0 0 1 7 7v19a7 7 0 0 1-7 7H29L16 58V49h-3a7 7 0 0 1-7-7V23a7 7 0 0 1 7-7Z"
+            />
+
+            <path
+              d="M24 28a8 8 0 1 1 13 6c-3 2-5 4-5 8"
+            />
+
+            <circle
+              cx="32"
+              cy="47"
+              r="1.5"
+              fill="currentColor"
+              stroke="none"
+            />
+          </svg>
+
+        </div>
+
+        <span class="help-sparkle help-sparkle-one">
+          ✦
+        </span>
+
+        <span class="help-sparkle help-sparkle-two">
+          ✧
+        </span>
+      </div>
+
+      <h2>How can we help?</h2>
+
+      <p>
+        Have a question about MoneyFlow?
+        We're here to help you make the
+        most of your money management experience.
+      </p>
+
+    </section>
+
+
+    <!-- ==================================
+         CONTACT SUPPORT
+    =================================== -->
+
+    <section
+      class="help-contact-section"
+      aria-labelledby="helpContactHeading"
+    >
+
+      <div class="help-section-heading">
+
+        <h2 id="helpContactHeading">
+          Contact Support
+        </h2>
+
+        <p>
+          Choose how you'd like to reach us.
+        </p>
+
+      </div>
+
+
+      <!-- CONTACT CARDS -->
+
+      <div class="help-contact-grid">
+
+        <!-- EMAIL US -->
+
+        <a
+          class="help-contact-card help-email-card"
+          href="mailto:moneyflow.finance2026@gmail.com?subject=MoneyFlow%20Support%20Request"
+          aria-label="Email MoneyFlow Support"
+        >
+
+          <span
+            class="help-contact-icon help-email-icon"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect
+                x="2.5"
+                y="5"
+                width="19"
+                height="14"
+                rx="3"
+              />
+
+              <path d="m4 7 8 6 8-6"/>
+            </svg>
+          </span>
+
+          <span class="help-contact-text">
+
+            <strong>Email Us</strong>
+
+            <span class="help-contact-description">
+              Send us your questions or feedback
+            </span>
+
+            <small>
+              moneyflow.finance2026@gmail.com
+            </small>
+
+          </span>
+
+          <span
+            class="help-contact-arrow"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14"/>
+              <path d="m13 6 6 6-6 6"/>
+            </svg>
+          </span>
+
+        </a>
+
+
+        <!-- CALL SUPPORT -->
+
+        <a
+          class="help-contact-card help-phone-card"
+          href="tel:+2348036988249"
+          aria-label="Call MoneyFlow Support on +2348036988249"
+        >
+
+          <span
+            class="help-contact-icon help-phone-icon"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M7 3h3l1.3 5-2.1 2a16 16 0 0 0 4.8 4.8l2-2.1L21 14v3a4 4 0 0 1-4 4C9.3 21 3 14.7 3 7a4 4 0 0 1 4-4Z"
+              />
+            </svg>
+          </span>
+
+          <span class="help-contact-text">
+
+            <strong>Call Support</strong>
+
+            <span class="help-contact-description">
+              Speak with us by phone
+            </span>
+
+            <small>
+              +234 803 698 8249
+            </small>
+
+          </span>
+
+          <span
+            class="help-contact-arrow"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14"/>
+              <path d="m13 6 6 6-6 6"/>
+            </svg>
+          </span>
+
+        </a>
+
+        <!-- WHATSAPP SUPPORT -->
+
+        <a
+          class="help-contact-card help-whatsapp-card"
+          href="https://wa.me/2348036988249?text=Hello%20MoneyFlow%20Support%2C%20I%20need%20help%20with%20the%20app."
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Message MoneyFlow Support on WhatsApp"
+        >
+
+          <span
+            class="help-contact-icon help-email-icon"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M21 11.5a8.5 8.5 0 0 1-12.2 7.6L3 21l1.9-5.8A8.5 8.5 0 1 1 21 11.5Z"
+              />
+              <path
+                d="M8.5 9.5c1.2 3 3.1 4.9 6 6"
+              />
+            </svg>
+          </span>
+
+          <span class="help-contact-text">
+
+            <strong>WhatsApp Support</strong>
+
+            <span class="help-contact-description">
+              Send us a direct message on WhatsApp
+            </span>
+
+            <small>
+              +234 803 698 8249
+            </small>
+
+          </span>
+
+          <span
+            class="help-contact-arrow"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M5 12h14"/>
+              <path d="m13 6 6 6-6 6"/>
+            </svg>
+          </span>
+
+        </a>
+
+      </div>
+
+    </section>
+
+
+    <!-- ==================================
+         FREQUENTLY ASKED QUESTIONS
+         ANSWERS ARE ALWAYS VISIBLE
+    =================================== -->
+
+    <section
+      class="help-faq-section"
+      aria-labelledby="helpFaqHeading"
+    >
+
+      <div class="help-section-heading">
+
+        <h2 id="helpFaqHeading">
+          Frequently Asked Questions
+        </h2>
+
+        <p>
+          Quick answers to common questions.
+        </p>
+
+      </div>
+
+
+      <div class="help-faq-list">
+
+        <!-- FAQ 1 -->
+
+        <article class="help-faq-card">
+
+          <div class="help-faq-title">
+
+            <span
+              class="help-faq-question-icon"
+              aria-hidden="true"
+            >
+              ?
+            </span>
+
+            <h3>
+              How do I add income or spending?
+            </h3>
+
+          </div>
+
+          <p>
+            Open the Income or Spending page
+            from MoneyFlow and tap its Add
+            button. Enter the amount and
+            other details, then save your entry.
+          </p>
+
+        </article>
+
+
+        <!-- FAQ 2 -->
+
+        <article class="help-faq-card">
+
+          <div class="help-faq-title">
+
+            <span
+              class="help-faq-question-icon"
+              aria-hidden="true"
+            >
+              ?
+            </span>
+
+            <h3>
+              How do I track my bills
+              and payments?
+            </h3>
+
+          </div>
+
+          <p>
+            Open Payments to add a bill or
+            payment, including its amount and
+            due date. You can review your
+            payments and mark an entry as
+            paid when you've completed it.
+          </p>
+
+        </article>
+
+
+        <!-- FAQ 3 -->
+
+        <article class="help-faq-card">
+
+          <div class="help-faq-title">
+
+            <span
+              class="help-faq-question-icon"
+              aria-hidden="true"
+            >
+              ?
+            </span>
+
+            <h3>
+              How do I track money I borrowed
+              or lent?
+            </h3>
+
+          </div>
+
+          <p>
+            Go to the Debts page. Choose
+            Borrowed for money you owe, or
+            Lent for money someone owes you.
+            Add the relevant amount and
+            repayment details.
+          </p>
+
+        </article>
+
+
+        <!-- FAQ 4 -->
+
+        <article class="help-faq-card">
+
+          <div class="help-faq-title">
+
+            <span
+              class="help-faq-question-icon"
+              aria-hidden="true"
+            >
+              ?
+            </span>
+
+            <h3>
+              Can I set a monthly budget?
+            </h3>
+
+          </div>
+
+          <p>
+            Yes. Open More, choose Budget,
+            and enter your monthly budget
+            amount. MoneyFlow saves your
+            budget setting so you can
+            monitor it from your dashboard.
+          </p>
+
+        </article>
+
+
+        <!-- FAQ 5 -->
+
+        <article class="help-faq-card">
+
+          <div class="help-faq-title">
+
+            <span
+              class="help-faq-question-icon"
+              aria-hidden="true"
+            >
+              ?
+            </span>
+
+            <h3>
+              Does MoneyFlow automatically
+              pay or repeat my bills?
+            </h3>
+
+          </div>
+
+          <p>
+            No. MoneyFlow currently helps
+            you record and organize payments,
+            but it does not send money or
+            automatically create new payment
+            entries. You remain responsible
+            for making payments yourself.
+          </p>
+
+        </article>
+
+
+        <!-- FAQ 6 -->
+
+        <article class="help-faq-card">
+
+          <div class="help-faq-title">
+
+            <span
+              class="help-faq-question-icon"
+              aria-hidden="true"
+            >
+              ?
+            </span>
+
+            <h3>
+              Will logging out delete
+              my financial records?
+            </h3>
+
+          </div>
+
+          <p>
+            No. Logging out removes your
+            sign-in session without
+            intentionally deleting the
+            financial records saved on your
+            device. However, clearing browser
+            or website data may remove
+            locally stored records.
+          </p>
+
+        </article>
+
+
+        <!-- FAQ 7 -->
+
+        <article class="help-faq-card">
+
+          <div class="help-faq-title">
+
+            <span
+              class="help-faq-question-icon"
+              aria-hidden="true"
+            >
+              ?
+            </span>
+
+            <h3>
+              Why don't my records appear
+              on another device?
+            </h3>
+
+          </div>
+
+          <p>
+            Some MoneyFlow records are
+            currently stored in your
+            browser on the device where
+            you created them. They are
+            not automatically synchronized
+            across all your devices.
+          </p>
+
+        </article>
+
+
+        <!-- FAQ 8 -->
+
+        <article class="help-faq-card">
+
+          <div class="help-faq-title">
+
+            <span
+              class="help-faq-question-icon"
+              aria-hidden="true"
+            >
+              ?
+            </span>
+
+            <h3>
+              Are automatic payment reminders
+              available?
+            </h3>
+
+          </div>
+
+          <p>
+            Not yet. You can save reminder
+            preferences in Settings, but
+            automatic notifications are not
+            available in the current
+            version of MoneyFlow.
+          </p>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- ==================================
+         SUPPORT CLOSING MESSAGE
+    =================================== -->
+
+    <section class="help-footer-card">
+
+      <div class="help-footer-logo">
+
+        <img
+          src="icons/icon-192.png"
+          width="44"
+          height="44"
+          alt="MoneyFlow logo"
+        >
+
+      </div>
+
+      <h2>Still need help?</h2>
+
+      <p>
+        Can't find the answer you're
+        looking for? Reach out using
+        any of the contact options above.
+      </p>
+
+      <a
+        href="mailto:moneyflow.finance2026@gmail.com?subject=MoneyFlow%20Help%20Request"
+        class="help-footer-button"
+      >
+        <span>Contact Support</span>
+
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M5 12h14"/>
+          <path d="m13 6 6 6-6 6"/>
+        </svg>
+      </a>
+
+      <small class="help-security-note">
+        For your security, never send
+        passwords or sign-in codes
+        to support.
+      </small>
+
+    </section>
+
+
+    <!-- ==================================
+         BOTTOM BRANDING
+    =================================== -->
+
+    <footer class="help-page-footer">
+
+      <p>
+        MoneyFlow &copy; 2026
+      </p>
+
+      <span>
+        Your money. Organized.
+      </span>
+
+    </footer>
+
+  </main>
+
+</body>
+</html>

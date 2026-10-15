@@ -176,6 +176,10 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="transaction-amount ${isIncome ? "income" : "expense"}">
           ${sign}${MoneyFlow.formatCurrency(t.amount)}
         </div>
+        <a class="mf-receipt-link" href="receipt.html?type=${isIncome ? "income" : "expense"}&amp;id=${encodeURIComponent(String(t.id))}"
+           aria-label="View transaction receipt" title="Receipt">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 8h6M9 12h5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+        </a>
         <button
           class="icon-button delete-button"
           data-delete-id="${t.id}"

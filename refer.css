@@ -1,0 +1,1017 @@
+
+/* ============================================
+   MONEYFLOW — REFER FRIENDS
+   Dedicated AMOLED + Emerald Page
+
+   Loaded after style.css
+   Works with refer.html and refer.js
+   ============================================ */
+
+/* PAGE DESIGN */
+
+body.refer-body {
+  --refer-bg: #09090f;
+  --refer-surface: #191922;
+  --refer-surface-raised: #22232e;
+  --refer-border: #31313e;
+  --refer-text: #f8f8fa;
+  --refer-muted: #a0a1b0;
+  --refer-emerald: #36d5a3;
+  --refer-emerald-dark: #129875;
+  --refer-purple: #aa95fa;
+
+  min-height: 100vh;
+  min-height: 100dvh;
+  margin: 0;
+
+  background: var(--refer-bg) !important;
+  color: var(--refer-text);
+
+  font-family: var(
+    --font-body,
+    Inter,
+    system-ui,
+    sans-serif
+  );
+
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.refer-body *,
+.refer-body *::before,
+.refer-body *::after {
+  box-sizing: border-box;
+}
+
+.refer-body button,
+.refer-body input {
+  font: inherit;
+}
+
+.refer-body button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================
+   PAGE WIDTH AND SPACING
+   ============================================ */
+
+body.refer-body .refer-page {
+  width: 100%;
+  max-width: 660px;
+  min-width: 0;
+
+  margin: 0 auto;
+
+  padding:
+    0
+    max(20px, env(safe-area-inset-right))
+    calc(45px + env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+
+.refer-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+
+  display: grid;
+
+  grid-template-columns:
+    48px minmax(0, 1fr) 48px;
+
+  align-items: center;
+  min-height: 77px;
+
+  padding:
+    calc(12px + env(safe-area-inset-top))
+    0
+    12px;
+
+  margin: 0;
+
+  background: var(--refer-bg);
+}
+
+.refer-header h1 {
+  margin: 0;
+
+  font-family: var(
+    --font-display,
+    inherit
+  );
+
+  font-size: clamp(22px, 5.8vw, 29px);
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -.045em;
+
+  text-align: center;
+  color: var(--refer-text);
+}
+
+.refer-back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+
+  border-radius: 12px;
+
+  color: var(--refer-text);
+  background: transparent;
+  text-decoration: none;
+}
+
+.refer-back-button svg {
+  width: 26px;
+  height: 26px;
+}
+
+.refer-back-button:active {
+  background: var(--refer-surface-raised);
+}
+
+.refer-header-spacer {
+  width: 44px;
+  height: 44px;
+}
+
+/* ============================================
+   ILLUSTRATED REFERRAL BANNER
+   ============================================ */
+
+.refer-hero {
+  position: relative;
+  isolation: isolate;
+
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  min-height: 240px;
+  padding: 22px 20px;
+
+  border: 1px solid rgba(
+    80, 216, 173, .28
+  );
+
+  border-radius: 23px;
+
+  background:
+    radial-gradient(
+      circle at 96% 10%,
+      rgba(149, 128, 244, .26),
+      transparent 51%
+    ),
+    radial-gradient(
+      circle at 5% 100%,
+      rgba(54, 213, 163, .16),
+      transparent 57%
+    ),
+    linear-gradient(
+      123deg,
+      #211b39 0%,
+      #18192b 48%,
+      #102c28 100%
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(
+      255, 255, 255, .08
+    );
+}
+
+.refer-hero::before {
+  content: "";
+
+  position: absolute;
+  top: -60px;
+  right: 30px;
+
+  width: 170px;
+  height: 170px;
+
+  border: 1px dashed rgba(
+    167, 150, 250, .18
+  );
+
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.refer-hero::after {
+  content: "";
+
+  position: absolute;
+  left: -65px;
+  bottom: -95px;
+
+  width: 205px;
+  height: 140px;
+
+  border-radius: 50%;
+
+  background: rgba(
+    32, 172, 125, .13
+  );
+
+  filter: blur(16px);
+  pointer-events: none;
+}
+
+/* HERO TEXT */
+
+.refer-hero-copy {
+  position: relative;
+  z-index: 2;
+
+  flex: 0 0 51%;
+  min-width: 0;
+  align-self: center;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* OFFICIAL MONEYFLOW LOGO */
+
+.refer-hero-logo {
+  display: grid;
+  place-items: center;
+
+  width: 51px;
+  height: 51px;
+
+  margin-bottom: 21px;
+
+  border-radius: 15px;
+
+  background: rgba(
+    8, 25, 27, .32
+  );
+
+  box-shadow:
+    0 6px 20px rgba(
+      0, 0, 0, .12
+    );
+}
+
+.refer-hero-logo img {
+  display: block;
+
+  width: 44px;
+  height: 44px;
+
+  object-fit: contain;
+  border-radius: 12px;
+}
+
+.refer-hero-copy h2 {
+  margin: 0 0 10px;
+  max-width: 245px;
+
+  color: #fff;
+
+  font-size: clamp(
+    21px, 5vw, 30px
+  );
+
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -.04em;
+}
+
+.refer-hero-copy h2 span {
+  display: block;
+  color: var(--refer-emerald);
+}
+
+.refer-hero-copy p {
+  margin: 0;
+  max-width: 225px;
+
+  color: #d0cfe0;
+
+  font-size: clamp(
+    11px, 2.85vw, 14px
+  );
+
+  line-height: 1.6;
+}
+
+/* HERO ILLUSTRATION */
+
+.refer-hero-art {
+  position: absolute;
+  z-index: 1;
+
+  right: -25px;
+  bottom: -13px;
+
+  width: 67%;
+  max-width: 370px;
+
+  pointer-events: none;
+}
+
+.refer-hero-illustration {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  filter: drop-shadow(
+    0 13px 18px rgba(
+      0, 0, 0, .25
+    )
+  );
+}
+
+/* ============================================
+   FEATURE BENEFITS
+   ============================================ */
+
+.refer-benefits {
+  display: flex;
+  flex-direction: column;
+
+  padding: 5px 20px;
+
+  border: 1px solid var(
+    --refer-border
+  );
+
+  border-radius: 23px;
+
+  background: var(
+    --refer-surface
+  );
+}
+
+.refer-benefit-row {
+  display: flex;
+  align-items: center;
+
+  gap: 16px;
+  min-width: 0;
+
+  padding: 23px 0;
+}
+
+.refer-benefit-row + .refer-benefit-row {
+  border-top: 1px solid var(
+    --refer-border
+  );
+}
+
+.refer-benefit-icon {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 53px;
+
+  width: 53px;
+  height: 53px;
+
+  border-radius: 17px;
+
+  background: rgba(
+    133, 117, 235, .12
+  );
+
+  color: #a796ff;
+}
+
+.refer-benefit-row:nth-child(2)
+.refer-benefit-icon {
+  background: rgba(
+    50, 211, 158, .12
+  );
+
+  color: #45dba9;
+}
+
+.refer-benefit-row:nth-child(3)
+.refer-benefit-icon {
+  background: rgba(
+    133, 117, 235, .12
+  );
+
+  color: #a796ff;
+}
+
+.refer-benefit-icon svg {
+  width: 25px;
+  height: 25px;
+}
+
+.refer-benefit-content {
+  min-width: 0;
+  flex: 1;
+}
+
+.refer-benefit-content h3 {
+  margin: 0 0 4px;
+
+  color: #f8f8fa;
+
+  font-size: clamp(
+    15px, 4vw, 19px
+  );
+
+  font-weight: 750;
+  line-height: 1.35;
+  letter-spacing: -.02em;
+}
+
+.refer-benefit-content p {
+  margin: 0;
+
+  color: var(--refer-muted);
+
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+/* ============================================
+   SHARING SECTIONS
+   ============================================ */
+
+.refer-share-section,
+.refer-link-section {
+  display: flex;
+  flex-direction: column;
+
+  gap: 15px;
+  min-width: 0;
+}
+
+.refer-share-section h2,
+.refer-link-section h2 {
+  margin: 0;
+
+  color: var(--refer-text);
+
+  font-family: var(
+    --font-display,
+    inherit
+  );
+
+  font-size: clamp(
+    19px, 5vw, 23px
+  );
+
+  font-weight: 800;
+  letter-spacing: -.035em;
+}
+
+/* SHARE CARD GRID */
+
+.refer-share-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.refer-share-card {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+  min-width: 0;
+
+  min-height: 105px;
+  width: 100%;
+
+  padding: 14px 12px;
+
+  border: 1px solid var(
+    --refer-border
+  );
+
+  border-radius: 20px;
+
+  background: var(
+    --refer-surface
+  );
+
+  color: var(--refer-text);
+  text-align: left;
+  cursor: pointer;
+
+  transition:
+    border-color .18s ease,
+    background-color .18s ease,
+    transform .18s ease;
+}
+
+.refer-share-card:active {
+  transform: scale(.985);
+
+  background: var(
+    --refer-surface-raised
+  );
+}
+
+/* SHARE ICONS */
+
+.refer-share-icon {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 40px;
+
+  width: 40px;
+  height: 40px;
+
+  border-radius: 50%;
+}
+
+.refer-share-icon svg {
+  width: 23px;
+  height: 23px;
+}
+
+.refer-whatsapp-icon {
+  color: #35dd97;
+
+  background: rgba(
+    30, 178, 103, .17
+  );
+}
+
+.refer-email-icon {
+  color: #6bacff;
+
+  background: rgba(
+    63, 144, 239, .15
+  );
+}
+
+/* SHARE CARD TEXT */
+
+.refer-share-text {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+
+  gap: 4px;
+  min-width: 0;
+}
+
+.refer-share-text strong {
+  color: #f8f8fa;
+
+  font-size: clamp(
+    12px, 3.5vw, 17px
+  );
+
+  font-weight: 750;
+  line-height: 1.3;
+
+  overflow-wrap: anywhere;
+}
+
+.refer-share-text small {
+  color: var(--refer-muted);
+
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.refer-share-chevron {
+  flex: 0 0 auto;
+
+  color: #818495;
+
+  font-size: 25px;
+  line-height: 1;
+}
+
+/* ============================================
+   COPY WEBSITE LINK
+   ============================================ */
+
+.refer-link-card {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+  min-width: 0;
+
+  padding: 13px;
+
+  border: 1px solid var(
+    --refer-border
+  );
+
+  border-radius: 20px;
+
+  background: var(
+    --refer-surface
+  );
+}
+
+/* LINK ICON */
+
+.refer-link-icon {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 39px;
+
+  width: 39px;
+  height: 39px;
+
+  border-radius: 50%;
+
+  color: #ad9afa;
+
+  background: rgba(
+    142, 124, 239, .13
+  );
+}
+
+.refer-link-icon svg {
+  width: 21px;
+  height: 21px;
+}
+
+/* LINK CONTENT */
+
+.refer-link-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.refer-link-label {
+  display: block;
+
+  margin-bottom: 4px;
+
+  font-size: 11px;
+  font-weight: 650;
+
+  color: #a6a8b5;
+}
+
+.refer-link-input {
+  display: block;
+
+  width: 100%;
+  min-width: 0;
+  height: 26px;
+
+  padding: 0;
+
+  border: 0;
+  outline: none;
+
+  background: transparent;
+
+  color: #a998ff;
+
+  font-size: 12px;
+  line-height: 1.4;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.refer-link-input::placeholder {
+  color: #747684;
+}
+
+/* COPY BUTTON */
+
+.refer-copy-button {
+  flex: 0 0 auto;
+
+  min-width: 65px;
+  min-height: 43px;
+
+  padding: 0 13px;
+
+  border: 0;
+  border-radius: 999px;
+
+  color: #09251c;
+
+  background: linear-gradient(
+    135deg,
+    #41dfaf,
+    #1aaf85
+  );
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform .18s ease,
+    filter .18s ease;
+}
+
+.refer-copy-button:active {
+  transform: scale(.97);
+}
+
+.refer-copy-button.copied,
+.refer-copy-button.is-copied {
+  background: #a69bff;
+  color: #171229;
+}
+
+/* LINK FOOTNOTE */
+
+.refer-link-note {
+  margin: 0;
+
+  color: #878999;
+
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* FEEDBACK MESSAGES */
+
+.refer-feedback {
+  margin: 0;
+  min-height: 0;
+
+  color: #49dfaf;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.refer-feedback:empty {
+  display: none;
+}
+
+.refer-feedback.error {
+  color: #ff8994;
+}
+
+/* ============================================
+   DECORATIVE FOOTER
+   ============================================ */
+
+.refer-bottom-art {
+  height: 65px;
+  max-height: 65px;
+
+  margin-top: 0;
+
+  overflow: hidden;
+  opacity: .9;
+}
+
+.refer-bottom-art svg {
+  display: block;
+
+  width: 100%;
+  height: 65px;
+}
+
+/* ============================================
+   ACCESSIBILITY
+   ============================================ */
+
+.refer-back-button:focus-visible,
+.refer-share-card:focus-visible,
+.refer-copy-button:focus-visible,
+.refer-link-input:focus-visible {
+  outline: 2px solid var(
+    --refer-emerald
+  );
+
+  outline-offset: 3px;
+}
+
+/* HOVER EFFECTS */
+
+@media (hover: hover) {
+
+  .refer-back-button:hover {
+    background: #1f202b;
+  }
+
+  .refer-share-card:hover {
+    border-color: #4e5b60;
+    background: #20212c;
+  }
+
+  .refer-copy-button:hover {
+    filter: brightness(1.09);
+  }
+
+}
+
+/* ============================================
+   MOBILE RESPONSIVENESS
+   ============================================ */
+
+@media (max-width: 420px) {
+
+  body.refer-body .refer-page {
+    gap: 23px;
+  }
+
+  .refer-header {
+    min-height: 70px;
+  }
+
+  .refer-hero {
+    min-height: 225px;
+    padding: 18px 15px;
+  }
+
+  .refer-hero-copy {
+    flex-basis: 53%;
+  }
+
+  .refer-hero-logo {
+    width: 47px;
+    height: 47px;
+
+    margin-bottom: 14px;
+  }
+
+  .refer-hero-logo img {
+    width: 41px;
+    height: 41px;
+  }
+
+  .refer-hero-art {
+    right: -32px;
+    width: 69%;
+  }
+
+  .refer-benefits {
+    padding: 2px 17px;
+  }
+
+  .refer-benefit-row {
+    gap: 13px;
+    padding: 20px 0;
+  }
+
+  .refer-benefit-icon {
+    width: 47px;
+    height: 47px;
+
+    flex-basis: 47px;
+
+    border-radius: 15px;
+  }
+
+  .refer-benefit-content p {
+    font-size: 12.5px;
+  }
+
+  .refer-share-card {
+    min-height: 100px;
+
+    padding: 12px 9px;
+    gap: 8px;
+  }
+
+  .refer-share-icon {
+    width: 35px;
+    height: 35px;
+
+    flex-basis: 35px;
+  }
+
+  .refer-share-chevron {
+    font-size: 21px;
+  }
+
+}
+
+/* ============================================
+   EXTRA SMALL DEVICES
+   ============================================ */
+
+@media (max-width: 340px) {
+
+  body.refer-body .refer-page {
+    padding-left: max(
+      14px,
+      env(safe-area-inset-left)
+    );
+
+    padding-right: max(
+      14px,
+      env(safe-area-inset-right)
+    );
+  }
+
+  .refer-hero {
+    min-height: 220px;
+  }
+
+  .refer-hero-copy h2 {
+    font-size: 19px;
+  }
+
+  .refer-hero-art {
+    right: -46px;
+    width: 72%;
+  }
+
+  .refer-share-grid {
+    gap: 9px;
+  }
+
+  .refer-share-card {
+    flex-wrap: wrap;
+    gap: 7px;
+  }
+
+  .refer-share-text {
+    flex: 1 1 calc(100% - 52px);
+  }
+
+  .refer-share-chevron {
+    display: none;
+  }
+
+  .refer-link-card {
+    gap: 7px;
+    padding: 10px;
+  }
+
+  .refer-copy-button {
+    min-width: 58px;
+    padding: 0 10px;
+  }
+
+}
+
+/* ============================================
+   TABLET AND DESKTOP
+   ============================================ */
+
+@media (min-width: 640px) {
+
+  body.refer-body .refer-page {
+    gap: 30px;
+
+    padding-left: 26px;
+    padding-right: 26px;
+  }
+
+  .refer-hero {
+    min-height: 290px;
+    padding: 30px;
+  }
+
+  .refer-hero-art {
+    width: 63%;
+    right: -10px;
+  }
+
+  .refer-benefits {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+
+  .refer-benefit-row {
+    padding: 25px 0;
+  }
+
+}
+
+/* ============================================
+   REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .refer-share-card,
+  .refer-copy-button {
+    transition: none;
+  }
+
+}

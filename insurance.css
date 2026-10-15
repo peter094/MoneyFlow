@@ -1,0 +1,1549 @@
+
+/* ============================================
+   MONEYFLOW — INSURANCE PAGE
+   AMOLED BLACK + EMERALD GREEN
+   ============================================ */
+
+/* ============================================
+   1. DESIGN FOUNDATION
+   ============================================ */
+
+body.insurance-body {
+  --insurance-bg: #09090f;
+  --insurance-card: #191a24;
+  --insurance-raised: #242632;
+  --insurance-border: #30323e;
+  --insurance-white: #f8f9fc;
+  --insurance-muted: #a1a4b3;
+  --insurance-dim: #777b8e;
+
+  --insurance-green: #34d6a4;
+  --insurance-green-light: #76f1c6;
+  --insurance-green-dark: #139e78;
+
+  --insurance-yellow: #ffc66b;
+  --insurance-red: #ff818d;
+
+  margin: 0;
+  padding: 0;
+
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  background: var(--insurance-bg) !important;
+  color: var(--insurance-white);
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.insurance-body *,
+.insurance-body *::before,
+.insurance-body *::after {
+  box-sizing: border-box;
+}
+
+.insurance-body button,
+.insurance-body input,
+.insurance-body select,
+.insurance-body textarea {
+  font: inherit;
+}
+
+.insurance-body [hidden] {
+  display: none !important;
+}
+
+.insurance-body button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================
+   2. MAIN PAGE
+   ============================================ */
+
+body.insurance-body .insurance-page {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  max-width: 660px;
+  min-width: 0;
+
+  margin: 0 auto;
+
+  padding:
+    0
+    max(20px, env(safe-area-inset-right))
+    calc(50px + env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+
+  gap: 25px;
+}
+
+/* ============================================
+   3. HEADER
+   ============================================ */
+
+.insurance-header {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  padding-top:
+    calc(12px + env(safe-area-inset-top));
+}
+
+.insurance-header-top {
+  display: grid;
+
+  grid-template-columns:
+    48px minmax(0, 1fr) 48px;
+
+  align-items: center;
+
+  min-height: 58px;
+}
+
+.insurance-header-top h1 {
+  margin: 0;
+
+  color: var(--insurance-white);
+
+  font-size: clamp(23px, 6vw, 30px);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.04em;
+
+  text-align: center;
+}
+
+.insurance-back {
+  display: grid;
+  place-items: center;
+
+  width: 44px;
+  height: 44px;
+
+  color: var(--insurance-white);
+  text-decoration: none;
+
+  border-radius: 13px;
+}
+
+.insurance-back svg {
+  width: 27px;
+  height: 27px;
+}
+
+.insurance-back:active {
+  background: var(--insurance-raised);
+}
+
+/* HEADER ADD BUTTON */
+
+.insurance-add-top {
+  display: grid;
+  place-items: center;
+
+  width: 48px;
+  height: 48px;
+
+  padding: 0;
+
+  border: 0;
+  border-radius: 50%;
+
+  background: linear-gradient(
+    135deg,
+    #65edc0,
+    #25bb8c
+  );
+
+  color: #06291f;
+
+  box-shadow:
+    0 5px 20px rgba(52, 214, 164, 0.18);
+
+  cursor: pointer;
+}
+
+.insurance-add-top svg {
+  width: 25px;
+  height: 25px;
+}
+
+.insurance-add-top:active {
+  transform: scale(0.96);
+}
+
+.insurance-header-subtitle {
+  margin: 3px 0 0;
+
+  color: var(--insurance-muted);
+
+  font-size: 13px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* ============================================
+   4. STATUS FILTER TABS
+   ============================================ */
+
+.insurance-filters-section {
+  width: 100%;
+  min-width: 0;
+}
+
+.insurance-filter-list {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+
+  padding: 3px 1px 8px;
+
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.insurance-filter-list::-webkit-scrollbar {
+  display: none;
+}
+
+.insurance-filter {
+  display: inline-flex;
+  flex: 0 0 auto;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 8px;
+
+  min-height: 42px;
+
+  padding: 10px 17px;
+
+  border: 1px solid #333541;
+  border-radius: 999px;
+
+  background: #1b1c27;
+  color: #aeb2c1;
+
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+
+  white-space: nowrap;
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.insurance-filter.active,
+.insurance-filter[aria-pressed="true"] {
+  border-color: var(--insurance-green);
+
+  background: linear-gradient(
+    135deg,
+    #46dcb0,
+    #26b88b
+  );
+
+  color: #052d20;
+
+  box-shadow:
+    0 3px 14px rgba(52, 214, 164, 0.14);
+}
+
+.insurance-filter:not(.active):active {
+  background: #2b2d39;
+}
+
+/* STATUS DOTS */
+
+.insurance-filter-dot {
+  display: inline-block;
+  flex: 0 0 8px;
+
+  width: 8px;
+  height: 8px;
+
+  border-radius: 50%;
+}
+
+.insurance-filter-dot.active-dot {
+  background: #39dba6;
+}
+
+.insurance-filter-dot.expiring-dot {
+  background: #ffca72;
+}
+
+.insurance-filter-dot.expired-dot {
+  background: #ff7e8b;
+}
+
+.insurance-filter.active .insurance-filter-dot {
+  background: #063d2a;
+}
+
+/* ============================================
+   5. OVERVIEW CARD
+   ============================================ */
+
+.insurance-overview {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+
+  padding: 25px 23px 22px;
+
+  border: 1px solid rgba(
+    112, 241, 199, 0.3
+  );
+
+  border-radius: 25px;
+
+  background:
+    radial-gradient(
+      circle at 95% 5%,
+      rgba(182, 255, 215, 0.22),
+      transparent 44%
+    ),
+    linear-gradient(
+      128deg,
+      #258f76 0%,
+      #176a60 50%,
+      #103c3b 100%
+    );
+
+  box-shadow:
+    inset 0 1px 0 rgba(
+      255, 255, 255, 0.12
+    ),
+    0 13px 31px rgba(
+      0, 0, 0, 0.14
+    );
+}
+
+.insurance-overview-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  min-height: 140px;
+}
+
+.insurance-overview-copy {
+  position: relative;
+  z-index: 2;
+
+  flex: 1;
+  min-width: 0;
+}
+
+.insurance-overview-copy h2 {
+  margin: 0 0 9px;
+
+  color: #e5fff3;
+
+  font-size: 16px;
+  font-weight: 750;
+}
+
+.insurance-total-count {
+  color: #ffffff;
+
+  font-size: clamp(42px, 11vw, 62px);
+  font-weight: 850;
+  line-height: 1.05;
+  letter-spacing: -0.06em;
+
+  font-variant-numeric: tabular-nums;
+}
+
+.insurance-overview-copy p {
+  margin: 11px 0 0;
+
+  color: rgba(233, 255, 246, 0.84);
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* SHIELD ILLUSTRATION */
+
+.insurance-overview-art {
+  flex: 0 0 40%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  max-width: 174px;
+
+  opacity: 0.96;
+  pointer-events: none;
+}
+
+.insurance-overview-art svg {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  filter: drop-shadow(
+    0 8px 15px rgba(0, 0, 0, 0.16)
+  );
+}
+
+/* DIVIDER */
+
+.insurance-overview-divider {
+  width: 100%;
+  height: 1px;
+
+  margin: 21px 0 19px;
+
+  background: rgba(
+    224, 255, 244, 0.2
+  );
+}
+
+/* ============================================
+   6. POLICY STATUS SUMMARY
+   ============================================ */
+
+.insurance-status-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    3,
+    minmax(0, 1fr)
+  );
+
+  align-items: start;
+
+  gap: 9px;
+}
+
+.insurance-status-item {
+  display: flex;
+  flex-direction: column;
+
+  align-items: flex-start;
+  gap: 7px;
+
+  min-width: 0;
+}
+
+.insurance-status-top {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+}
+
+.insurance-status-top svg {
+  flex: 0 0 21px;
+
+  width: 21px;
+  height: 21px;
+}
+
+.insurance-status-top strong {
+  color: #ffffff;
+
+  font-size: 25px;
+  font-weight: 800;
+  line-height: 1.1;
+
+  font-variant-numeric: tabular-nums;
+}
+
+.insurance-status-item > span {
+  color: rgba(
+    231, 255, 244, 0.8
+  );
+
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* ============================================
+   7. STORAGE WARNING
+   ============================================ */
+
+.insurance-data-warning {
+  margin: 0;
+
+  padding: 15px 17px;
+
+  border: 1px solid #b98954;
+  border-radius: 15px;
+
+  background: #282015;
+  color: #ffce98;
+
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+/* ============================================
+   8. EMPTY STATE
+   ============================================ */
+
+.insurance-empty-state {
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 315px;
+
+  padding: 12px 12px 23px;
+
+  text-align: center;
+}
+
+.insurance-empty-art {
+  display: grid;
+  place-items: center;
+
+  width: 210px;
+  max-width: 85%;
+
+  margin-bottom: 9px;
+
+  filter: drop-shadow(
+    0 12px 24px rgba(31, 186, 137, 0.1)
+  );
+}
+
+.insurance-empty-art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.insurance-empty-state h2 {
+  margin: 0 0 10px;
+
+  color: var(--insurance-white);
+
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.035em;
+}
+
+.insurance-empty-state > p {
+  max-width: 325px;
+
+  margin: 0 0 23px;
+
+  color: var(--insurance-muted);
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* ADD FIRST POLICY BUTTON */
+
+.insurance-primary-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 11px;
+
+  width: 100%;
+  max-width: 280px;
+  min-height: 50px;
+
+  padding: 12px 20px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: linear-gradient(
+    135deg,
+    #5be9ba,
+    #24b98a
+  );
+
+  color: #062c20;
+
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.3;
+
+  box-shadow:
+    0 7px 23px rgba(28, 182, 131, 0.13);
+
+  cursor: pointer;
+}
+
+.insurance-primary-button > span {
+  font-size: 25px;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.insurance-primary-button:active {
+  transform: scale(0.98);
+}
+
+/* ============================================
+   9. SAVED POLICIES SECTION
+   ============================================ */
+
+.insurance-policies-section {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.insurance-list-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.insurance-list-heading h2 {
+  margin: 0;
+
+  color: var(--insurance-white);
+
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.insurance-visible-count {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 7px 12px;
+
+  border-radius: 999px;
+
+  background: rgba(
+    52, 214, 164, 0.11
+  );
+
+  color: var(--insurance-green-light);
+
+  font-size: 11px;
+  font-weight: 750;
+
+  white-space: nowrap;
+}
+
+.insurance-policy-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 13px;
+
+  width: 100%;
+}
+
+/* ============================================
+   10. POLICY CARDS
+   For future insurance.js
+   ============================================ */
+
+.insurance-policy-card {
+  display: flex;
+  flex-direction: column;
+
+  gap: 17px;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 19px;
+
+  border: 1px solid var(--insurance-border);
+  border-radius: 21px;
+
+  background: linear-gradient(
+    145deg,
+    #1b1d27,
+    #171820
+  );
+
+  box-shadow:
+    0 7px 20px rgba(0, 0, 0, 0.09);
+}
+
+.insurance-policy-header {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+}
+
+.insurance-policy-icon {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 48px;
+
+  width: 48px;
+  height: 48px;
+
+  border-radius: 15px;
+
+  background: rgba(
+    52, 214, 164, 0.12
+  );
+
+  color: var(--insurance-green);
+}
+
+.insurance-policy-icon svg {
+  width: 25px;
+  height: 25px;
+}
+
+.insurance-policy-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  gap: 5px;
+  min-width: 0;
+}
+
+.insurance-policy-name {
+  margin: 0;
+
+  color: var(--insurance-white);
+
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.45;
+
+  overflow-wrap: anywhere;
+}
+
+.insurance-policy-provider {
+  color: var(--insurance-muted);
+
+  font-size: 12px;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+}
+
+/* STATUS BADGES */
+
+.insurance-policy-status {
+  display: inline-flex;
+  flex: 0 0 auto;
+
+  align-items: center;
+  justify-content: center;
+
+  padding: 7px 10px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1.25;
+
+  white-space: nowrap;
+}
+
+.insurance-policy-status.active {
+  color: #67edb8;
+  background: rgba(52, 214, 164, 0.12);
+}
+
+.insurance-policy-status.expiring {
+  color: #ffca72;
+  background: rgba(255, 198, 107, 0.11);
+}
+
+.insurance-policy-status.expired {
+  color: #ff919b;
+  background: rgba(255, 129, 141, 0.11);
+}
+
+/* POLICY DETAILS */
+
+.insurance-policy-details {
+  display: grid;
+
+  grid-template-columns: repeat(
+    2,
+    minmax(0, 1fr)
+  );
+
+  gap: 15px;
+
+  padding-top: 16px;
+
+  border-top: 1px solid #30323e;
+}
+
+.insurance-policy-detail {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+  min-width: 0;
+}
+
+.insurance-policy-detail-label {
+  color: var(--insurance-dim);
+
+  font-size: 11px;
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.insurance-policy-detail-value {
+  color: var(--insurance-white);
+
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ACTIONS */
+
+.insurance-policy-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  padding-top: 14px;
+
+  border-top: 1px solid #30323e;
+}
+
+.insurance-edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 9px;
+
+  min-height: 42px;
+
+  padding: 10px 17px;
+
+  border: 1px solid rgba(
+    52, 214, 164, 0.35
+  );
+
+  border-radius: 12px;
+
+  background: rgba(
+    52, 214, 164, 0.1
+  );
+
+  color: var(--insurance-green-light);
+
+  font-size: 12px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.insurance-edit-btn:active {
+  background: rgba(
+    52, 214, 164, 0.18
+  );
+}
+
+/* ============================================
+   11. INFORMATION CARD
+   ============================================ */
+
+.insurance-help-card {
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  width: 100%;
+  min-width: 0;
+
+  padding: 18px 16px;
+
+  border: 1px solid #30323d;
+  border-radius: 19px;
+
+  background: #191b25;
+}
+
+.insurance-help-icon {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 46px;
+
+  width: 46px;
+  height: 46px;
+
+  border-radius: 14px;
+
+  background: rgba(
+    52, 214, 164, 0.12
+  );
+
+  color: var(--insurance-green);
+}
+
+.insurance-help-icon svg {
+  width: 25px;
+  height: 25px;
+}
+
+.insurance-help-copy {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+
+  gap: 6px;
+  min-width: 0;
+}
+
+.insurance-help-copy h2 {
+  margin: 0;
+
+  color: var(--insurance-white);
+
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.insurance-help-copy p {
+  margin: 0;
+
+  color: var(--insurance-muted);
+
+  font-size: 11.5px;
+  line-height: 1.65;
+}
+
+.insurance-help-chevron {
+  color: #6d7181;
+
+  font-size: 29px;
+  line-height: 1;
+}
+
+/* ============================================
+   12. DISCLAIMER
+   ============================================ */
+
+.insurance-page-note {
+  max-width: 560px;
+
+  margin: 0 auto;
+
+  color: #777b8c;
+
+  font-size: 11px;
+  line-height: 1.7;
+  text-align: center;
+}
+
+/* ============================================
+   13. FORM OVERLAY
+   ============================================ */
+
+.insurance-form-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+
+  background: rgba(
+    0, 0, 0, 0.76
+  );
+
+  backdrop-filter: blur(5px);
+}
+
+/* ============================================
+   14. FORM BOTTOM SHEET
+   ============================================ */
+
+.insurance-form-sheet {
+  width: 100%;
+  max-width: 660px;
+
+  max-height: 92vh;
+  max-height: 92dvh;
+
+  overflow-y: auto;
+  overscroll-behavior: contain;
+
+  padding:
+    12px 20px
+    calc(28px + env(safe-area-inset-bottom));
+
+  border: 1px solid #363945;
+  border-bottom: 0;
+
+  border-radius: 27px 27px 0 0;
+
+  background: #191b25;
+
+  box-shadow:
+    0 -16px 55px rgba(
+      0, 0, 0, 0.48
+    );
+}
+
+.insurance-sheet-handle {
+  width: 44px;
+  height: 5px;
+
+  margin: 0 auto 19px;
+
+  border-radius: 999px;
+
+  background: #575b6a;
+}
+
+/* FORM HEADER */
+
+.insurance-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+}
+
+.insurance-form-header h2 {
+  margin: 0;
+
+  color: var(--insurance-white);
+
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.35;
+  letter-spacing: -0.035em;
+}
+
+.insurance-close-form {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 40px;
+
+  width: 40px;
+  height: 40px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 50%;
+
+  background: #30323e;
+  color: #f6f7fb;
+
+  font-size: 29px;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.insurance-form-description {
+  margin: 7px 0 24px;
+
+  color: var(--insurance-muted);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* ============================================
+   15. POLICY FORM
+   ============================================ */
+
+.insurance-policy-form {
+  display: flex;
+  flex-direction: column;
+
+  gap: 19px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.insurance-form-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 9px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+.insurance-form-field label {
+  display: block;
+
+  color: #ebedf4;
+
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.5;
+}
+
+.insurance-form-field label > span {
+  color: var(--insurance-green);
+}
+
+.insurance-form-field label > small {
+  color: #868b9b;
+
+  font-size: 11px;
+  font-weight: 450;
+}
+
+/* INPUTS */
+
+.insurance-form-field input,
+.insurance-form-field select,
+.insurance-form-field textarea {
+  display: block;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 51px;
+
+  padding: 13px 15px;
+
+  border: 1px solid #363947;
+  border-radius: 14px;
+
+  outline: none;
+
+  background: #242631;
+  color: #f8f9fc;
+
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.4;
+
+  color-scheme: dark;
+
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.insurance-form-field input::placeholder,
+.insurance-form-field textarea::placeholder {
+  color: #818698;
+  opacity: 1;
+}
+
+.insurance-form-field input:focus,
+.insurance-form-field select:focus,
+.insurance-form-field textarea:focus {
+  border-color: var(--insurance-green);
+
+  background: #292c38;
+
+  box-shadow:
+    0 0 0 3px rgba(
+      52, 214, 164, 0.12
+    );
+}
+
+/* DATE INPUTS */
+
+.insurance-form-field input[type="date"] {
+  min-height: 52px;
+
+  color: var(--insurance-white);
+}
+
+.insurance-form-field
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0.9;
+  cursor: pointer;
+}
+
+/* NUMBER INPUTS */
+
+.insurance-form-field input[type="number"] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* SELECT */
+
+.insurance-form-field select {
+  appearance: auto;
+  cursor: pointer;
+}
+
+.insurance-form-field select option {
+  background: #242631;
+  color: #ffffff;
+}
+
+/* NOTES */
+
+.insurance-form-field textarea {
+  min-height: 100px;
+
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* ============================================
+   16. FORM INFORMATION + FEEDBACK
+   ============================================ */
+
+.insurance-form-note {
+  margin: 0;
+
+  padding: 13px 15px;
+
+  border: 1px solid rgba(
+    52, 214, 164, 0.22
+  );
+
+  border-radius: 14px;
+
+  background: rgba(
+    52, 214, 164, 0.07
+  );
+
+  color: #a4e4ce;
+
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.insurance-form-feedback {
+  margin: 0;
+
+  color: #ff9eaa;
+
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.6;
+}
+
+.insurance-form-feedback:empty {
+  display: none;
+}
+
+/* ============================================
+   17. FORM ACTION BUTTONS
+   ============================================ */
+
+.insurance-save-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 53px;
+
+  margin-top: 2px;
+
+  padding: 13px 18px;
+
+  border: none;
+  border-radius: 15px;
+
+  background: linear-gradient(
+    135deg,
+    #66ecc0,
+    #28bd90
+  );
+
+  color: #06271d;
+
+  font-size: 14px;
+  font-weight: 850;
+
+  cursor: pointer;
+}
+
+.insurance-save-button:active {
+  transform: scale(0.99);
+}
+
+.insurance-save-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* CANCEL */
+
+.insurance-cancel-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 50px;
+
+  padding: 12px 17px;
+
+  border: 1px solid #3b3e4b;
+  border-radius: 15px;
+
+  background: #2a2c38;
+  color: #e7e9f0;
+
+  font-size: 14px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+/* DELETE */
+
+.insurance-delete-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 47px;
+
+  padding: 12px 17px;
+
+  border: 1px solid rgba(
+    255, 129, 141, 0.38
+  );
+
+  border-radius: 15px;
+
+  background: rgba(
+    255, 129, 141, 0.09
+  );
+
+  color: #ff9aa5;
+
+  font-size: 13px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+/* ============================================
+   18. FOCUS ACCESSIBILITY
+   ============================================ */
+
+.insurance-body button:focus-visible,
+.insurance-body a:focus-visible {
+  outline: 2px solid var(--insurance-green);
+  outline-offset: 3px;
+}
+
+/* ============================================
+   19. MOBILE SCREENS
+   ============================================ */
+
+@media (max-width: 420px) {
+
+  body.insurance-body .insurance-page {
+    gap: 23px;
+  }
+
+  .insurance-header-top {
+    min-height: 54px;
+  }
+
+  .insurance-overview {
+    padding: 23px 19px 20px;
+  }
+
+  .insurance-overview-art {
+    flex-basis: 37%;
+  }
+
+  .insurance-status-grid {
+    gap: 7px;
+  }
+
+  .insurance-status-top {
+    gap: 6px;
+  }
+
+  .insurance-status-top strong {
+    font-size: 23px;
+  }
+
+  .insurance-status-item > span {
+    font-size: 10.5px;
+  }
+
+  .insurance-empty-art {
+    width: 190px;
+  }
+
+  .insurance-policy-card {
+    padding: 16px;
+  }
+
+  .insurance-form-sheet {
+    padding-left: 17px;
+    padding-right: 17px;
+  }
+
+}
+
+/* ============================================
+   20. VERY SMALL PHONES
+   ============================================ */
+
+@media (max-width: 350px) {
+
+  body.insurance-body .insurance-page {
+    padding-left: max(
+      13px,
+      env(safe-area-inset-left)
+    );
+
+    padding-right: max(
+      13px,
+      env(safe-area-inset-right)
+    );
+  }
+
+  .insurance-overview {
+    padding: 20px 15px;
+  }
+
+  .insurance-overview-art {
+    flex-basis: 35%;
+  }
+
+  .insurance-total-count {
+    font-size: 42px;
+  }
+
+  .insurance-status-top svg {
+    width: 18px;
+    height: 18px;
+
+    flex-basis: 18px;
+  }
+
+  .insurance-status-top strong {
+    font-size: 21px;
+  }
+
+  .insurance-policy-header {
+    flex-wrap: wrap;
+  }
+
+  .insurance-policy-status {
+    margin-left: 60px;
+  }
+
+}
+
+/* ============================================
+   21. TABLET AND DESKTOP
+   ============================================ */
+
+@media (min-width: 640px) {
+
+  body.insurance-body .insurance-page {
+    padding-left: 27px;
+    padding-right: 27px;
+
+    gap: 29px;
+  }
+
+  .insurance-overview {
+    padding: 30px 28px;
+  }
+
+  .insurance-overview-main {
+    min-height: 155px;
+  }
+
+  .insurance-empty-art {
+    width: 235px;
+  }
+
+  .insurance-form-sheet {
+    padding-left: 28px;
+    padding-right: 28px;
+  }
+
+}
+
+/* ============================================
+   22. REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .insurance-add-top,
+  .insurance-filter,
+  .insurance-primary-button,
+  .insurance-form-field input,
+  .insurance-form-field select,
+  .insurance-form-field textarea {
+    transition: none;
+  }
+
+}
+
+/* ============================================
+   END — MONEYFLOW INSURANCE CSS
+   ============================================ */

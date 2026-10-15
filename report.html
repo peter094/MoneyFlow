@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>(function(){try{if(!localStorage.getItem('moneyflow_auth_token'))location.replace('login.html')}catch(_){location.replace('login.html')}})();</script>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090f17"><meta name="robots" content="noindex,nofollow">
+  <title>MoneyFlow | Financial Report</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="report.css">
+  <script src="moneyflow-export-utils.js" defer></script>
+  <script src="report.js" defer></script>
+</head>
+<body>
+  <main class="report-screen">
+    <header class="toolbar"><a href="export.html" aria-label="Back to Export Data">←</a><strong>Financial Report</strong><button type="button" id="printReportBtn">Print / Save PDF</button></header>
+    <article class="report-paper" id="reportPaper">
+      <header class="report-brand"><div class="mark">↗</div><div><strong>MoneyFlow</strong><span>PERSONAL FINANCIAL REPORT</span></div></header>
+      <h1>Financial overview</h1><p class="report-sub">Generated <span id="reportDate"></span> · Currency: <span id="reportCurrency"></span></p>
+      <div class="summary" id="reportSummary"></div>
+      <h2>Income &amp; Spending Records</h2>
+      <table><thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Category</th><th class="num">Amount</th></tr></thead><tbody id="transactionsRows"></tbody></table>
+      <h2>Tracked Payments</h2>
+      <table><thead><tr><th>Due date</th><th>Payment</th><th>Status</th><th class="num">Amount</th></tr></thead><tbody id="paymentsRows"></tbody></table>
+      <h2>Debt Tracker</h2>
+      <table><thead><tr><th>Person</th><th>Direction</th><th>Due date</th><th class="num">Original</th><th class="num">Remaining</th></tr></thead><tbody id="debtRows"></tbody></table>
+      <h2>Insurance Policies</h2>
+      <table><thead><tr><th>Policy</th><th>Provider</th><th>Type</th><th>Expiry</th><th class="num">Premium</th></tr></thead><tbody id="insuranceRows"></tbody></table>
+      <h2>Recurring Income Schedules</h2>
+      <table><thead><tr><th>Name</th><th>Category</th><th>Start</th><th>Repeat</th><th class="num">Amount</th></tr></thead><tbody id="recurringRows"></tbody></table>
+      <footer class="report-footer">Prepared from records saved on this device in MoneyFlow. Not a bank statement, payment confirmation, or independently verified financial record.</footer>
+    </article>
+    <p id="reportError" class="error" hidden role="alert"></p>
+    <p class="hint">Select <strong>Save as PDF</strong> from your device's print menu. Report data stays on this device.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,1025 @@
+
+/* =============================================
+   MONEYFLOW — HELP & SUPPORT
+   Full Page | AMOLED + Emerald Theme
+   ============================================= */
+
+/* =============================================
+   1. PAGE FOUNDATION
+   ============================================= */
+
+body.help-body {
+  --help-bg: #09090f;
+  --help-card: #191a24;
+  --help-card-alt: #20212d;
+  --help-border: #2e303d;
+
+  --help-white: #f8f9fc;
+  --help-muted: #a0a3b4;
+  --help-dim: #777d90;
+
+  --help-green: #38d6a5;
+  --help-green-dark: #17a77d;
+  --help-purple: #a997ff;
+  --help-blue: #79aeff;
+
+  background: var(--help-bg) !important;
+  color: var(--help-white);
+
+  min-height: 100vh;
+  min-height: 100dvh;
+
+  margin: 0;
+  padding: 0;
+
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.help-body *,
+.help-body *::before,
+.help-body *::after {
+  box-sizing: border-box;
+}
+
+.help-body a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.help-body a:focus-visible {
+  outline: 2px solid var(--help-green);
+  outline-offset: 4px;
+}
+
+/* =============================================
+   2. MAIN PAGE CONTAINER
+   ============================================= */
+
+.help-body .help-page {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  max-width: 660px;
+  min-width: 0;
+
+  margin: 0 auto;
+
+  padding:
+    0
+    max(20px, env(safe-area-inset-right))
+    calc(35px + env(safe-area-inset-bottom))
+    max(20px, env(safe-area-inset-left));
+
+  gap: 30px;
+}
+
+/* =============================================
+   3. PAGE HEADER
+   ============================================= */
+
+.help-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+
+  display: grid;
+
+  grid-template-columns:
+    44px minmax(0, 1fr) 44px;
+
+  align-items: center;
+
+  min-height: 76px;
+
+  padding:
+    calc(12px + env(safe-area-inset-top))
+    0
+    12px;
+
+  background: var(--help-bg);
+}
+
+.help-header h1 {
+  margin: 0;
+
+  color: var(--help-white);
+
+  font-size: clamp(20px, 5.5vw, 26px);
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.035em;
+
+  text-align: center;
+}
+
+.help-back-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+
+  color: var(--help-white);
+  background: transparent;
+
+  text-decoration: none;
+
+  border-radius: 12px;
+
+  transition: background-color 0.2s ease;
+}
+
+.help-back-button svg {
+  width: 26px;
+  height: 26px;
+}
+
+.help-back-button:active {
+  background: var(--help-card-alt);
+}
+
+.help-header-spacer {
+  display: block;
+  width: 44px;
+  height: 44px;
+}
+
+/* =============================================
+   4. INTRODUCTION SECTION
+   ============================================= */
+
+.help-introduction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 100%;
+
+  padding: 7px 10px 5px;
+
+  text-align: center;
+}
+
+/* SUPPORT ILLUSTRATION */
+
+.help-illustration {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 164px;
+  height: 150px;
+
+  margin-bottom: 15px;
+}
+
+.help-illustration::before {
+  content: "";
+
+  position: absolute;
+
+  width: 145px;
+  height: 145px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(55, 214, 165, 0.18) 0%,
+      rgba(55, 214, 165, 0.05) 52%,
+      transparent 74%
+    );
+
+  filter: blur(3px);
+}
+
+.help-illustration-ring {
+  position: relative;
+  z-index: 2;
+
+  display: grid;
+  place-items: center;
+
+  width: 110px;
+  height: 110px;
+
+  border: 1px solid rgba(
+    70, 222, 176, 0.3
+  );
+
+  border-radius: 35px;
+
+  color: #65e7bb;
+
+  background:
+    linear-gradient(
+      135deg,
+      #203d39,
+      #182b32 55%,
+      #292642
+    );
+
+  box-shadow:
+    0 14px 36px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(
+      255, 255, 255, 0.08
+    );
+
+  transform: rotate(-5deg);
+}
+
+.help-illustration-ring svg {
+  width: 61px;
+  height: 61px;
+
+  transform: rotate(5deg);
+}
+
+/* DECORATIVE SPARKLES */
+
+.help-sparkle {
+  position: absolute;
+
+  z-index: 3;
+
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.help-sparkle-one {
+  top: 11px;
+  right: 10px;
+
+  color: var(--help-purple);
+
+  font-size: 29px;
+}
+
+.help-sparkle-two {
+  bottom: 16px;
+  left: 7px;
+
+  color: var(--help-green);
+
+  font-size: 34px;
+}
+
+/* INTRO TEXT */
+
+.help-introduction h2 {
+  margin: 0 0 11px;
+
+  font-size: clamp(25px, 6.8vw, 32px);
+  font-weight: 850;
+  line-height: 1.18;
+  letter-spacing: -0.045em;
+
+  color: var(--help-white);
+}
+
+.help-introduction p {
+  max-width: 390px;
+
+  margin: 0 auto;
+
+  color: var(--help-muted);
+
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* =============================================
+   5. SECTION HEADINGS
+   ============================================= */
+
+.help-contact-section,
+.help-faq-section {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+  min-width: 0;
+
+  gap: 18px;
+}
+
+.help-section-heading {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.help-section-heading h2 {
+  margin: 0;
+
+  color: var(--help-white);
+
+  font-size: clamp(20px, 5.2vw, 24px);
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.035em;
+}
+
+.help-section-heading p {
+  margin: 0;
+
+  color: var(--help-muted);
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* =============================================
+   6. CONTACT SUPPORT CARDS
+   ============================================= */
+
+.help-contact-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+
+  gap: 13px;
+
+  width: 100%;
+}
+
+.help-contact-card {
+  display: grid;
+
+  grid-template-columns:
+    54px minmax(0, 1fr) 22px;
+
+  align-items: center;
+
+  gap: 14px;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 123px;
+
+  padding: 19px 17px;
+
+  border: 1px solid var(--help-border);
+  border-radius: 21px;
+
+  background: var(--help-card);
+
+  color: var(--help-white);
+
+  text-align: left;
+  text-decoration: none;
+
+  box-shadow:
+    inset 0 1px 0 rgba(
+      255, 255, 255, 0.025
+    );
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* EMAIL CARD */
+
+.help-email-card {
+  border-color: rgba(
+    69, 212, 169, 0.22
+  );
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(55, 214, 165, 0.075),
+      transparent 55%
+    ),
+    var(--help-card);
+}
+
+/* PHONE CARD */
+
+.help-phone-card {
+  border-color: rgba(
+    167, 151, 255, 0.22
+  );
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(167, 151, 255, 0.08),
+      transparent 55%
+    ),
+    var(--help-card);
+}
+
+/* CONTACT ICONS */
+
+.help-contact-icon {
+  display: grid;
+  place-items: center;
+
+  width: 54px;
+  height: 54px;
+
+  border-radius: 17px;
+}
+
+.help-contact-icon svg {
+  width: 27px;
+  height: 27px;
+}
+
+.help-email-icon {
+  color: #4fdfae;
+
+  background: rgba(
+    50, 208, 157, 0.13
+  );
+}
+
+.help-phone-icon {
+  color: #ad9dff;
+
+  background: rgba(
+    161, 142, 248, 0.13
+  );
+}
+
+/* CONTACT TEXT */
+
+.help-contact-text {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  flex: 1;
+  min-width: 0;
+}
+
+.help-contact-text strong {
+  display: block;
+
+  color: var(--help-white);
+
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+.help-contact-description {
+  color: var(--help-muted);
+
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.help-contact-text small {
+  display: block;
+
+  color: var(--help-green);
+
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 1.5;
+
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.help-phone-card .help-contact-text small {
+  color: #b4a8ff;
+}
+
+/* ARROW ICON */
+
+.help-contact-arrow {
+  display: grid;
+  place-items: center;
+
+  color: #8b8e9f;
+}
+
+.help-contact-arrow svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* PRESSED STATE */
+
+.help-contact-card:active {
+  transform: scale(0.987);
+  background-color: var(--help-card-alt);
+}
+
+/* =============================================
+   7. FREQUENTLY ASKED QUESTIONS
+   ============================================= */
+
+.help-faq-list {
+  display: flex;
+  flex-direction: column;
+
+  width: 100%;
+
+  gap: 13px;
+}
+
+/* EACH FAQ CARD */
+
+.help-faq-card {
+  display: flex;
+  flex-direction: column;
+
+  gap: 13px;
+
+  min-width: 0;
+
+  padding: 20px 19px;
+
+  border: 1px solid var(--help-border);
+  border-radius: 20px;
+
+  background: var(--help-card);
+}
+
+.help-faq-title {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 12px;
+  min-width: 0;
+}
+
+/* QUESTION ICON */
+
+.help-faq-question-icon {
+  display: grid;
+  place-items: center;
+
+  flex: 0 0 30px;
+
+  width: 30px;
+  height: 30px;
+
+  border-radius: 10px;
+
+  color: #a99cff;
+
+  background: rgba(
+    169, 153, 255, 0.12
+  );
+
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+/* FAQ QUESTION */
+
+.help-faq-title h3 {
+  flex: 1;
+  min-width: 0;
+
+  margin: 2px 0 0;
+
+  color: var(--help-white);
+
+  font-size: 15.5px;
+  font-weight: 750;
+  line-height: 1.48;
+  letter-spacing: -0.013em;
+}
+
+/* FAQ ANSWER */
+
+.help-faq-card > p {
+  margin: 0;
+
+  padding-left: 42px;
+
+  color: var(--help-muted);
+
+  font-size: 13px;
+  line-height: 1.76;
+
+  overflow-wrap: anywhere;
+}
+
+/* =============================================
+   8. STILL NEED HELP SECTION
+   ============================================= */
+
+.help-footer-card {
+  position: relative;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 12px;
+
+  width: 100%;
+
+  padding: 28px 23px 26px;
+
+  border: 1px solid rgba(
+    69, 214, 170, 0.22
+  );
+
+  border-radius: 23px;
+
+  background:
+    radial-gradient(
+      circle at 50% -10%,
+      rgba(49, 211, 160, 0.11),
+      transparent 65%
+    ),
+    linear-gradient(
+      145deg,
+      #1b2130,
+      #151b25
+    );
+
+  text-align: center;
+
+  overflow: hidden;
+}
+
+/* OFFICIAL LOGO */
+
+.help-footer-logo {
+  display: grid;
+  place-items: center;
+
+  width: 60px;
+  height: 60px;
+
+  margin-bottom: 3px;
+
+  border-radius: 18px;
+
+  background: #172a27;
+
+  border: 1px solid rgba(
+    53, 215, 164, 0.17
+  );
+}
+
+.help-footer-logo img {
+  display: block;
+
+  width: 46px;
+  height: 46px;
+
+  border-radius: 12px;
+  object-fit: contain;
+}
+
+/* FOOTER TEXT */
+
+.help-footer-card h2 {
+  margin: 0;
+
+  color: var(--help-white);
+
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.help-footer-card > p {
+  max-width: 315px;
+
+  margin: 0;
+
+  color: var(--help-muted);
+
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* CONTACT BUTTON */
+
+.help-footer-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 10px;
+
+  width: 100%;
+  max-width: 290px;
+  min-height: 50px;
+
+  margin-top: 9px;
+  padding: 12px 19px;
+
+  border: none;
+  border-radius: 15px;
+
+  background: linear-gradient(
+    135deg,
+    #40dfad,
+    #19b486
+  );
+
+  color: #07271c;
+
+  font-size: 14px;
+  font-weight: 850;
+
+  text-decoration: none;
+
+  transition:
+    filter 0.2s ease,
+    transform 0.2s ease;
+}
+
+.help-footer-button svg {
+  width: 19px;
+  height: 19px;
+}
+
+.help-footer-button:active {
+  transform: scale(0.98);
+}
+
+/* SECURITY REMINDER */
+
+.help-security-note {
+  display: block;
+
+  max-width: 300px;
+
+  margin-top: 5px;
+
+  color: #9298a9;
+
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* =============================================
+   9. PAGE FOOTER
+   ============================================= */
+
+.help-page-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 5px;
+
+  padding: 5px 0 10px;
+
+  text-align: center;
+}
+
+.help-page-footer p {
+  margin: 0;
+
+  color: #777b8e;
+
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.help-page-footer span {
+  color: #646979;
+
+  font-size: 11px;
+}
+
+/* =============================================
+   10. HOVER STATES
+   ============================================= */
+
+@media (hover: hover) {
+
+  .help-back-button:hover {
+    background: var(--help-card-alt);
+  }
+
+  .help-email-card:hover {
+    border-color: rgba(
+      55, 214, 165, 0.55
+    );
+
+    background-color: #20252e;
+  }
+
+  .help-phone-card:hover {
+    border-color: rgba(
+      169, 153, 255, 0.55
+    );
+
+    background-color: #20212e;
+  }
+
+  .help-footer-button:hover {
+    filter: brightness(1.08);
+  }
+
+}
+
+/* =============================================
+   11. MOBILE SCREENS
+   ============================================= */
+
+@media (max-width: 420px) {
+
+  .help-body .help-page {
+    gap: 26px;
+  }
+
+  .help-header {
+    min-height: 70px;
+  }
+
+  .help-illustration {
+    width: 148px;
+    height: 140px;
+
+    margin-bottom: 10px;
+  }
+
+  .help-illustration-ring {
+    width: 100px;
+    height: 100px;
+
+    border-radius: 31px;
+  }
+
+  .help-illustration-ring svg {
+    width: 54px;
+    height: 54px;
+  }
+
+  .help-introduction p {
+    font-size: 13px;
+  }
+
+  .help-contact-card {
+    grid-template-columns:
+      49px minmax(0, 1fr) 20px;
+
+    min-height: 116px;
+
+    gap: 12px;
+    padding: 17px 14px;
+  }
+
+  .help-contact-icon {
+    width: 49px;
+    height: 49px;
+
+    border-radius: 15px;
+  }
+
+  .help-contact-text strong {
+    font-size: 17px;
+  }
+
+  .help-contact-description {
+    font-size: 12px;
+  }
+
+  .help-contact-text small {
+    font-size: 11.5px;
+  }
+
+  .help-faq-card {
+    padding: 18px 16px;
+  }
+
+  .help-faq-title h3 {
+    font-size: 15px;
+  }
+
+  .help-faq-card > p {
+    font-size: 12.5px;
+  }
+
+}
+
+/* =============================================
+   12. EXTRA SMALL SCREENS
+   ============================================= */
+
+@media (max-width: 350px) {
+
+  .help-body .help-page {
+    padding-left: max(
+      14px,
+      env(safe-area-inset-left)
+    );
+
+    padding-right: max(
+      14px,
+      env(safe-area-inset-right)
+    );
+  }
+
+  .help-header h1 {
+    font-size: 19px;
+  }
+
+  .help-contact-card {
+    grid-template-columns:
+      43px minmax(0, 1fr);
+
+    gap: 10px;
+
+    padding: 15px 12px;
+  }
+
+  .help-contact-icon {
+    width: 43px;
+    height: 43px;
+
+    border-radius: 13px;
+  }
+
+  .help-contact-icon svg {
+    width: 23px;
+    height: 23px;
+  }
+
+  .help-contact-arrow {
+    display: none;
+  }
+
+  .help-contact-text strong {
+    font-size: 16px;
+  }
+
+  .help-faq-card > p {
+    padding-left: 0;
+  }
+
+}
+
+/* =============================================
+   13. TABLET AND DESKTOP
+   ============================================= */
+
+@media (min-width: 640px) {
+
+  .help-body .help-page {
+    padding-left: 27px;
+    padding-right: 27px;
+
+    gap: 33px;
+  }
+
+  .help-introduction {
+    padding-top: 13px;
+  }
+
+  .help-contact-card {
+    min-height: 130px;
+    padding: 23px 21px;
+  }
+
+  .help-faq-card {
+    padding: 23px 24px;
+  }
+
+  .help-footer-card {
+    padding: 35px 28px;
+  }
+
+}
+
+/* =============================================
+   14. REDUCED MOTION
+   ============================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .help-back-button,
+  .help-contact-card,
+  .help-footer-button {
+    transition: none;
+  }
+
+}
+
+/* =============================================
+   END — MONEYFLOW HELP CSS
+   ============================================= */

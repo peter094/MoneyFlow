@@ -1,0 +1,52 @@
+/* MONEYFLOW — MONTH PICKER; same AMOLED bottom sheet as the unified date control */
+.mf-month-trigger {
+ display:flex;align-items:center;justify-content:space-between;gap:13px;
+ min-height:47px;min-width:0;padding:9px 15px;border:1px solid #394d47;
+ border-radius:999px;background:#1b232a;color:#f3faf6;
+ font:650 13px/1.4 system-ui,-apple-system,sans-serif;
+ cursor:pointer;-webkit-tap-highlight-color:transparent;
+}
+.mf-month-trigger-label {white-space:nowrap;}
+.mf-month-calendar-icon {display:grid;place-items:center;color:#42d6a7;flex-shrink:0;}
+.mf-month-calendar-icon svg {width:19px;height:19px;}
+.mf-month-trigger:focus-visible,.mf-month-dialog button:focus-visible {outline:2px solid #37d6a6;outline-offset:3px;}
+.mf-month-backdrop {
+ position:fixed;inset:0;z-index:2147480001;display:flex;align-items:flex-end;
+ justify-content:center;background:rgba(0,0,0,.79);
+}
+.mf-month-backdrop[hidden] {display:none!important;}
+.mf-month-dialog {
+ box-sizing:border-box;width:100%;max-width:660px;
+ max-height:min(92dvh,850px);overflow-y:auto;
+ padding:10px 23px calc(24px + env(safe-area-inset-bottom,0px));
+ background:#0c0d15;color:#f8f9fb;
+ border:1px solid #303240;border-bottom:0;border-radius:26px 26px 0 0;
+ font-family:Inter,system-ui,-apple-system,sans-serif;
+ box-shadow:0 -18px 50px rgba(0,0,0,.46);
+}
+.mf-month-handle {display:block;width:49px;height:5px;border-radius:999px;
+ background:#3a414e;margin:0 auto 20px;}
+.mf-month-top {display:flex;align-items:center;justify-content:space-between;gap:15px;}
+.mf-month-top h2 {font:800 clamp(21px,5.7vw,27px)/1.25 system-ui,sans-serif;margin:0;letter-spacing:-.5px;}
+.mf-month-close {display:grid;place-items:center;width:43px;height:43px;border:0;
+ border-radius:12px;background:transparent;color:#f0f1f5;font:400 29px system-ui,sans-serif;cursor:pointer;}
+.mf-month-year-row {display:grid;grid-template-columns:45px 1fr 45px;align-items:center;gap:12px;margin:25px 0 24px;}
+.mf-month-year {text-align:center;font:800 20px system-ui,sans-serif;}
+.mf-month-year-arrow {width:45px;height:45px;border:0;border-radius:12px;
+ background:transparent;color:#a8afc0;font:400 31px system-ui,sans-serif;cursor:pointer;}
+.mf-month-year-arrow:active,.mf-month-close:active {background:#222734;}
+.mf-month-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+.mf-month-option {min-height:58px;border:1px solid #353d42;border-radius:14px;
+ background:#1c222c;color:#e2e6ed;font:750 15px system-ui,sans-serif;cursor:pointer;}
+.mf-month-option.is-selected {border-color:#35d0a4;background:#35d0a4;color:#052b20;}
+.mf-month-option:active {filter:brightness(1.13);}
+.mf-month-footer {display:flex;gap:13px;margin-top:25px;}
+.mf-month-today,.mf-month-cancel {flex:1;min-height:49px;border-radius:14px;
+ font:750 13px system-ui,sans-serif;cursor:pointer;}
+.mf-month-today {background:#29c49b;color:#08261d;border:0;}
+.mf-month-cancel {background:#1d222b;border:1px solid #394247;color:#e4e8e8;}
+@media (max-width:350px) {.mf-month-dialog {padding-left:15px;padding-right:15px}.mf-month-grid {gap:7px}.mf-month-option {min-height:51px}}
+@media (prefers-reduced-motion:no-preference) {
+ .mf-month-dialog {animation:mf-month-rise .22s cubic-bezier(.2,.8,.2,1) both;}
+ @keyframes mf-month-rise {from{transform:translateY(28px);opacity:.7}to{transform:translateY(0);opacity:1}}
+}

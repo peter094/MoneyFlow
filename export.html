@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>(function(){try{if(!localStorage.getItem('moneyflow_auth_token')) location.replace('login.html')}catch(_){location.replace('login.html')}})();</script>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090f17">
+  <meta name="robots" content="noindex,nofollow">
+  <title>MoneyFlow | Export Data</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="export.css">
+  <script src="moneyflow-export-utils.js" defer></script>
+  <script src="export.js" defer></script>
+</head>
+<body>
+  <main class="export-screen">
+    <header class="topbar"><a href="settings.html" class="back" aria-label="Back to Settings">←</a><strong>Export Data</strong><span></span></header>
+    <div class="hero"><div class="hero-icon" aria-hidden="true">↗</div><h1>Your money, your records.</h1><p>Keep a readable copy of your MoneyFlow finances. Exports stay on your device; nothing is uploaded to a server.</p></div>
+    <section class="section">
+      <h2>FINANCIAL EXPORTS</h2>
+      <a class="option" href="report.html" id="exportPdfLink"><span class="option-icon">▤</span><span class="copy"><strong>PDF Financial Report</strong><small>Beautiful statement for printing or saving as PDF</small></span><span class="chevron">›</span></a>
+      <button class="option" id="exportCsvBtn" type="button"><span class="option-icon">▦</span><span class="copy"><strong>CSV Spreadsheet</strong><small>Open transactions and payments in Excel or Sheets</small></span><span class="chevron">›</span></button>
+    </section>
+    <p class="info">PDF: tap <strong>Print / Save PDF</strong> on the report, then choose <strong>Save as PDF</strong> in your phone's print menu.</p>
+    <section class="section"><h2>SAFE BACKUP</h2><a class="option" href="settings.html#backup-data"><span class="option-icon">⬡</span><span class="copy"><strong>Full Data Backup</strong><small>Separate JSON backup to help preserve records; not a readable financial report</small></span><span class="chevron">›</span></a></section>
+    <p class="info">A PDF or CSV is not a complete MoneyFlow backup. Keep a separate backup before changing phones, browsers, or website addresses.</p>
+    <p class="error" id="exportError" role="alert" hidden></p>
+  </main>
+</body>
+</html>

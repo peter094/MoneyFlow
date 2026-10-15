@@ -1,808 +1,727 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
 
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
 
-    <!-- Auth guard: if there's no session token, bail out to the
-         login page before this protected page renders at all —
-         same "run before paint" pattern as the theme script below. -->
-    <script>
-        (function () {
-            try {
-                if (!localStorage.getItem("moneyflow_auth_token")) {
-                    window.location.replace("login.html");
-                }
-            } catch (e) {
-                window.location.replace("login.html");
-            }
-        })();
-    </script>
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-
-    <meta name="theme-color" content="#111827">
-
-    <!-- Standalone-app hints for Android/Chrome and iOS Safari, on top
-         of manifest.json's own display:"standalone" — belt and braces
-         so the installed app never shows browser chrome. -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="MoneyFlow">
-
-    <!-- Apply saved theme before first paint to avoid a light-mode flash.
-         Sets the bg color AND the status-bar color directly, since
-         var(--color-bg)/style.css aren't available yet at this point. -->
-    <script>
-        (function () {
-            var isDark = false;
-            try {
-                var settings = JSON.parse(localStorage.getItem("moneyflow_settings"));
-                isDark = !!(settings && settings.theme === "dark");
-            } catch (e) {}
-
-            if (isDark) {
-                document.documentElement.classList.add("dark");
-            }
-            document.documentElement.style.backgroundColor = isDark ? "#090E17" : "#F3F6F9";
-
-            // Keep these two hex values in sync with applyTheme() in
-            // core.js — they match --color-surface for each theme.
-            var themeColorMeta = document.querySelector('meta[name="theme-color"]');
-            if (themeColorMeta) {
-                themeColorMeta.setAttribute("content", isDark ? "#111A28" : "#FFFFFF");
-            }
-        })();
-    </script>
-
-    <title>MoneyFlow | Settings</title>
-
-    <link rel="stylesheet" href="style.css">
-
-    <!-- PWA: manifest + icons -->
-    <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="icon-192.png" type="image/png">
-    <link rel="apple-touch-icon" href="icon-192.png">
-
-    <!-- Prefetch the other pages so nav clicks don't wait on a fresh
-         network fetch, which is what causes the occasional white flash. -->
-    <link rel="prefetch" href="index.html">
-    <link rel="prefetch" href="transactions.html">
-    <link rel="prefetch" href="analytics.html">
-    <link rel="prefetch" href="settings.html">
-
-    <!-- Prerenders the other pages in a hidden background tab the
-         moment a finger/cursor touches a nav link, so the actual
-         navigation is an instant swap instead of a real page load.
-         Unsupported browsers just ignore this tag entirely — falls
-         back to the prefetch links above, no downside either way. -->
-    <script type="speculationrules">
-    {
-      "prerender": [
-        {
-          "urls": ["index.html", "transactions.html", "analytics.html", "settings.html"],
-          "eagerness": "moderate"
+  <!-- Authentication guard -->
+  <script>
+    (function () {
+      try {
+        if (!localStorage.getItem("moneyflow_auth_token")) {
+          location.replace("login.html");
         }
-      ]
-    }
-    </script>
+      } catch (e) {
+        location.replace("login.html");
+      }
+    })();
+  </script>
 
+  <meta name="viewport"
+    content="width=device-width,initial-scale=1,viewport-fit=cover">
+
+  <meta name="theme-color" content="#09090f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent">
+
+  <title>MoneyFlow | Settings</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="settings.css">
+
+  <script src="core.js" defer></script>
+  <script src="settings.js" defer></script>
 </head>
 
 <body>
 
-    <!-- ================= HEADER ================= -->
+  <main class="settings-page">
 
-    <header class="app-header">
+    <!-- HEADER -->
+    <header class="settings-header">
+      <a href="home.html"
+        class="back-button"
+        aria-label="Back to dashboard">
+        <svg viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.1"
+          stroke-linecap="round"
+          stroke-linejoin="round">
+          <path d="m15 18-6-6 6-6"/>
+          <path d="M20 12H9"/>
+        </svg>
+      </a>
 
-        <div class="brand">
-
-            <span class="brand-mark" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4 16L9.5 10.5L13.5 14.5L20 8" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M15 8H20V13" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </span>
-
-            <div class="brand-text">
-
-                <h1>MoneyFlow</h1>
-
-                <p>Manage your money smarter.</p>
-
-            </div>
-
-        </div>
-
-        <button id="themeToggle" class="icon-button">
-            Theme
-        </button>
-
+      <h1>Settings</h1>
+      <span class="header-spacer" aria-hidden="true"></span>
     </header>
 
-
-    <!-- ================= NAVIGATION ================= -->
-
-    <nav class="main-nav">
-
-        <a href="index.html">
-            Dashboard
-        </a>
-
-        <a href="transactions.html">
-            Transactions
-        </a>
-
-        <a href="analytics.html">
-            Analytics
-        </a>
-
-        <a href="settings.html" class="active">
-            Settings
-        </a>
-
-    </nav>
-
-
-    <!-- ================= MAIN ================= -->
-
-    <main>
-
-        <!-- ================= PAGE INTRO ================= -->
-
-        <section class="welcome">
-
-            <div>
-
-                <p class="eyebrow">
-                    APP CONFIGURATION
-                </p>
-
-                <h2>
-                    Settings
-                </h2>
-
-                <p>
-                    Customize MoneyFlow and manage your financial data.
-                </p>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= PROFILE ================= -->
-
-        <section>
-
-            <div class="section-heading">
-
-                <div>
-
-                    <p class="eyebrow">
-                        PROFILE
-                    </p>
-
-                    <h2>
-                        Signed In
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <div class="profile-panels">
-
-                <div class="overview-card profile-card" id="profileFormCard">
-
-                    <form id="profileForm">
-
-                        <div style="display:flex; flex-direction:column; gap:16px;">
-
-                            <div>
-
-                                <label
-                                    for="userName"
-                                    style="display:block; margin-bottom:7px; font-size:12.5px; font-weight:600; color:var(--color-text-secondary);"
-                                >
-                                    YOUR NAME
-                                </label>
-
-                                <input
-                                    type="text"
-                                    id="userName"
-                                    placeholder="Enter your name"
-                                    maxlength="50"
-                                    style="width:100%; height:46px; padding:0 14px; border:1.5px solid var(--color-border); border-radius:8px; background:var(--color-surface-alt); color:var(--color-text-primary); font-family:var(--font-body);"
-                                >
-
-                            </div>
-
-
-                            <div>
-
-                                <label
-                                    for="userEmail"
-                                    style="display:block; margin-bottom:7px; font-size:12.5px; font-weight:600; color:var(--color-text-secondary);"
-                                >
-                                    EMAIL
-                                </label>
-
-                                <input
-                                    type="email"
-                                    id="userEmail"
-                                    placeholder="Enter your email"
-                                    maxlength="100"
-                                    style="width:100%; height:46px; padding:0 14px; border:1.5px solid var(--color-border); border-radius:8px; background:var(--color-surface-alt); color:var(--color-text-primary); font-family:var(--font-body);"
-                                >
-
-                            </div>
-
-
-                            <div class="form-actions">
-
-                                <button
-                                    type="button"
-                                    id="cancelProfileEditBtn"
-                                    class="secondary-button"
-                                    hidden
-                                >
-                                    Cancel
-                                </button>
-
-                                <button
-                                    type="submit"
-                                    class="primary-button"
-                                >
-                                    Save Profile
-                                </button>
-
-                            </div>
-
-                        </div>
-
-                    </form>
-
-                </div>
-
-
-                <div class="overview-card profile-card profile-view" id="profileViewCard" hidden>
-
-                    <div class="profile-view-row">
-                        <span class="profile-view-label">Name</span>
-                        <span class="profile-view-value" id="profileViewName">—</span>
-                    </div>
-
-                    <div class="profile-view-row">
-                        <span class="profile-view-label">Email</span>
-                        <span class="profile-view-value" id="profileViewEmail">—</span>
-                    </div>
-
-                    <div class="form-actions" style="justify-content:flex-start;">
-
-                        <button
-                            type="button"
-                            id="editProfileBtn"
-                            class="secondary-button"
-                        >
-                            Edit Profile
-                        </button>
-
-                        <button
-                            type="button"
-                            id="logoutBtn"
-                            class="primary-button confirm-danger"
-                        >
-                            Log Out
-                        </button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= APPEARANCE ================= -->
-
-        <section>
-
-            <div class="section-heading">
-
-                <div>
-
-                    <p class="eyebrow">
-                        APPEARANCE
-                    </p>
-
-                    <h2>
-                        Customize MoneyFlow
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <div class="transactions-list">
-
-                <div class="transaction-row">
-
-                    <div class="transaction-details">
-
-                        <strong>
-                            Dark Mode
-                        </strong>
-
-                        <span>
-                            Switch between light and dark themes.
-                        </span>
-
-                    </div>
-
-                    <button
-                        id="settingsThemeToggle"
-                        class="secondary-button"
-                        type="button"
-                    >
-                        Toggle Theme
-                    </button>
-
-                </div>
-
-
-                <div class="transaction-row">
-
-                    <div class="transaction-details">
-
-                        <strong>
-                            Currency
-                        </strong>
-
-                        <span>
-                            Choose the currency displayed throughout the app.
-                        </span>
-
-                    </div>
-
-                    <select
-                        id="currencySelect"
-                        style="height:42px; padding:0 12px; border:1.5px solid var(--color-border); border-radius:8px; background:var(--color-surface-alt); color:var(--color-text-primary); font-family:var(--font-body);"
-                    >
-
-                        <option value="NGN">
-                            Nigerian Naira (₦)
-                        </option>
-
-                        <option value="USD">
-                            US Dollar ($)
-                        </option>
-
-                        <option value="GBP">
-                            British Pound (£)
-                        </option>
-
-                        <option value="EUR">
-                            Euro (€)
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="transaction-row">
-
-                    <div class="transaction-details">
-
-                        <strong>
-                            Date Format
-                        </strong>
-
-                        <span>
-                            Choose how dates appear in your transactions.
-                        </span>
-
-                    </div>
-
-                    <select
-                        id="dateFormatSelect"
-                        style="height:42px; padding:0 12px; border:1.5px solid var(--color-border); border-radius:8px; background:var(--color-surface-alt); color:var(--color-text-primary); font-family:var(--font-body);"
-                    >
-
-                        <option value="DD/MM/YYYY">
-                            DD/MM/YYYY
-                        </option>
-
-                        <option value="MM/DD/YYYY">
-                            MM/DD/YYYY
-                        </option>
-
-                        <option value="YYYY-MM-DD">
-                            YYYY-MM-DD
-                        </option>
-
-                    </select>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= NOTIFICATIONS ================= -->
-
-        <section>
-
-            <div class="section-heading">
-
-                <div>
-
-                    <p class="eyebrow">
-                        NOTIFICATIONS
-                    </p>
-
-                    <h2>
-                        Preferences
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <div class="transactions-list">
-
-                <div class="transaction-row">
-
-                    <div class="transaction-details">
-
-                        <strong>
-                            Spending Alerts
-                        </strong>
-
-                        <span>
-                            Get notified when your spending reaches a limit.
-                        </span>
-
-                    </div>
-
-                    <button
-                        id="spendingAlertsToggle"
-                        class="secondary-button"
-                        type="button"
-                    >
-                        Off
-                    </button>
-
-                </div>
-
-
-                <div class="transaction-row">
-
-                    <div class="transaction-details">
-
-                        <strong>
-                            Monthly Summary
-                        </strong>
-
-                        <span>
-                            Receive a summary of your monthly financial activity.
-                        </span>
-
-                    </div>
-
-                    <button
-                        id="monthlySummaryToggle"
-                        class="secondary-button"
-                        type="button"
-                    >
-                        Off
-                    </button>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= DATA MANAGEMENT ================= -->
-
-        <section>
-
-            <div class="section-heading">
-
-                <div>
-
-                    <p class="eyebrow">
-                        DATA MANAGEMENT
-                    </p>
-
-                    <h2>
-                        Your Financial Data
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <div class="action-grid">
-
-                <button
-                    id="exportDataBtn"
-                    class="action-card"
-                    type="button"
-                >
-
-                    <span class="action-icon">
-                        ↓
-                    </span>
-
-                    <strong>
-                        Export Data
-                    </strong>
-
-                    <small>
-                        Download your transactions as a backup.
-                    </small>
-
-                </button>
-
-
-                <button
-                    id="importDataBtn"
-                    class="action-card"
-                    type="button"
-                >
-
-                    <span class="action-icon">
-                        ↑
-                    </span>
-
-                    <strong>
-                        Import Data
-                    </strong>
-
-                    <small>
-                        Restore previously saved MoneyFlow data.
-                    </small>
-
-                </button>
-
-
-                <button
-                    id="clearTransactionsBtn"
-                    class="action-card"
-                    type="button"
-                >
-
-                    <span class="action-icon">
-                        ×
-                    </span>
-
-                    <strong>
-                        Clear Transactions
-                    </strong>
-
-                    <small>
-                        Remove all recorded financial transactions.
-                    </small>
-
-                </button>
-
-
-                <button
-                    id="resetAppBtn"
-                    class="action-card"
-                    type="button"
-                >
-
-                    <span class="action-icon">
-                        ↻
-                    </span>
-
-                    <strong>
-                        Reset App
-                    </strong>
-
-                    <small>
-                        Restore MoneyFlow to its default settings.
-                    </small>
-
-                </button>
-
-            </div>
-
-
-            <input
-                type="file"
-                id="importFile"
-                accept=".json"
-                hidden
-            >
-
-        </section>
-
-
-        <!-- ================= APP INFORMATION ================= -->
-
-        <section>
-
-            <div class="section-heading">
-
-                <div>
-
-                    <p class="eyebrow">
-                        ABOUT
-                    </p>
-
-                    <h2>
-                        MoneyFlow
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <div class="overview-card">
-
-                <div class="transaction-row">
-
-                    <div class="transaction-details">
-
-                        <strong>
-                            Application Version
-                        </strong>
-
-                        <span>
-                            Current installed version
-                        </span>
-
-                    </div>
-
-                    <div
-                        class="transaction-amount"
-                        id="appVersion"
-                    >
-                        v1.0.0
-                    </div>
-
-                </div>
-
-
-                <div class="transaction-row">
-
-                    <div class="transaction-details">
-
-                        <strong>
-                            Storage
-                        </strong>
-
-                        <span>
-                            Your account is secured through MoneyFlow's sign-in service. Your transactions and spending data are currently stored on this device.
-                        </span>
-
-                    </div>
-
-                    <div
-                        class="transaction-amount"
-                        id="storageStatus"
-                    >
-                        Local
-                    </div>
-
-                </div>
-
-
-                <div class="transaction-row">
-
-                    <div class="transaction-details">
-
-                        <strong>
-                            Data Privacy
-                        </strong>
-
-                        <span>
-                            Signing in sends your email and password to MoneyFlow's authentication service. Your transactions and spending data are not synced to a server yet.
-                        </span>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <!-- ================= UPDATE SYSTEM ================= -->
-
-        <section>
-
-            <div class="section-heading">
-
-                <div>
-
-                    <p class="eyebrow">
-                        SYSTEM
-                    </p>
-
-                    <h2>
-                        App Updates
-                    </h2>
-
-                </div>
-
-            </div>
-
-
-            <div class="overview-card">
-
-                <div class="transaction-row">
-
-                    <div class="transaction-details">
-
-                        <strong>
-                            Check for Updates
-                        </strong>
-
-                        <span id="updateStatus">
-                            Check whether a newer version of MoneyFlow is available.
-                        </span>
-
-                    </div>
-
-                    <button
-                        id="checkUpdateBtn"
-                        class="primary-button"
-                        type="button"
-                    >
-                        Check for Updates
-                    </button>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <!-- ================= FOOTER ================= -->
-
-    <footer>
-
-        <h2>
-            MoneyFlow
+    <!-- ACCOUNT IDENTITY -->
+    <section class="account-intro"
+      aria-label="Signed-in account">
+
+      <div class="account-avatar"
+        id="accountAvatar"
+        aria-hidden="true">M</div>
+
+      <div class="account-identity">
+        <h2 id="accountName">MoneyFlow User</h2>
+        <p id="accountEmail">Your account</p>
+      </div>
+
+    </section>
+
+    <!-- ACCOUNT -->
+    <section class="settings-section"
+      aria-labelledby="accountHeading">
+
+      <h2 class="section-label"
+        id="accountHeading">
+        ACCOUNT
+      </h2>
+
+      <div class="settings-card">
+
+        <button class="settings-row"
+          id="profileBtn"
+          type="button">
+
+          <span class="row-icon">
+            <svg viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round">
+              <circle cx="12" cy="8" r="4"/>
+              <path d="M4 21v-2a8 8 0 0 1 16 0v2"/>
+            </svg>
+          </span>
+
+          <span class="row-label">Profile</span>
+          <span class="chevron"
+            aria-hidden="true">›</span>
+        </button>
+
+        <button class="settings-row"
+          id="preferencesBtn"
+          type="button">
+
+          <span class="row-icon">
+            <svg viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round">
+              <path d="M4 7h16M4 12h16M4 17h16"/>
+              <circle cx="9" cy="7" r="2"/>
+              <circle cx="16" cy="12" r="2"/>
+              <circle cx="11" cy="17" r="2"/>
+            </svg>
+          </span>
+
+          <span class="row-label">Preferences</span>
+          <span class="chevron"
+            aria-hidden="true">›</span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- NOTIFICATIONS -->
+    <section class="settings-section"
+      aria-labelledby="notificationHeading">
+
+      <h2 class="section-label"
+        id="notificationHeading">
+        NOTIFICATIONS
+      </h2>
+
+      <div class="settings-card">
+
+        <div class="settings-row switch-row">
+
+          <span class="row-icon">
+            <svg viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round">
+              <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+              <path d="M10 21h4"/>
+            </svg>
+          </span>
+
+          <label class="row-label"
+            for="paymentRemindersToggle">
+            Payment Reminders
+          </label>
+
+          <input type="checkbox"
+            class="switch-input"
+            id="paymentRemindersToggle"
+            aria-label="Payment reminders preference">
+        </div>
+
+        <div class="settings-row switch-row">
+
+          <span class="row-icon">
+            <svg viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round">
+              <path d="M12 2 3.5 5v6.5c0 5.2 3.4 8.6 8.5 10.5 5.1-1.9 8.5-5.3 8.5-10.5V5L12 2Z"/>
+              <path d="m8 12 3 3 5-6"/>
+            </svg>
+          </span>
+
+          <label class="row-label"
+            for="insuranceAlertsToggle">
+            Insurance Alerts
+          </label>
+
+          <input type="checkbox"
+            class="switch-input"
+            id="insuranceAlertsToggle"
+            aria-label="Insurance alerts preference">
+        </div>
+
+      </div>
+
+      <p class="section-note">
+        These switches control in-app reminders.
+        Open MoneyFlow to check your alerts;
+        background phone push is not enabled.
+      </p>
+
+    </section>
+
+    <!-- DATA -->
+    <section class="settings-section"
+      aria-labelledby="dataHeading">
+
+      <h2 class="section-label"
+        id="dataHeading">
+        DATA
+      </h2>
+
+      <div class="settings-card">
+
+        <button class="settings-row"
+          id="exportDataBtn"
+          type="button">
+
+          <span class="row-icon">
+            <svg viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M12 3v12m-4-4 4 4 4-4"/>
+              <path d="M5 16v4h14v-4"/>
+            </svg>
+          </span>
+
+          <span class="row-label">Export Data</span>
+          <span class="chevron"
+            aria-hidden="true">›</span>
+
+        </button>
+
+        <button class="settings-row" id="backupDataBtn" type="button">
+          <span class="row-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="4" width="16" height="16" rx="3"/>
+              <path d="M12 7v9m-3-3 3 3 3-3"/>
+            </svg>
+          </span>
+          <span class="row-label">Backup Data <small style="display:block;font-size:11px;color:#94a9a5;font-weight:450;margin-top:4px">Full recovery backup (JSON)</small></span>
+          <span class="chevron" aria-hidden="true">›</span>
+        </button>
+
+      </div>
+    </section>
+
+    <!-- LEGAL -->
+    <section class="settings-section"
+      aria-labelledby="legalHeading">
+
+      <h2 class="section-label"
+        id="legalHeading">
+        LEGAL
+      </h2>
+
+      <div class="settings-card">
+
+        <button class="settings-row"
+          id="privacyBtn"
+          type="button">
+
+          <span class="row-icon">
+            <svg viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round">
+              <path d="M7 2h7l5 5v15H7a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Z"/>
+              <path d="M14 2v6h5"/>
+              <rect x="9" y="13"
+                width="6" height="5" rx="1"/>
+              <path d="M10.5 13v-1a1.5 1.5 0 0 1 3 0v1"/>
+            </svg>
+          </span>
+
+          <span class="row-label">
+            Privacy Information
+          </span>
+
+          <span class="chevron"
+            aria-hidden="true">›</span>
+
+        </button>
+
+      </div>
+    </section>
+
+    <!-- LOG OUT -->
+    <button type="button"
+      class="logout-button"
+      id="logoutBtn">
+
+      <svg viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round">
+        <path d="M10 17l5-5-5-5m5 5H3"/>
+        <path d="M12 3h6a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3h-6"/>
+      </svg>
+
+      Log Out
+    </button>
+
+    <p class="settings-version">
+      MoneyFlow · v1.0.0
+    </p>
+
+  </main>
+
+  <!-- =====================================
+       SETTINGS POPUP PANELS
+       ===================================== -->
+
+  <div class="sheet-overlay"
+    id="sheetOverlay"
+    hidden>
+
+    <section class="sheet"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="sheetTitle">
+
+      <header class="sheet-header">
+
+        <h2 id="sheetTitle">Profile</h2>
+
+        <button type="button"
+          id="closeSheetBtn"
+          class="sheet-close"
+          aria-label="Close">
+          ×
+        </button>
+
+      </header>
+
+      <!-- PROFILE PANEL -->
+      <div id="profileSheet"
+        class="sheet-content"
+        hidden>
+
+        <form id="profileForm">
+
+          <label for="userName">
+            DISPLAY NAME
+          </label>
+
+          <input id="userName"
+            name="userName"
+            type="text"
+            maxlength="50"
+            autocomplete="name"
+            required>
+
+          <label for="userEmail">
+            SIGNED-IN EMAIL
+          </label>
+
+          <input id="userEmail"
+            type="email"
+            readonly
+            aria-describedby="emailNote">
+
+          <p id="emailNote"
+            class="field-note">
+            Your account email cannot be changed here.
+          </p>
+
+          <button class="save-button"
+            type="submit">
+            Save Profile
+          </button>
+
+        </form>
+      </div>
+
+      <!-- PREFERENCES PANEL -->
+      <div id="preferencesSheet"
+        class="sheet-content"
+        hidden>
+
+        <label for="currencySelect">
+          CURRENCY
+        </label>
+
+        <select id="currencySelect">
+          <option value="NGN">Nigerian Naira (₦)</option>
+          <option value="USD">US Dollar ($)</option>
+          <option value="GBP">British Pound (£)</option>
+          <option value="EUR">Euro (€)</option>
+        </select>
+
+        <label for="dateFormatSelect">
+          DATE FORMAT
+        </label>
+
+        <select id="dateFormatSelect">
+          <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+          <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+          <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+        </select>
+
+        <p class="field-note">
+          Changing currency affects display
+          formatting; it does not convert amounts
+          using exchange rates.
+        </p>
+
+        <button class="save-button"
+          id="savePreferencesBtn"
+          type="button">
+          Save Preferences
+        </button>
+
+      </div>
+
+      <!-- PRIVACY PANEL -->
+      <div id="privacySheet"
+        class="sheet-content"
+        hidden>
+
+        <p>
+          Your sign-in details are sent to MoneyFlow's
+          authentication service. Transaction records
+          and preferences are currently stored on
+          this device, not automatically synchronized
+          between devices.
+        </p>
+
+        <p>
+          Export a backup before clearing browser
+          storage or changing devices. This information
+          describes the app's current data handling
+          and is not a published legal privacy policy.
+        </p>
+
+      </div>
+
+    </section>
+  </div>
+
+  <!-- =====================================
+       INDEPENDENT LOGOUT CONFIRMATION
+       ===================================== -->
+
+  <div class="sheet-overlay"
+    id="logoutOverlay"
+    hidden>
+
+    <section class="sheet"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="logoutTitle"
+      aria-describedby="logoutDescription">
+
+      <header class="sheet-header">
+        <h2 id="logoutTitle">
+          Log out of MoneyFlow?
         </h2>
+      </header>
 
-        <p>
-            Your money. Your records. Your control.
-        </p>
+      <p id="logoutDescription"
+        style="color:#b7c6cd;line-height:1.6;margin:0 0 24px;">
+        You can sign in again later.
+        Your financial records stored on this
+        device will not be deleted.
+      </p>
 
-        <p>
-            Version 1.0.0
-        </p>
+      <p id="logoutError"
+        hidden
+        role="alert"
+        style="color:#ff9195;margin:0 0 14px;">
+      </p>
 
-    </footer>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
 
+        <button type="button"
+          id="cancelLogoutBtn"
+          class="save-button"
+          style="width:100%;background:#26313b;color:#f7f8fa;">
+          Cancel
+        </button>
 
-    <script src="core.js" defer></script>
-    <script
-        src="settings.js"
-        defer
-    ></script>
+        <button type="button"
+          id="confirmLogoutBtn"
+          class="save-button"
+          style="width:100%;background:#d95361;color:#fff;">
+          Log Out
+        </button>
+
+      </div>
+
+    </section>
+  </div>
+
+  <!-- =====================================
+       RELIABLE LOGOUT CONTROLLER
+       ===================================== -->
+
+  <script>
+    (function () {
+      "use strict";
+
+      const overlay =
+        document.getElementById("logoutOverlay");
+
+      const cancel =
+        document.getElementById("cancelLogoutBtn");
+
+      const confirm =
+        document.getElementById("confirmLogoutBtn");
+
+      const error =
+        document.getElementById("logoutError");
+
+      let priorFocus = null;
+
+      function openLogout() {
+        priorFocus = document.activeElement;
+
+        error.hidden = true;
+        error.textContent = "";
+
+        overlay.hidden = false;
+        cancel.focus();
+      }
+
+      function closeLogout() {
+        overlay.hidden = true;
+
+        if (
+          priorFocus &&
+          typeof priorFocus.focus === "function"
+        ) {
+          priorFocus.focus();
+        }
+      }
+
+      // Capture the logout click before any
+      // older settings.js handler processes it.
+      // Other Settings buttons are unaffected.
+
+      document.addEventListener(
+        "click",
+        function (event) {
+          const target = event.target;
+
+          if (
+            !(target instanceof Element) ||
+            !target.closest("#logoutBtn")
+          ) {
+            return;
+          }
+
+          event.preventDefault();
+          event.stopImmediatePropagation();
+
+          openLogout();
+        },
+        true
+      );
+
+      cancel.addEventListener(
+        "click",
+        closeLogout
+      );
+
+      overlay.addEventListener(
+        "click",
+        function (event) {
+          if (event.target === overlay) {
+            closeLogout();
+          }
+        }
+      );
+
+      document.addEventListener(
+        "keydown",
+        function (event) {
+          if (
+            event.key === "Escape" &&
+            !overlay.hidden
+          ) {
+            closeLogout();
+          }
+        }
+      );
+
+      confirm.addEventListener(
+        "click",
+        function () {
+          try {
+            // Remove authentication only.
+            // NEVER clear all localStorage.
+
+            localStorage.removeItem(
+              "moneyflow_auth_token"
+            );
+
+            localStorage.removeItem(
+              "moneyflow_auth_user"
+            );
+
+            // Verify the token was removed.
+
+            if (
+              localStorage.getItem(
+                "moneyflow_auth_token"
+              ) !== null
+            ) {
+              throw new Error(
+                "Authentication token was not removed."
+              );
+            }
+
+            window.location.replace(
+              "login.html"
+            );
+
+          } catch (exception) {
+            console.error(
+              "MoneyFlow logout failed:",
+              exception
+            );
+
+            error.textContent =
+              "Couldn't log out safely. Please try again.";
+
+            error.hidden = false;
+          }
+        }
+      );
+
+    })();
+  </script>
+
+<!-- ==========================================
+     MONEYFLOW — SETTINGS BACK NAVIGATION
+     Preserve the page the user came from
+     ========================================== -->
+
+<script>
+(function () {
+  "use strict";
+
+  const backButton = document.querySelector(
+    ".settings-header .back-button"
+  );
+
+  if (!backButton) return;
+
+  let fromMore =
+    new URLSearchParams(
+      window.location.search
+    ).get("from") === "more";
+
+  // Detect navigation from the More page.
+  if (!fromMore && document.referrer) {
+    try {
+      const previousPage = new URL(
+        document.referrer
+      );
+
+      fromMore =
+        previousPage.origin === window.location.origin &&
+        previousPage.pathname.endsWith("/more.html");
+
+    } catch (error) {
+      console.warn(
+        "Could not determine previous page.",
+        error
+      );
+    }
+  }
+
+  if (fromMore) {
+    backButton.href = "more.html";
+
+    backButton.setAttribute(
+      "aria-label",
+      "Back to More"
+    );
+
+  } else {
+    backButton.href = "home.html";
+
+    backButton.setAttribute(
+      "aria-label",
+      "Back to Home"
+    );
+  }
+
+})();
+</script>
 
 </body>
-
 </html>

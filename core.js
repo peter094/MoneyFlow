@@ -46,6 +46,9 @@ const MoneyFlow = (() => {
     userEmail: "",
     spendingAlerts: false,
     monthlySummary: false,
+    // In-app reminders are enabled unless a user turns them off.
+    paymentReminders: true,
+    insuranceAlerts: true,
     monthlyBudget: 0,
     version: "1.0.0",
   };
@@ -77,11 +80,30 @@ const MoneyFlow = (() => {
   }
 
   function saveTransactions(transactions) {
+    if (!Array.isArray(transactions)) {
+      console.error("MoneyFlow: Refusing to save invalid transactions.");
+      return false;
+    }
+
     try {
-      localStorage.setItem(STORAGE_KEYS.transactions, JSON.stringify(transactions));
+      const existingRaw = localStorage.getItem(STORAGE_KEYS.transactions);
+      if (existingRaw !== null) {
+        const existing = JSON.parse(existingRaw);
+        if (!Array.isArray(existing)) {
+          throw new Error("Stored transactions are not a valid list.");
+        }
+      }
+
+      localStorage.setItem(
+        STORAGE_KEYS.transactions,
+        JSON.stringify(transactions)
+      );
       return true;
     } catch (error) {
-      console.error("MoneyFlow: Unable to save transactions.", error);
+      console.error(
+        "MoneyFlow: Transactions not saved. Existing data was preserved.",
+        error
+      );
       return false;
     }
   }
@@ -98,14 +120,27 @@ const MoneyFlow = (() => {
   }
 
   function saveSettings(settings) {
+    if (!settings || typeof settings !== "object" || Array.isArray(settings)) {
+      console.error("MoneyFlow: Refusing to save invalid settings.");
+      return false;
+    }
+
     try {
+      const existingRaw = localStorage.getItem(STORAGE_KEYS.settings);
+      if (existingRaw !== null) {
+        const existing = JSON.parse(existingRaw);
+        if (!existing || typeof existing !== "object" || Array.isArray(existing)) {
+          throw new Error("Stored settings are not a valid object.");
+        }
+      }
+
       localStorage.setItem(
         STORAGE_KEYS.settings,
         JSON.stringify({ ...DEFAULT_SETTINGS, ...settings })
       );
       return true;
     } catch (error) {
-      console.error("MoneyFlow: Unable to save settings.", error);
+      console.error("MoneyFlow: Settings not saved; existing data preserved.", error);
       return false;
     }
   }
@@ -662,7 +697,7 @@ const MoneyFlow = (() => {
     // "returning user" is still known correctly even after signing out.
     returningUser: "moneyflow_returning_user",
     // A one-time signal, cleared the moment it's read. By the time
-    // index.html loads, the token always exists (the auth guard
+    // home.html loads, the token always exists (the auth guard
     // requires it) and returningUser is always true (auth.js sets it
     // on both login AND signup) — neither can tell "just registered
     // for the first time ever" apart from "just logged in normally."

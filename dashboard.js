@@ -1,302 +1,809 @@
-/* =====================================================================
-   MONEYFLOW — DASHBOARD PAGE (PHASE 2)
-   Depends on core.js (load it first). Handles the new Home layout:
-   greeting, month-scoped summary cards, budget strip, Quick Add,
-   and recent transactions. The transaction add/edit modal logic is
-   reused unchanged from Phase 1 — only the rendering around it is new.
-   ===================================================================== */
+
+/* ============================================
+   MONEYFLOW — AMOLED HOME DASHBOARD
+   Requires core.js before dashboard.js
+   ============================================ */
 
 document.addEventListener("DOMContentLoaded", () => {
+  "use strict";
 
-  applyStatusBarColor();
-  applyGreeting();
-  applyAvatar();
-  bindEvents();
+  const MF =
+    typeof MoneyFlow !== "undefined"
+      ? MoneyFlow
+      : null;
+
+  const $ = (id) => document.getElementById(id);
+
+  if (!MF) {
+    console.error("MoneyFlow core.js is missing.");
+    return;
+  }
+
+  document.documentElement.classList.add("dark");
+
+  const themeMeta = document.querySelector(
+    'meta[name="theme-color"]'
+  );
+
+  if (themeMeta) {
+    themeMeta.content = "#09090f";
+  }
+
+  setAccountDisplay();
+  bindActions();
   render();
-  MoneyFlow.onExternalChange(render);
 
-  /* ---------------- Header ---------------- */
+  MF.onExternalChange(() => {
+    setAccountDisplay();
+    render();
+  });
 
-  function applyStatusBarColor() {
-    // Home is a fixed-dark-purple page regardless of the stored
-    // theme setting — the pre-paint script in <head> still runs the
-    // old green-aware logic (harmless, just redundant here), so this
-    // corrects the status bar to match once this script runs.
-    const meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute("content", "#090E17");
-  }
+  window.addEventListener("pageshow", () => {
+    setAccountDisplay();
+    render();
+  });
 
-  function applyGreeting() {
-    // Settings' Profile view shows getSettings().userName — that's
-    // the value the person actually sees as "their name" and can
-    // edit. getAuthUser().name can go stale (e.g. a session logged
-    // in before the name was seeded/synced) without Settings' local
-    // copy being affected, so prefer the same source Settings uses.
-    // Falls back to the raw auth object for a brand-new user who
-    // hasn't visited Settings yet (nothing to seed from otherwise).
-    const nameFromSettings = MoneyFlow.getSettings()?.userName?.trim();
-    const nameFromAccount = MoneyFlow.getAuthUser()?.name?.trim();
-    const rawName = nameFromSettings || nameFromAccount || "";
-    const firstName = rawName ? rawName.split(" ")[0] : "there";
-
-    const hour = new Date().getHours();
-    const timeOfDay = hour < 12 ? "morning" : hour < 18 ? "afternoon" : "evening";
-
-    const heading = document.getElementById("greetingHeading");
-    if (heading) {
-      heading.textContent = `Good ${timeOfDay}, ${firstName}!\u00A0👋`;
-    }
-  }
-
-  function applyAvatar() {
-    const nameFromSettings = MoneyFlow.getSettings()?.userName?.trim();
-    const nameFromAccount = MoneyFlow.getAuthUser()?.name?.trim();
-    const source = nameFromSettings || nameFromAccount || MoneyFlow.getAuthUser()?.email || "?";
-    const initial = source.charAt(0).toUpperCase();
-
-    const avatar = document.getElementById("userAvatar");
-    if (avatar) avatar.textContent = initial;
-  }
-
-  /* ---------------- Events ---------------- */
-
-  function bindEvents() {
-    MoneyFlow.bindModalBaseListeners();
-
-    const incomeBtn = document.getElementById("incomeBtn");
-    if (incomeBtn) incomeBtn.addEventListener("click", () => MoneyFlow.openModal("income"));
-
-    const expenseBtn = document.getElementById("expenseBtn");
-    if (expenseBtn) expenseBtn.addEventListener("click", () => MoneyFlow.openModal("expense"));
-
-    const billLoanBtn = document.getElementById("billLoanBtn");
-    if (billLoanBtn) {
-      billLoanBtn.addEventListener("click", () => {
-        MoneyFlow.showToast("Bill / Loan tracking is coming soon.");
-      });
-    }
-
-    const form = document.getElementById("transactionForm");
-    if (form) form.addEventListener("submit", handleTransactionSubmit);
-
-    bindEmptyStateButton();
-
-    const notificationBellBtn = document.getElementById("notificationBellBtn");
-    if (notificationBellBtn) {
-      notificationBellBtn.addEventListener("click", () => {
-        MoneyFlow.showToast("Notifications are coming soon.");
-      });
-    }
-
-    bindBudgetStrip();
-    bindBottomNav();
-  }
-
-  function bindEmptyStateButton() {
-    const btn = document.getElementById("emptyAddBtn");
-    if (btn) btn.addEventListener("click", () => MoneyFlow.openModal("expense"));
-  }
-
-  function handleTransactionSubmit(event) {
-    event.preventDefault();
-
-    const success = MoneyFlow.addTransaction({
-      type: document.getElementById("transactionType")?.value,
-      amount: document.getElementById("transactionAmount")?.value,
-      category: document.getElementById("transactionCategory")?.value,
-      description: document.getElementById("transactionDescription")?.value,
-      date: document.getElementById("transactionDate")?.value,
-    });
-
-    if (success) {
-      MoneyFlow.closeModal();
-      event.target.reset();
+  // Debt records use separate storage.
+  window.addEventListener("storage", (event) => {
+    if (event.key === "moneyflow_debts") {
       render();
     }
+  });
+
+  /* ==========================================
+     ACCOUNT NAME AND GREETING
+     ========================================== */
+
+  function setAccountDisplay() {
+    const user = MF.getAuthUser() || {};
+    const preferences = MF.getSettings();
+
+    const name = String(
+      preferences.userName ||
+      user.name ||
+      user.fullName ||
+      user.firstName ||
+      ""
+    ).trim();
+
+    const firstName = name
+      ? name.split(/\s+/)[0]
+      : "there";
+
+    const hour = new Date().getHours();
+
+    const part =
+      hour < 12
+        ? "morning"
+        : hour < 18
+          ? "afternoon"
+          : "evening";
+
+    setText(
+      "greetingHeading",
+      `Good ${part}, ${firstName}! 👋`
+    );
+
+    const initial = name || user.email || "M";
+
+    setText(
+      "userAvatar",
+      String(initial).charAt(0).toUpperCase()
+    );
   }
 
-  /* ---------------- Budget strip + modal ---------------- */
+  /* ==========================================
+     BUTTON FUNCTIONS
+     ========================================== */
 
-  function bindBudgetStrip() {
-    const stripBtn = document.getElementById("budgetStripBtn");
-    if (stripBtn) stripBtn.addEventListener("click", openBudgetModal);
+  function bindActions() {
+    MF.bindModalBaseListeners();
 
-    const closeBtn = document.getElementById("closeBudgetModalBtn");
-    if (closeBtn) closeBtn.addEventListener("click", closeBudgetModal);
+    // QUICK ADD: INCOME
 
-    const cancelBtn = document.getElementById("cancelBudgetBtn");
-    if (cancelBtn) cancelBtn.addEventListener("click", closeBudgetModal);
+    $("incomeBtn")?.addEventListener(
+      "click",
+      () => {
+        location.href = "income.html?add=1";
+      }
+    );
 
-    const modal = document.getElementById("budgetModal");
-    if (modal) {
-      modal.addEventListener("click", (event) => {
-        if (event.target === modal) closeBudgetModal();
-      });
+    // FIRST CARD: INCOME OVERVIEW
+
+    makeCardInteractive(
+      "monthIncome",
+      "View income details",
+      () => {
+        location.href = "income.html";
+      }
+    );
+
+    // SECOND CARD: REMAINING MONEY
+
+    makeCardInteractive(
+      "monthRemaining",
+      "View or update monthly budget",
+      () => {
+        openBudgetModal();
+      }
+    );
+
+    // THIRD CARD: OUTSTANDING DEBTS
+
+    makeCardInteractive(
+      "monthOwed",
+      "View borrowed and lent debts",
+      () => {
+        location.href = "debts.html?tab=borrowed";
+      }
+    );
+
+    // QUICK ADD: EXPENSE
+
+    $("expenseBtn")?.addEventListener(
+      "click",
+      () => openTransaction("expense")
+    );
+
+    // QUICK ADD: BILL / LOAN
+
+    $("billLoanBtn")?.addEventListener(
+      "click",
+      () => {
+        location.href = "payments.html";
+      }
+    );
+
+    $("transactionForm")?.addEventListener(
+      "submit",
+      saveTransaction
+    );
+
+    $("transactionType")?.addEventListener(
+      "change",
+      chooseCategoryForType
+    );
+
+    
+    /* =====================================
+       MONEYFLOW — HOME NOTIFICATIONS
+       Open the Notifications Centre
+       ===================================== */
+
+    $("notificationBellBtn")?.addEventListener(
+      "click",
+      () => {
+        window.location.href = "notifications.html";
+      }
+    );
+
+
+    $("userAvatar")?.addEventListener(
+      "click",
+      () => {
+        location.href = "settings.html";
+      }
+    );
+
+    $("referFriendsBtn")?.addEventListener(
+      "click",
+      shareMoneyFlow
+    );
+
+    bindBudget();
+    bindNavigation();
+  }
+
+  /* ==========================================
+     MAKE SUMMARY CARDS CLICKABLE
+     ========================================== */
+
+  function makeCardInteractive(
+    amountId,
+    label,
+    action
+  ) {
+    const card = $(amountId)?.closest(
+      ".summary-card"
+    );
+
+    if (!card) return;
+
+    card.setAttribute("role", "button");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-label", label);
+
+    card.style.cursor = "pointer";
+
+    card.addEventListener("click", action);
+
+    card.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key === "Enter" ||
+          event.key === " "
+        ) {
+          event.preventDefault();
+          action();
+        }
+      }
+    );
+  }
+
+  /* ==========================================
+     ADD EXPENSE POPUP
+     ========================================== */
+
+  function openTransaction(type) {
+    MF.openModal(type);
+    chooseCategoryForType();
+  }
+
+  function chooseCategoryForType() {
+    const type = $("transactionType")?.value;
+    const category = $("transactionCategory");
+
+    if (!category) return;
+
+    if (
+      type === "expense" &&
+      category.value === "Salary"
+    ) {
+      category.value = "Food";
+    } else if (
+      type === "income" &&
+      category.value === "Food"
+    ) {
+      category.value = "Salary";
     }
 
-    const form = document.getElementById("budgetForm");
-    if (form) form.addEventListener("submit", handleBudgetSubmit);
+    if (
+      typeof category.moneyflowRefresh ===
+      "function"
+    ) {
+      category.moneyflowRefresh();
+    }
   }
 
-  function openBudgetModal() {
-    const settings = MoneyFlow.getSettings();
-    const input = document.getElementById("budgetAmount");
-    if (input) input.value = settings.monthlyBudget || "";
-
-    const modal = document.getElementById("budgetModal");
-    if (!modal) return;
-    modal.setAttribute("aria-hidden", "false");
-    modal.classList.add("active");
-    setTimeout(() => input?.focus(), 100);
-  }
-
-  function closeBudgetModal() {
-    const modal = document.getElementById("budgetModal");
-    if (!modal) return;
-    modal.setAttribute("aria-hidden", "true");
-    modal.classList.remove("active");
-  }
-
-  function handleBudgetSubmit(event) {
+  function saveTransaction(event) {
     event.preventDefault();
 
-    const amount = Number(document.getElementById("budgetAmount")?.value);
-    if (!Number.isFinite(amount) || amount < 0) {
-      MoneyFlow.showToast("Please enter a valid budget amount.", "error");
-      return;
-    }
+    const success = MF.addTransaction({
+      type: $("transactionType")?.value,
+      amount: $("transactionAmount")?.value,
+      category: $("transactionCategory")?.value,
+      description:
+        $("transactionDescription")?.value,
+      date: $("transactionDate")?.value
+    });
 
-    const settings = MoneyFlow.getSettings();
-    MoneyFlow.saveSettings({ ...settings, monthlyBudget: amount });
+    if (!success) return;
 
-    closeBudgetModal();
-    MoneyFlow.showToast("Budget updated.");
+    MF.closeModal();
+    event.target.reset();
     render();
   }
 
-  /* ---------------- Bottom nav ---------------- */
-  // Payments/Debts have no page yet — a "coming soon" toast is the
-  // honest option rather than a dead link. Spending/More bridge to
-  // the existing (not-yet-redesigned) analytics.html/settings.html
-  // so those pages stay reachable rather than orphaned mid-rebuild.
+  /* ==========================================
+     MONTHLY BUDGET
+     ========================================== */
 
-  function bindBottomNav() {
-    const navPayments = document.getElementById("navPayments");
-    if (navPayments) {
-      navPayments.addEventListener("click", () => {
-        window.location.href = "payments.html";
-      });
+  function bindBudget() {
+    $("budgetStripBtn")?.addEventListener(
+      "click",
+      openBudgetModal
+    );
+
+    $("closeBudgetModalBtn")?.addEventListener(
+      "click",
+      closeBudgetModal
+    );
+
+    $("cancelBudgetBtn")?.addEventListener(
+      "click",
+      closeBudgetModal
+    );
+
+    $("budgetForm")?.addEventListener(
+      "submit",
+      saveBudget
+    );
+
+    $("budgetModal")?.addEventListener(
+      "click",
+      (event) => {
+        if (event.target === $("budgetModal")) {
+          closeBudgetModal();
+        }
+      }
+    );
+
+    document.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key === "Escape" &&
+          $("budgetModal")?.classList.contains(
+            "active"
+          )
+        ) {
+          closeBudgetModal();
+        }
+      }
+    );
+  }
+
+  function openBudgetModal() {
+    const modal = $("budgetModal");
+
+    if (!modal) return;
+
+    const saved =
+      Number(MF.getSettings().monthlyBudget) || 0;
+
+    const input = $("budgetAmount");
+
+    if (input) {
+      input.value = saved || "";
     }
 
-    const navSpending = document.getElementById("navSpending");
-    if (navSpending) {
-      navSpending.addEventListener("click", () => {
-        window.location.href = "analytics.html";
-      });
-    }
+    modal.setAttribute(
+      "aria-hidden",
+      "false"
+    );
 
-    const navDebts = document.getElementById("navDebts");
-    if (navDebts) {
-      navDebts.addEventListener("click", () => {
-        MoneyFlow.showToast("Debts is coming soon.");
-      });
-    }
+    modal.classList.add("active");
 
-    const navMore = document.getElementById("navMore");
-    if (navMore) {
-      navMore.addEventListener("click", () => {
-        window.location.href = "settings.html";
-      });
-    }
+    setTimeout(() => {
+      input?.focus();
+    }, 100);
   }
 
-  /* ---------------- Render ---------------- */
+  function closeBudgetModal() {
+    const modal = $("budgetModal");
 
-  function render() {
-    const transactions = MoneyFlow.getTransactions();
-    renderMonthSummary(transactions);
-    renderBudgetStrip();
-    renderTransactionsHeading();
-    renderRecentTransactions(transactions);
+    if (!modal) return;
+
+    modal.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    modal.classList.remove("active");
   }
 
-  function getThisMonthTransactions(transactions) {
-    const now = new Date();
-    return transactions.filter((t) => {
-      const d = new Date(`${t.date}T00:00:00`);
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-    });
-  }
+  function saveBudget(event) {
+    event.preventDefault();
 
-  function renderMonthSummary(transactions) {
-    const monthTransactions = getThisMonthTransactions(transactions);
-    const totals = MoneyFlow.calculateTotals(monthTransactions);
+    const value = $("budgetAmount")?.value;
+    const amount = Number(value);
 
-    setText("monthIncome", MoneyFlow.formatCurrency(totals.income));
-    setText("monthRemaining", MoneyFlow.formatCurrency(totals.balance));
+    if (
+      value === "" ||
+      !Number.isFinite(amount) ||
+      amount < 0
+    ) {
+      MF.showToast(
+        "Enter a valid budget amount.",
+        "error"
+      );
 
-    // No debt-tracking feature exists yet — showing a real ₦0.00
-    // rather than a fabricated number, with an honest subtitle
-    // already set in the HTML ("Debt tracking is coming soon").
-    setText("monthOwed", MoneyFlow.formatCurrency(0));
-
-    const now = new Date();
-    setText("monthPillLabel", now.toLocaleDateString("en-US", { month: "long", year: "numeric" }));
-  }
-
-  function renderBudgetStrip() {
-    const settings = MoneyFlow.getSettings();
-    setText("budgetStripAmount", MoneyFlow.formatCurrency(settings.monthlyBudget || 0));
-  }
-
-  function renderTransactionsHeading() {
-    const now = new Date();
-    const label = now.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-    setText("transactionsHeading", `Transactions · ${label}`);
-  }
-
-  function renderRecentTransactions(transactions) {
-    const container = document.getElementById("recentTransactions");
-    if (!container) return;
-
-    if (transactions.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state">
-          <h3>No transactions yet</h3>
-          <p>Add your first income or expense to get started.</p>
-          <button id="emptyAddBtn" class="primary-button">Add Transaction</button>
-        </div>
-      `;
-      bindEmptyStateButton();
       return;
     }
 
-    const recent = MoneyFlow.sortByDateDesc(transactions).slice(0, 5);
+    const saved = MF.saveSettings({
+      ...MF.getSettings(),
+      monthlyBudget: amount
+    });
 
-    container.innerHTML = recent
-      .map((t) => {
-        const isIncome = t.type === "income";
-        const sign = isIncome ? "+" : "−";
+    if (!saved) {
+      MF.showToast(
+        "Could not save your budget.",
+        "error"
+      );
 
-        return `
-          <div class="transaction-item ${isIncome ? "income" : "expense"}">
-            <div class="transaction-icon">${isIncome ? "+" : "−"}</div>
-            <div class="transaction-details">
-              <strong>${MoneyFlow.escapeHTML(t.description)}</strong>
-              <span>${MoneyFlow.escapeHTML(t.category)} · ${MoneyFlow.formatDate(t.date)}</span>
-            </div>
-            <div class="transaction-amount ${isIncome ? "income" : "expense"}">
-              ${sign}${MoneyFlow.formatCurrency(t.amount)}
-            </div>
-          </div>
-        `;
-      })
-      .join("");
+      return;
+    }
+
+    closeBudgetModal();
+    MF.showToast("Monthly budget saved.");
+    render();
   }
 
-  function setText(id, value) {
-    const el = document.getElementById(id);
-    if (el) el.textContent = value;
+  /* ==========================================
+     BOTTOM NAVIGATION
+     ========================================== */
+
+  function bindNavigation() {
+
+    // PAYMENTS
+
+    $("navPayments")?.addEventListener(
+      "click",
+      () => {
+        location.href = "payments.html";
+      }
+    );
+
+    // SPENDING
+
+    $("navSpending")?.addEventListener(
+      "click",
+      () => {
+        location.href = "spending.html";
+      }
+    );
+
+    // DEBTS
+
+    $("navDebts")?.addEventListener(
+      "click",
+      () => {
+        location.href = "debts.html";
+      }
+    );
+
+    // MORE — NEW PAGE
+
+    $("navMore")?.addEventListener(
+      "click",
+      () => {
+        location.href = "more.html";
+      }
+    );
+  }
+
+  /* ==========================================
+     REFER FRIENDS
+     ========================================== */
+
+  async function shareMoneyFlow() {
+    const isLocal = [
+      "localhost",
+      "127.0.0.1"
+    ].includes(location.hostname);
+
+    const appUrl = isLocal
+      ? "https://moneyflow-finance.netlify.app/"
+      : new URL(
+          "welcome.html",
+          location.href
+        ).href;
+
+    const shareData = {
+      title: "MoneyFlow",
+      text:
+        "Track your income, expenses and bills with MoneyFlow.",
+      url: appUrl
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        if (error.name !== "AbortError") {
+          MF.showToast(
+            "Couldn't open sharing. Try again.",
+            "error"
+          );
+        }
+      }
+
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(
+        appUrl
+      );
+
+      MF.showToast("MoneyFlow link copied.");
+    } catch (error) {
+      window.prompt(
+        "Copy the MoneyFlow link:",
+        appUrl
+      );
+    }
+  }
+
+  /* ==========================================
+     CALCULATE ACTUAL BORROWED DEBTS
+     ========================================== */
+
+  function borrowedBalance() {
+    let debts;
+
+    try {
+      const data = JSON.parse(
+        localStorage.getItem("moneyflow_debts") ||
+        "[]"
+      );
+
+      if (!Array.isArray(data)) {
+        return null;
+      }
+
+      debts = data;
+
+    } catch (error) {
+      console.error(
+        "MoneyFlow: Could not read debts.",
+        error
+      );
+
+      return null;
+    }
+
+    let amountOwed = 0;
+    let active = 0;
+
+    for (const debt of debts) {
+      if (
+        !debt ||
+        debt.type !== "borrowed"
+      ) {
+        continue;
+      }
+
+      const principal = Number(debt.amount);
+
+      if (
+        !Number.isFinite(principal) ||
+        principal <= 0
+      ) {
+        continue;
+      }
+
+      const payments = Array.isArray(
+        debt.repayments
+      )
+        ? debt.repayments
+        : [];
+
+      const repaid = payments.reduce(
+        (sum, payment) => {
+          const amount = Number(
+            payment?.amount
+          );
+
+          return sum + (
+            Number.isFinite(amount) &&
+            amount > 0
+              ? amount
+              : 0
+          );
+        },
+        0
+      );
+
+      const left = Math.max(
+        0,
+        Math.round(
+          (principal - repaid) * 100
+        ) / 100
+      );
+
+      amountOwed += left;
+
+      if (left > 0) {
+        active++;
+      }
+    }
+
+    return {
+      amountOwed,
+      active
+    };
+  }
+
+  /* ==========================================
+     DASHBOARD DATA
+     ========================================== */
+
+  function render() {
+    const transactions =
+      MF.getTransactions();
+
+    const monthly =
+      thisMonth(transactions);
+
+    const totals =
+      MF.calculateTotals(monthly);
+
+    const settings =
+      MF.getSettings();
+
+    const now = new Date();
+
+    const monthLabel =
+      now.toLocaleDateString("en-GB", {
+        month: "long",
+        year: "numeric"
+      });
+
+    setText(
+      "monthPillLabel",
+      monthLabel
+    );
+
+    setText(
+      "transactionsHeading",
+      `Transactions · ${monthLabel}`
+    );
+
+    setText(
+      "monthIncome",
+      MF.formatCurrency(totals.income)
+    );
+
+    setText(
+      "monthRemaining",
+      MF.formatCurrency(totals.balance)
+    );
+
+    // REAL DEBT TOTALS
+
+    const debtTotals = borrowedBalance();
+
+    if (debtTotals === null) {
+      setText("monthOwed", "—");
+
+      setText(
+        "owedSummaryNote",
+        "Debt records could not be loaded"
+      );
+
+    } else {
+      setText(
+        "monthOwed",
+        MF.formatCurrency(
+          debtTotals.amountOwed
+        )
+      );
+
+      const debtNote =
+        debtTotals.active === 0
+          ? "No outstanding borrowed debts"
+          : `${debtTotals.active} active borrowed ${
+              debtTotals.active === 1
+                ? "debt"
+                : "debts"
+            }`;
+
+      setText(
+        "owedSummaryNote",
+        debtNote
+      );
+    }
+
+    setText(
+      "incomeSummaryNote",
+      totals.income > 0
+        ? "Income recorded this month"
+        : "No income logged yet — tap to add one"
+    );
+
+    const budget =
+      Number(settings.monthlyBudget) || 0;
+
+    const budgetMessage =
+      budget > 0
+        ? `Your monthly budget is ${MF.formatCurrency(budget)}. Tap to update it.`
+        : "Set a monthly budget to track how much you have left to spend.";
+
+    setText(
+      "budgetStripText",
+      budgetMessage
+    );
+
+    renderRecent(monthly);
+  }
+
+  /* ==========================================
+     CURRENT MONTH TRANSACTIONS
+     ========================================== */
+
+  function thisMonth(transactions) {
+    const now = new Date();
+
+    const monthKey =
+      `${now.getFullYear()}-` +
+      String(
+        now.getMonth() + 1
+      ).padStart(2, "0");
+
+    return transactions.filter(
+      (item) =>
+        typeof item.date === "string" &&
+        item.date.startsWith(monthKey)
+    );
+  }
+
+  /* ==========================================
+     RECENT TRANSACTIONS
+     ========================================== */
+
+  function renderRecent(monthly) {
+    const list = $("recentTransactions");
+
+    if (!list) return;
+
+    if (monthly.length === 0) {
+      list.innerHTML = `
+        <div class="empty-state">
+          <p>
+            No transactions logged yet this month.
+          </p>
+        </div>
+      `;
+
+      return;
+    }
+
+    const recent =
+      MF.sortByDateDesc(monthly)
+        .slice(0, 5);
+
+    list.innerHTML = recent.map(
+      (item) => {
+        const income =
+          item.type === "income";
+
+        const safeName =
+          MF.escapeHTML(
+            item.description || "Transaction"
+          );
+
+        const safeCategory =
+          MF.escapeHTML(
+            item.category || "Other"
+          );
+
+        const sign =
+          income ? "+" : "−";
+
+        const kind =
+          income ? "income" : "expense";
+
+        return `
+          <div class="transaction-item ${kind}">
+
+            <div class="transaction-icon">
+              ${income ? "+" : "−"}
+            </div>
+
+            <div class="transaction-details">
+              <strong>
+                ${safeName}
+              </strong>
+
+              <span>
+                ${safeCategory} ·
+                ${MF.formatDate(item.date)}
+              </span>
+            </div>
+
+            <div class="transaction-amount ${kind}">
+              ${sign}${MF.formatCurrency(item.amount)}
+            </div>
+
+          </div>
+        `;
+      }
+    ).join("");
+  }
+
+  /* ==========================================
+     TEXT HELPER
+     ========================================== */
+
+  function setText(id, text) {
+    const element = $(id);
+
+    if (element) {
+      element.textContent = String(text);
+    }
   }
 
 });

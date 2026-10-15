@@ -1,0 +1,648 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+
+  <!-- MONEYFLOW LOGIN PROTECTION -->
+  <script>
+    (function () {
+      document.documentElement.classList.add("dark");
+
+      try {
+        if (!localStorage.getItem("moneyflow_auth_token")) {
+          window.location.replace("login.html");
+        }
+      } catch (error) {
+        window.location.replace("login.html");
+      }
+    })();
+  </script>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#09090f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <title>MoneyFlow | Calendar</title>
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon-192.png">
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="calendar.css">
+
+  <script src="core.js" defer></script>
+  <script src="calendar.js" defer></script>
+</head>
+
+<body class="calendar-body">
+
+  <main class="calendar-page">
+
+    <!-- =====================================
+         HEADER
+    ====================================== -->
+
+    <header class="calendar-header">
+
+      <a
+        href="more.html"
+        class="calendar-back"
+        aria-label="Back to More"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M19 12H5"/>
+          <path d="m12 19-7-7 7-7"/>
+        </svg>
+      </a>
+
+      <h1>Calendar</h1>
+
+      <button
+        type="button"
+        id="calendarAddTopBtn"
+        class="calendar-add-top"
+        data-calendar-add
+        aria-label="Add something"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14M5 12h14"/>
+        </svg>
+      </button>
+
+    </header>
+
+
+    <!-- =====================================
+         MONTHLY OVERVIEW
+    ====================================== -->
+
+    <section
+      class="calendar-overview"
+      aria-labelledby="calendarOverviewHeading"
+    >
+
+      <div
+        class="calendar-overview-decoration"
+        aria-hidden="true"
+      >
+        <svg
+          viewBox="0 0 130 130"
+          fill="none"
+        >
+          <circle
+            cx="65"
+            cy="65"
+            r="55"
+            stroke="currentColor"
+            stroke-width="2"
+            opacity=".2"
+          />
+          <circle
+            cx="65"
+            cy="65"
+            r="37"
+            stroke="currentColor"
+            stroke-width="2"
+            opacity=".12"
+          />
+          <path
+            d="M27 83 49 62 67 72 99 37"
+            stroke="currentColor"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity=".45"
+          />
+          <path
+            d="M81 37h18v18"
+            stroke="currentColor"
+            stroke-width="6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            opacity=".45"
+          />
+        </svg>
+      </div>
+
+      <div class="calendar-overview-content">
+
+        <h2 id="calendarOverviewHeading">
+          <span id="calendarOverviewMonth">
+            Monthly
+          </span>
+          Overview
+        </h2>
+
+        <div
+          id="calendarRemaining"
+          class="calendar-overview-amount"
+          aria-live="polite"
+        >
+          —
+        </div>
+
+        <p id="calendarRemainingLabel">
+          Remaining to spend this month
+        </p>
+
+        <div class="calendar-summary-chips">
+
+          <!-- INCOME -->
+
+          <div class="calendar-summary-chip">
+
+            <span
+              class="calendar-summary-dot income"
+              aria-hidden="true"
+            ></span>
+
+            <span>
+              Income
+              <strong id="calendarIncomeValue">
+                ₦0.00
+              </strong>
+            </span>
+
+          </div>
+
+          <!-- SPENT -->
+
+          <div class="calendar-summary-chip">
+
+            <span
+              class="calendar-summary-dot spent"
+              aria-hidden="true"
+            ></span>
+
+            <span>
+              Spent
+              <strong id="calendarSpentValue">
+                ₦0.00
+              </strong>
+            </span>
+
+          </div>
+
+          <!-- BUDGET -->
+
+          <div class="calendar-summary-chip">
+
+            <span
+              class="calendar-summary-dot budget"
+              aria-hidden="true"
+            ></span>
+
+            <span>
+              Budget
+              <strong id="calendarBudgetValue">
+                ₦0.00
+              </strong>
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         FINANCIAL ACTIVITY LEGEND
+    ====================================== -->
+
+    <section
+      class="calendar-legend"
+      aria-label="Calendar activity colors"
+    >
+
+      <div class="calendar-legend-item">
+        <span class="calendar-dot payments"></span>
+        <span>Payments</span>
+      </div>
+
+      <div class="calendar-legend-item">
+        <span class="calendar-dot income"></span>
+        <span>Income</span>
+      </div>
+
+      <div class="calendar-legend-item">
+        <span class="calendar-dot spending"></span>
+        <span>Spending</span>
+      </div>
+
+      <div class="calendar-legend-item">
+        <span class="calendar-dot debts"></span>
+        <span>Debts</span>
+      </div>
+
+      <div class="calendar-legend-item">
+        <span class="calendar-dot insurance"></span>
+        <span>Insurance</span>
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         MONTH NAVIGATION
+    ====================================== -->
+
+    <section
+      class="calendar-month-section"
+      aria-label="Monthly calendar"
+    >
+
+      <div class="calendar-month-navigation">
+
+        <button
+          type="button"
+          id="calendarPreviousMonth"
+          class="calendar-month-button"
+          aria-label="Previous month"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m15 18-6-6 6-6"/>
+          </svg>
+        </button>
+
+        <h2
+          id="calendarMonthTitle"
+          aria-live="polite"
+        >
+          Calendar
+        </h2>
+
+        <button
+          type="button"
+          id="calendarNextMonth"
+          class="calendar-month-button"
+          aria-label="Next month"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="m9 6 6 6-6 6"/>
+          </svg>
+        </button>
+
+      </div>
+
+
+      <!-- WEEKDAY HEADINGS -->
+
+      <div
+        class="calendar-weekdays"
+        aria-hidden="true"
+      >
+        <span>Sun</span>
+        <span>Mon</span>
+        <span>Tue</span>
+        <span>Wed</span>
+        <span>Thu</span>
+        <span>Fri</span>
+        <span>Sat</span>
+      </div>
+
+
+      <!-- ACTUAL CALENDAR DAYS -->
+
+      <div
+        id="calendarDays"
+        class="calendar-days"
+        aria-label="Select a date"
+      >
+        <!-- Populated by calendar.js -->
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         SELECTED DAY ACTIVITIES
+    ====================================== -->
+
+    <section
+      class="calendar-activities"
+      aria-labelledby="calendarSelectedDate"
+    >
+
+      <div class="calendar-activities-heading">
+
+        <h2 id="calendarSelectedDate">
+          Selected Day
+        </h2>
+
+        <span
+          id="calendarEventCount"
+          class="calendar-event-count"
+        >
+          0 activities
+        </span>
+
+      </div>
+
+      <div
+        id="calendarDayEvents"
+        class="calendar-event-list"
+        aria-live="polite"
+      >
+        <!-- Populated by calendar.js -->
+      </div>
+
+
+      <!-- EMPTY STATE -->
+
+      <div
+        id="calendarEmptyState"
+        class="calendar-empty-state"
+      >
+
+        <div
+          class="calendar-empty-illustration"
+          aria-hidden="true"
+        >
+
+          <svg
+            viewBox="0 0 100 100"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect
+              x="20"
+              y="22"
+              width="60"
+              height="58"
+              rx="9"
+            />
+
+            <path d="M20 39h60"/>
+            <path d="M35 15v15M65 15v15"/>
+
+            <rect
+              x="34"
+              y="51"
+              width="9"
+              height="9"
+              rx="2"
+            />
+
+            <rect
+              x="55"
+              y="51"
+              width="9"
+              height="9"
+              rx="2"
+            />
+          </svg>
+
+        </div>
+
+        <h3>Nothing scheduled.</h3>
+
+        <p>
+          Your payments, income, spending,
+          debts and insurance dates will
+          appear here when recorded.
+        </p>
+
+        <button
+          type="button"
+          id="calendarAddEmptyBtn"
+          class="calendar-empty-add"
+          data-calendar-add
+        >
+          <span aria-hidden="true">+</span>
+          Add something
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =====================================
+         ADD SOMETHING BOTTOM SHEET
+    ====================================== -->
+
+    <div
+      id="calendarAddOverlay"
+      class="calendar-add-overlay"
+      hidden
+    >
+
+      <section
+        class="calendar-add-sheet"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="calendarAddTitle"
+        tabindex="-1"
+      >
+
+        <div
+          class="calendar-sheet-handle"
+          aria-hidden="true"
+        ></div>
+
+        <header class="calendar-sheet-header">
+
+          <h2 id="calendarAddTitle">
+            Add Something
+          </h2>
+
+          <button
+            type="button"
+            id="calendarCloseAddBtn"
+            class="calendar-sheet-close"
+            aria-label="Close"
+          >
+            ×
+          </button>
+
+        </header>
+
+        <p class="calendar-sheet-description">
+          Choose what you'd like to record
+          in MoneyFlow.
+        </p>
+
+        <nav
+          class="calendar-add-options"
+          aria-label="Add financial activity"
+        >
+
+          <a
+            href="income.html?from=calendar"
+            class="calendar-add-option"
+          >
+            <span class="calendar-option-icon income">
+              <svg viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="m4 17 7-7 4 4 5-7"/>
+                <path d="M15 7h5v5"/>
+              </svg>
+            </span>
+            <span class="calendar-option-text">
+              <strong>Income</strong>
+              <small>Record money received</small>
+            </span>
+            <span class="calendar-option-arrow">›</span>
+          </a>
+
+          <a
+            href="spending.html?from=calendar"
+            class="calendar-add-option"
+          >
+            <span class="calendar-option-icon spending">
+              <svg viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="6" width="18"
+                  height="13" rx="2"/>
+                <path d="M3 10h18"/>
+              </svg>
+            </span>
+            <span class="calendar-option-text">
+              <strong>Spending</strong>
+              <small>Add an expense</small>
+            </span>
+            <span class="calendar-option-arrow">›</span>
+          </a>
+
+          <a
+            href="payments.html?from=calendar"
+            class="calendar-add-option"
+          >
+            <span class="calendar-option-icon payments">
+              <svg viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="5" width="18"
+                  height="14" rx="2"/>
+                <path d="M3 10h18"/>
+              </svg>
+            </span>
+            <span class="calendar-option-text">
+              <strong>Payments</strong>
+              <small>Record a bill or due date</small>
+            </span>
+            <span class="calendar-option-arrow">›</span>
+          </a>
+
+          <a
+            href="debts.html?from=calendar"
+            class="calendar-add-option"
+          >
+            <span class="calendar-option-icon debts">
+              <svg viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="8" cy="8" r="3"/>
+                <path d="M2 21v-2a6 6 0 0 1 12 0v2"/>
+                <path d="M17 9h5M19.5 6.5v5"/>
+              </svg>
+            </span>
+            <span class="calendar-option-text">
+              <strong>Debts</strong>
+              <small>Track a debt or repayment</small>
+            </span>
+            <span class="calendar-option-arrow">›</span>
+          </a>
+
+          <a
+            href="insurance.html"
+            class="calendar-add-option"
+          >
+            <span class="calendar-option-icon insurance">
+              <svg viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path
+                  d="M12 2 20 5v6c0 5-3.1 8.7-8
+                  11-4.9-2.3-8-6-8-11V5l8-3Z"
+                />
+                <path d="m8 12 3 3 5-6"/>
+              </svg>
+            </span>
+            <span class="calendar-option-text">
+              <strong>Insurance</strong>
+              <small>Track a policy or renewal</small>
+            </span>
+            <span class="calendar-option-arrow">›</span>
+          </a>
+
+        </nav>
+
+      </section>
+
+    </div>
+
+  </main>
+
+</body>
+</html>

@@ -1,0 +1,907 @@
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <!-- MONEYFLOW: prevent placeholder totals and empty states from flashing before JS renders. -->
+  <style>
+    html.mf-awaiting-render { background: #09090f !important; }
+    html.mf-awaiting-render body { visibility: hidden !important; }
+  </style>
+  <script>
+    (function () {
+      const root = document.documentElement;
+      root.classList.add("mf-awaiting-render");
+      let released = false;
+      function revealReadyPage() {
+        if (released) return;
+        released = true;
+        requestAnimationFrame(() => root.classList.remove("mf-awaiting-render"));
+      }
+      // Deferred page scripts run before this event, and their render
+      // listeners finish before the animation-frame reveal.
+      document.addEventListener("DOMContentLoaded", revealReadyPage, { once: true });
+      window.addEventListener("pageshow", revealReadyPage, { once: true });
+      // Fail open if a third-party resource unexpectedly stalls.
+      window.setTimeout(revealReadyPage, 3000);
+    })();
+  </script>
+
+  <meta charset="UTF-8">
+
+  <!-- LOGIN PROTECTION -->
+  <script>
+    (function () {
+      document.documentElement.classList.add("dark");
+
+      try {
+        const token = localStorage.getItem(
+          "moneyflow_auth_token"
+        );
+
+        if (!token) {
+          window.location.replace("login.html");
+        }
+      } catch (error) {
+        window.location.replace("login.html");
+      }
+    })();
+  </script>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#09090f">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
+  <meta
+    name="apple-mobile-web-app-status-bar-style"
+    content="black-translucent"
+  >
+
+  <title>MoneyFlow | Refer Friends</title>
+
+  <!-- OFFICIAL MONEYFLOW ICON -->
+
+  <link rel="manifest" href="manifest.json">
+
+  <link
+    rel="icon"
+    type="image/png"
+    href="icons/icon-192.png"
+  >
+
+  <link
+    rel="apple-touch-icon"
+    href="icons/icon-192.png"
+  >
+
+  <!-- STYLES -->
+
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="stylesheet" href="refer.css">
+
+  <!-- SCRIPTS -->
+
+  <script src="core.js" defer></script>
+
+  <script src="refer.js" defer></script>
+
+</head>
+
+<body class="refer-body">
+
+  <main class="refer-page">
+
+    <!-- ==================================
+         REFER FRIENDS HEADER
+    =================================== -->
+
+    <header class="refer-header">
+
+      <a
+        href="more.html"
+        class="refer-back-button"
+        aria-label="Back to More"
+      >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M19 12H5"/>
+          <path d="m12 19-7-7 7-7"/>
+        </svg>
+      </a>
+
+      <h1>Refer Friends</h1>
+
+      <span
+        class="refer-header-spacer"
+        aria-hidden="true"
+      ></span>
+
+    </header>
+
+
+    <!-- ==================================
+         HERO INVITATION BANNER
+    =================================== -->
+
+    <section
+      class="refer-hero"
+      aria-labelledby="referHeroTitle"
+    >
+
+      <div class="refer-hero-copy">
+
+        <div class="refer-hero-logo">
+          <img
+            src="icons/icon-192.png"
+            alt="MoneyFlow official logo"
+            width="48"
+            height="48"
+          >
+        </div>
+
+        <h2 id="referHeroTitle">
+          Invite friends to
+          <span>MoneyFlow</span>
+        </h2>
+
+        <p>
+          Help the people you care about
+          get on top of their money too.
+        </p>
+
+      </div>
+
+
+      <!-- DECORATIVE FINANCE ILLUSTRATION -->
+
+      <div
+        class="refer-hero-art"
+        aria-hidden="true"
+      >
+
+        <svg
+          class="refer-hero-illustration"
+          viewBox="0 0 360 260"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+
+          <defs>
+
+            <linearGradient
+              id="referPhoneGradient"
+              x1="0" y1="0"
+              x2="1" y2="1"
+            >
+              <stop stop-color="#293E49"/>
+              <stop offset="1" stop-color="#0B141C"/>
+            </linearGradient>
+
+            <linearGradient
+              id="referShirtOne"
+              x1="0" y1="0"
+              x2="1" y2="1"
+            >
+              <stop stop-color="#3DDDB0"/>
+              <stop offset="1" stop-color="#128769"/>
+            </linearGradient>
+
+            <linearGradient
+              id="referShirtTwo"
+              x1="0" y1="0"
+              x2="1" y2="1"
+            >
+              <stop stop-color="#A291FF"/>
+              <stop offset="1" stop-color="#594FB0"/>
+            </linearGradient>
+
+            <linearGradient
+              id="referScreenGradient"
+              x1="0" y1="0"
+              x2="1" y2="1"
+            >
+              <stop stop-color="#182832"/>
+              <stop offset="1" stop-color="#0B101A"/>
+            </linearGradient>
+
+          </defs>
+
+
+          <!-- BACKGROUND LIGHT -->
+
+          <circle
+            cx="205"
+            cy="116"
+            r="111"
+            fill="#30D6A5"
+            fill-opacity=".08"
+          />
+
+          <circle
+            cx="198"
+            cy="111"
+            r="77"
+            fill="#8F7DF9"
+            fill-opacity=".09"
+          />
+
+
+          <!-- DECORATIVE SPARKLES -->
+
+          <path
+            d="M49 37L54 49L66 54L54 59L49 71L44 59L32 54L44 49Z"
+            fill="#B0A2FF"
+          />
+
+          <path
+            d="M304 35L308 45L318 49L308 53L304 63L300 53L290 49L300 45Z"
+            fill="#71F1C8"
+          />
+
+          <path
+            d="M323 177L327 185L335 189L327 193L323 201L319 193L311 189L319 185Z"
+            fill="#AC9AFF"
+          />
+
+          <circle
+            cx="90"
+            cy="27"
+            r="3"
+            fill="#5AE7BB"
+          />
+
+          <circle
+            cx="346"
+            cy="95"
+            r="3"
+            fill="#AE9AFF"
+          />
+
+
+          <!-- FINANCE PHONE -->
+
+          <g transform="translate(146 7) rotate(9 71 109)">
+
+            <rect
+              x="6" y="4"
+              width="142" height="222"
+              rx="23"
+              fill="#080C15"
+              stroke="#A6A0EF"
+              stroke-width="4"
+            />
+
+            <rect
+              x="14" y="13"
+              width="126" height="204"
+              rx="17"
+              fill="url(#referScreenGradient)"
+            />
+
+            <rect
+              x="48" y="16"
+              width="59" height="9"
+              rx="4.5"
+              fill="#050910"
+            />
+
+            <text
+              x="28"
+              y="51"
+              fill="#FFFFFF"
+              font-size="13"
+              font-weight="700"
+              font-family="Arial,sans-serif"
+            >
+              MoneyFlow
+            </text>
+
+            <text
+              x="28"
+              y="79"
+              fill="#A8BAC6"
+              font-size="9"
+              font-family="Arial,sans-serif"
+            >
+              Your money overview
+            </text>
+
+            <rect
+              x="26" y="92"
+              width="103" height="58"
+              rx="11"
+              fill="#193C37"
+            />
+
+            <path
+              d="M37 132L55 116L70 123L88 104L99 111L119 97"
+              stroke="#42E2AE"
+              stroke-width="4"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+
+            <circle
+              cx="119"
+              cy="97"
+              r="4"
+              fill="#61F0C2"
+            />
+
+            <rect
+              x="26" y="161"
+              width="103" height="13"
+              rx="6"
+              fill="#283840"
+            />
+
+            <rect
+              x="26" y="183"
+              width="82" height="12"
+              rx="6"
+              fill="#283840"
+            />
+
+          </g>
+
+
+          <!-- FRIEND ONE -->
+
+          <g transform="translate(21 85)">
+
+            <!-- HAIR -->
+
+            <path
+              d="M45 32C43 11 65 0 87 8C102 12 110 30 103 49L44 54Z"
+              fill="#242030"
+            />
+
+            <!-- FACE -->
+
+            <ellipse
+              cx="74"
+              cy="47"
+              rx="27"
+              ry="33"
+              fill="#D99B78"
+            />
+
+            <path
+              d="M47 32C50 8 91 4 102 28C88 25 83 20 77 19C68 31 61 32 47 32Z"
+              fill="#242030"
+            />
+
+            <circle
+              cx="65"
+              cy="47"
+              r="2"
+              fill="#30252B"
+            />
+
+            <circle
+              cx="84"
+              cy="47"
+              r="2"
+              fill="#30252B"
+            />
+
+            <path
+              d="M69 61Q76 67 83 60"
+              stroke="#8F514A"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+
+            <!-- BODY -->
+
+            <path
+              d="M25 103Q35 77 72 77Q109 77 121 105L132 169H9Z"
+              fill="url(#referShirtOne)"
+            />
+
+            <path
+              d="M50 87L72 111L92 87"
+              stroke="#0E755F"
+              stroke-width="4"
+              stroke-linecap="round"
+            />
+
+            <!-- ARM -->
+
+            <path
+              d="M106 114Q128 107 150 119"
+              stroke="#159879"
+              stroke-width="21"
+              stroke-linecap="round"
+            />
+
+            <ellipse
+              cx="150"
+              cy="120"
+              rx="12"
+              ry="10"
+              fill="#D99B78"
+            />
+
+          </g>
+
+
+          <!-- FRIEND TWO -->
+
+          <g transform="translate(223 116)">
+
+            <!-- HAIR -->
+
+            <path
+              d="M22 55C13 17 32 2 62 3C92 3 107 25 99 58L110 124H9Z"
+              fill="#29203B"
+            />
+
+            <!-- FACE -->
+
+            <ellipse
+              cx="62"
+              cy="47"
+              rx="28"
+              ry="34"
+              fill="#E4B293"
+            />
+
+            <path
+              d="M32 37C32 9 56 5 73 15C83 10 93 21 93 40C81 36 71 31 67 25C57 37 46 39 32 37Z"
+              fill="#29203B"
+            />
+
+            <circle
+              cx="53"
+              cy="50"
+              r="2"
+              fill="#382A35"
+            />
+
+            <circle
+              cx="73"
+              cy="50"
+              r="2"
+              fill="#382A35"
+            />
+
+            <path
+              d="M55 64Q63 70 73 63"
+              stroke="#A55F61"
+              stroke-width="2.5"
+              stroke-linecap="round"
+            />
+
+            <!-- BODY -->
+
+            <path
+              d="M20 111Q28 82 62 82Q94 82 107 111L120 151H5Z"
+              fill="url(#referShirtTwo)"
+            />
+
+            <!-- PHONE IN HAND -->
+
+            <rect
+              x="23"
+              y="105"
+              width="34"
+              height="51"
+              rx="6"
+              fill="#111622"
+              stroke="#8D83DD"
+              stroke-width="2"
+              transform="rotate(-12 40 130)"
+            />
+
+            <path
+              d="M21 133Q28 120 40 122"
+              stroke="#E4B293"
+              stroke-width="12"
+              stroke-linecap="round"
+            />
+
+          </g>
+
+        </svg>
+
+      </div>
+
+    </section>
+
+
+    <!-- ==================================
+         BENEFITS CARD
+    =================================== -->
+
+    <section
+      class="refer-benefits"
+      aria-label="Why invite friends"
+    >
+
+      <!-- BENEFIT ONE -->
+
+      <div class="refer-benefit-row">
+
+        <div
+          class="refer-benefit-icon"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="5" width="18" height="14" rx="2"/>
+            <path d="M3 10h18"/>
+          </svg>
+        </div>
+
+        <div class="refer-benefit-content">
+
+          <h3>All-in-one Finance</h3>
+
+          <p>
+            Track payments, spending, income,
+            and debts in one place.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- BENEFIT TWO -->
+
+      <div class="refer-benefit-row">
+
+        <div
+          class="refer-benefit-icon"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>
+            <path d="m5.6 5.6 2.1 2.1M16.3 16.3l2.1 2.1"/>
+            <path d="m18.4 5.6-2.1 2.1M7.7 16.3l-2.1 2.1"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+        </div>
+
+        <div class="refer-benefit-content">
+
+          <h3>Simple &amp; Easy</h3>
+
+          <p>
+            Keep track of your money using
+            clear, easy-to-use financial tools.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- BENEFIT THREE -->
+
+      <div class="refer-benefit-row">
+
+        <div
+          class="refer-benefit-icon"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <path
+              d="M12 2 20 5v6c0 5-3.1 8.7-8 11-4.9-2.3-8-6-8-11V5l8-3Z"
+            />
+            <path d="m8.5 12 2.5 2.5 4.8-5"/>
+          </svg>
+        </div>
+
+        <div class="refer-benefit-content">
+
+          <h3>Stay in Control</h3>
+
+          <p>
+            Organize your bills and track
+            outstanding debts more confidently.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ==================================
+         SHARE VIA
+    =================================== -->
+
+    <section
+      class="refer-share-section"
+      aria-labelledby="referShareHeading"
+    >
+
+      <h2 id="referShareHeading">
+        Share via
+      </h2>
+
+      <div class="refer-share-grid">
+
+        <!-- WHATSAPP -->
+
+        <button
+          type="button"
+          id="referWhatsAppBtn"
+          class="refer-share-card"
+          aria-label="Invite friends via WhatsApp"
+        >
+
+          <span
+            class="refer-share-icon refer-whatsapp-icon"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path
+                d="M20.3 11.6a8.4 8.4 0 0 1-12.1 7.5L3 20.7l1.6-5A8.4 8.4 0 1 1 20.3 11.6Z"
+              />
+              <path
+                d="M8.5 8.5c-.5.7-.4 1.6.1 2.6a9.5 9.5 0 0 0 4.3 4.2c1 .5 1.9.6 2.5.1l1-1.1-2.3-1.1-1 1.1c-1.2-.6-2.2-1.6-2.8-2.8l1-1-1.3-2.1-1.5 1.4Z"
+                transform="translate(0 2)"
+              />
+            </svg>
+          </span>
+
+          <span class="refer-share-text">
+            <strong>WhatsApp</strong>
+            <small>Send invite</small>
+          </span>
+
+          <span
+            class="refer-share-chevron"
+            aria-hidden="true"
+          >›</span>
+
+        </button>
+
+
+        <!-- EMAIL -->
+
+        <button
+          type="button"
+          id="referEmailBtn"
+          class="refer-share-card"
+          aria-label="Invite friends via email"
+        >
+
+          <span
+            class="refer-share-icon refer-email-icon"
+            aria-hidden="true"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect
+                x="3" y="5"
+                width="18"
+                height="14"
+                rx="2"
+              />
+              <path d="m4 7 8 6 8-6"/>
+            </svg>
+          </span>
+
+          <span class="refer-share-text">
+            <strong>Email</strong>
+            <small>Send invite</small>
+          </span>
+
+          <span
+            class="refer-share-chevron"
+            aria-hidden="true"
+          >›</span>
+
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- ==================================
+         COPY WEBSITE LINK
+    =================================== -->
+
+    <section
+      class="refer-link-section"
+      aria-labelledby="referLinkHeading"
+    >
+
+      <h2 id="referLinkHeading">
+        Or copy the link
+      </h2>
+
+      <div class="refer-link-card">
+
+        <span
+          class="refer-link-icon"
+          aria-hidden="true"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+          >
+            <path
+              d="M10 13a5 5 0 0 0 7.1 0l2-2A5 5 0 0 0 12 3.9L10.8 5"
+            />
+            <path
+              d="M14 11a5 5 0 0 0-7.1 0l-2 2A5 5 0 0 0 12 20.1l1.2-1.1"
+            />
+          </svg>
+        </span>
+
+        <div class="refer-link-content">
+
+          <label
+            for="referLinkInput"
+            class="refer-link-label"
+          >
+            MoneyFlow website
+          </label>
+
+          <input
+            type="text"
+            id="referLinkInput"
+            class="refer-link-input"
+            readonly
+            placeholder="MoneyFlow website link"
+            aria-label="MoneyFlow website invitation link"
+          >
+
+        </div>
+
+        <button
+          type="button"
+          id="referCopyLinkBtn"
+          class="refer-copy-button"
+        >
+          Copy
+        </button>
+
+      </div>
+
+      <p class="refer-link-note">
+        Share this link with your friends.
+        They can open MoneyFlow in their browser.
+      </p>
+
+      <p
+        id="referShareFeedback"
+        class="refer-feedback"
+        role="status"
+        aria-live="polite"
+      ></p>
+
+    </section>
+
+
+    <!-- ==================================
+         BOTTOM DECORATION
+    =================================== -->
+
+    <div
+      class="refer-bottom-art"
+      aria-hidden="true"
+    >
+      <svg
+        viewBox="0 0 360 65"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M20 49Q81 4 139 40T266 29T342 37"
+          stroke="#38D5A7"
+          stroke-width="2"
+          stroke-dasharray="5 8"
+          opacity=".55"
+        />
+
+        <circle
+          cx="130"
+          cy="35"
+          r="17"
+          fill="#28382F"
+        />
+
+        <circle
+          cx="130"
+          cy="31"
+          r="5"
+          fill="#55DBB0"
+        />
+
+        <path
+          d="M118 45Q130 33 142 45"
+          stroke="#55DBB0"
+          stroke-width="4"
+          stroke-linecap="round"
+        />
+
+        <circle
+          cx="220"
+          cy="30"
+          r="17"
+          fill="#302C4B"
+        />
+
+        <circle
+          cx="220"
+          cy="26"
+          r="5"
+          fill="#A99BFF"
+        />
+
+        <path
+          d="M208 40Q220 28 232 40"
+          stroke="#A99BFF"
+          stroke-width="4"
+          stroke-linecap="round"
+        />
+
+        <path
+          d="M297 10 334 18 306 28 297 10Z"
+          fill="#66E5BC"
+        />
+
+      </svg>
+    </div>
+
+  </main>
+
+</body>
+</html>
